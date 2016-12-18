@@ -16,7 +16,7 @@ public class Traitement {
     si oui renvoie l'existant
     sinon renvoie le nouveau créé
     */
-    public static Sommet ajoutSommet(Double i, Double j, Double resolution, Sommet existant, Charger ch) {
+    public static Sommet creationSommet(Double i, Double j, Double resolution, Charger ch) {
         int pixel;
         int rouge;
         int vert;
@@ -25,24 +25,14 @@ public class Traitement {
         int k = (int) Math.round(i);
         int l = (int) Math.round(j);
         Double hauteur;
-        
         pixel = ch.getImage().getRGB(k,l);
-        
         rouge = (pixel >> 16) & 0xff;
         vert = (pixel >> 8) & 0xff;
         bleu = (pixel) & 0xff;
         moyenne = (rouge+vert+bleu)/3;
-               
         hauteur = resolution*moyenne;
-        if((int)Math.round(existant.getX()) == (int)Math.round(i)
-                && (int)Math.round(existant.getY()) == (int)Math.round(hauteur)
-                && (int)Math.round(existant.getZ()) == (int)Math.round(j)) {
-            return existant;
-        }
-        else {
-            Sommet sommet = new Sommet(i, hauteur, j);
+        Sommet sommet = new Sommet(i, hauteur, j);
         return sommet;
-        }
     }
     
     public static void creuserRectangle(Maillage m, Charger ch, Double longueur, Double largeur) {
@@ -62,36 +52,39 @@ public class Traitement {
         }
     }
     
-    public static void traitementNiveauDeGris (Charger ch, Maillage m, Double max, int min) {
+    public static void traitementNiveauDeGris(Charger ch, Maillage m, Double max, int min) {
         
         int rouge;
         int vert;
         int bleu;
         int moyenne;
         int pixel = 0;
-        int couleur=0;
+        int couleur = 0;
         Double hauteurSommet = 0.0;
         Double resolution = max/256;
-        Sommet tempHG = new Sommet(0.0,0.0,0.0);
-        Sommet tempHD = new Sommet(0.0,0.0,0.0);
-        Sommet tempBG = new Sommet(0.0,0.0,0.0);
-        Sommet tempBD = new Sommet(0.0,0.0,0.0);
-        Sommet sommetHG, socleHG, sommetHD, socleHD, sommetBG, socleBG, sommetBD, socleBD;
+        Sommet sommetHG;
+        Sommet socleHG;
+        Sommet sommetHD;
+        Sommet socleHD;
+        Sommet sommetBG;
+        Sommet socleBG;
+        Sommet sommetBD;
+        Sommet socleBD;
         
-        for (Double i=1.0; i<ch.getLargeur()-1; i++) {
-            for(Double j=1.0; j<ch.getHauteur()-1; j++) {
+        for (Double i = 0.0; i < ch.getLargeur() - 1; i++) {
+            for(Double j = 0.0; j < ch.getHauteur() - 1; j++) {
                 
-                sommetHG = ajoutSommet(i,j,resolution,tempHG,ch); 
+                sommetHG = creationSommet(i,j,resolution, ch);
                 m.getEnsembleSommets().put(sommetHG.getId(), sommetHG);
                 
-                sommetHD = ajoutSommet(i+1, j, resolution, tempHD,ch);
-                m.getEnsembleSommets().put(sommetHD.getId(), sommetHD); 
+                sommetHD = creationSommet(i+1, j, resolution, ch);
+                m.getEnsembleSommets().put(sommetHD.getId(), sommetHD);
                 
-                sommetBG = ajoutSommet(i, j+1, resolution, tempBG,ch);
+                sommetBG = creationSommet(i, j+1, resolution, ch);
                 m.getEnsembleSommets().put(sommetBG.getId(), sommetBG);
                 
-                sommetBD = ajoutSommet(i+1, j+1, resolution, tempBD,ch);
-                m.getEnsembleSommets().put(sommetBD.getId(), sommetBD); 
+                sommetBD = creationSommet(i+1, j+1, resolution, ch);
+                m.getEnsembleSommets().put(sommetBD.getId(), sommetBD);
                 
                 Face triangleG = new Face(sommetHG.getId(),sommetHD.getId(),sommetBG.getId());
                 Face triangleD = new Face(sommetHD.getId(),sommetBD.getId(),sommetBG.getId());
@@ -132,6 +125,40 @@ public class Traitement {
                 //ajout des faces du socle
                 m.getEnsembleFaces().add(socleTriangleG);
                 m.getEnsembleFaces().add(socleTriangleD);
+                
+                // COTES
+                    // Cote gauche
+                if(i == 0) {
+                    Face cote1 = new Face(sommetHG.getId(), sommetBG.getId(), socleHG.getId());
+                    Face cote2 = new Face(sommetBG.getId(), socleHG.getId(), socleBG.getId());
+                    
+                    m.getEnsembleFaces().add(cote1);
+                    m.getEnsembleFaces().add(cote2);
+                }
+                    // Cote haut
+                if(j == 0) {
+                    Face cote1 = new Face(sommetHG.getId(), sommetHD.getId(), socleHG.getId());
+                    Face cote2 = new Face(sommetHD.getId(), socleHD.getId(), socleHG.getId());
+                    
+                    m.getEnsembleFaces().add(cote1);
+                    m.getEnsembleFaces().add(cote2);
+                }
+                    // Cote droit
+                if(i == (ch.getLargeur() - 2)) {
+                    Face cote1 = new Face(sommetHD.getId(), sommetBD.getId(), socleHD.getId());
+                    Face cote2 = new Face(sommetBD.getId(), socleBD.getId(), socleHD.getId());
+                    
+                    m.getEnsembleFaces().add(cote1);
+                    m.getEnsembleFaces().add(cote2);
+                }
+                    // Cote bas
+                if(j == (ch.getHauteur() - 2)) {
+                    Face cote1 = new Face(sommetBG.getId(), sommetBD.getId(), socleBG.getId());
+                    Face cote2 = new Face(sommetBD.getId(), socleBD.getId(), socleBG.getId());
+                    
+                    m.getEnsembleFaces().add(cote1);
+                    m.getEnsembleFaces().add(cote2);
+                }
             }
         }
         creuserRectangle(m, ch, ch.getHauteur()*0.8, ch.getLargeur()*0.8);
