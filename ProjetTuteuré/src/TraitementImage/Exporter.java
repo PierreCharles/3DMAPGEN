@@ -14,6 +14,13 @@ public class Exporter {
     static public void ExportToObj(Maillage m, String destFile) throws IOException {
         File fi = new File(destFile + "\\maillage.obj");
         try (FileWriter fw = new FileWriter(fi)) {
+            fw.write("# Fichier réalisé par\n");
+            fw.write("# Alexis Dardinier\n");
+            fw.write("# Thomas Klein\n");
+            fw.write("# Pierre Petit\n");
+            fw.write("# Timothé Rouzé\n");
+            fw.write("# Mathieu Vincent\n\n");
+            fw.write("o maillage\n\n");
             Set set = m.getEnsembleSommets().entrySet();
             Iterator it = set.iterator();
             while(it.hasNext()) {
