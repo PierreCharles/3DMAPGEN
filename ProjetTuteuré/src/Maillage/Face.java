@@ -43,6 +43,6 @@ public class Face {
     
     @Override
     public String toString (){
-        return "f " + s1 + "// " + s2 + "// " + s3 + "//\r\n";
+        return "f " + s1 + " " + s2 + " " + s3 + "\r\n";
     }
 }

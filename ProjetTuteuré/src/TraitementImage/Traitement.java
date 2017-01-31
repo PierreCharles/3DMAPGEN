@@ -30,7 +30,8 @@ public class Traitement {
         vert = (pixel >> 8) & 0xff;
         bleu = (pixel) & 0xff;
         moyenne = (rouge+vert+bleu)/3;
-        hauteur = resolution*moyenne;
+        System.out.println("resolution : " + resolution);
+        hauteur = (255 - moyenne) * resolution;
         Sommet sommet = new Sommet(i, hauteur, j);
         return sommet;
     }
