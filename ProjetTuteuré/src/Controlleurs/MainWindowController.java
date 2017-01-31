@@ -1,3 +1,5 @@
+package Controlleurs;
+
 import Maillage.Maillage;
 import TraitementImage.Charger;
 import TraitementImage.Traitement;
@@ -20,19 +22,29 @@ import javafx.stage.DirectoryChooser;
 
 public class MainWindowController extends Stage {
     
-    @FXML MenuItem ouvrir;
+   // @FXML MenuItem ouvrir;
     private String imagePath;
     @FXML private ImageView viewImage;
     @FXML private Label etat;
-    @FXML private Label traitementLabel;
+    //@FXML private Label traitementLabel;
     @FXML private Button traitementButton;
     @FXML private MenuItem close;
-    @FXML private MenuItem enregistrer;
+    @FXML private Button enregistrer;
+    @FXML private Button traitementBtn;
+    @FXML private Button ouvrirBtn;
+    
     
     public  Maillage m;
     
-    public void setEtat(String val) {
-        etat.setText(val);
+    public void initialize() {
+        enregistrer.setDisable(true);
+        traitementBtn.setDisable(true);
+        
+    }
+    public void setButtonTrue() {
+        enregistrer.setDisable(false);
+        traitementBtn.setDisable(false);
+        ouvrirBtn.setDisable(false);
     }
     
     private File selectedFile;
@@ -49,12 +61,10 @@ public class MainWindowController extends Stage {
         if(selectedFile != null) {
             imagePath = selectedFile.toURI().toString();
             viewImage.setImage(new Image(imagePath));
-            setEtat("OK\n" + imagePath);
-            traitementButton.setDisable(false);       
+            traitementBtn.setDisable(false);   
+            ouvrirBtn.setDisable(true);           
         }
-        else{
-            setEtat("Non chargée");
-        }
+
     }
     
     @FXML 
@@ -69,12 +79,11 @@ public class MainWindowController extends Stage {
         m = new Maillage();
         ch.ajouterImage();
         traitementNiveauDeGris(ch, m, 50.0, 0);
-        
-        traitementLabel.setText("Traitement effectué");
         enregistrer.setDisable(false);
+        traitementBtn.setDisable(true);
     }
     @FXML
-    public void enregister(ActionEvent envent) throws IOException{
+    public void enregistrer(ActionEvent envent) throws IOException{
         DirectoryChooser dir = new DirectoryChooser();
         dir.setTitle("Enregistrer");
         dir.setInitialDirectory(new File("C://"));
@@ -84,6 +93,7 @@ public class MainWindowController extends Stage {
         if(selectedSaveFile != null){
             ExportToObj(m,selectedSaveFile.toString());
         }
+        this.setButtonTrue();
     }
 //    public void erreur(){
 //        Stage dialogStage = new Stage();
@@ -96,4 +106,8 @@ public class MainWindowController extends Stage {
 //        dialogStage.setScene(new Scene(vbox));
 //        dialogStage.show();
 //    }
+    
+    public void ouvrirDialogue() {
+        
+    }
 }
