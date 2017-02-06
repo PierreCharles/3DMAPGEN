@@ -4,9 +4,21 @@ import Maillage.Maillage;
 import Maillage.Sommet;
 import Maillage.Face;
 import java.util.ArrayList;
+import java.util.List;
+import javafx.beans.property.StringProperty;
 
 public class Traitement {
+
+    /**
+     *
+     */
+    public StringProperty etat;
     
+    /**
+     * permet de créer un sommet du socle à partir un sommet du maillage de la carte
+     * @param s : Sommet du maillage de la carte
+     * @return : Sommet du socle en dessous du paramètre s
+     */
     public static Sommet pointDuSocle(Sommet s) {
         return new Sommet(s.getX(), -15.0, s.getZ());
     }
@@ -29,25 +41,47 @@ public class Traitement {
         rouge = (pixel >> 16) & 0xff;
         vert = (pixel >> 8) & 0xff;
         bleu = (pixel) & 0xff;
-        moyenne = (rouge+vert+bleu)/3;
-        System.out.println("resolution : " + resolution);
-        hauteur = (255 - moyenne) * resolution;
+        moyenne = 255-(rouge+vert+bleu)/3;
+        hauteur = resolution*moyenne;
         Sommet sommet = new Sommet(i, hauteur, j);
         return sommet;
     }
-    
-    public static void creuserRectangle(Maillage m, Charger ch, Double longueur, Double largeur) {
-        ArrayList<Sommet> listeADeplacer = new ArrayList<>();
-        //récupérer les sommets à déplacer pour le rectangle
+    /**
+     * Retourne une liste de sommets compris dans la zone limitée par depX, finX, depZ, finY
+     * fonctionne uniquement pour les sommets du socle y compris ceux creusés
+     * @param m : maillage contenant tous les points
+     * @param depX : abscisse de la borne gauche de la zone
+     * @param finX : abscisse de la borne droite de la zone
+     * @param depZ : "profondeur" de la borne haute de la zone
+     * @param finZ : "profondeur" de la borne basse de la zone
+     * @return : une liste de sommets qui contient tous ceux présents dans la zone
+     */
+    public static ArrayList<Sommet> recupererZone(Maillage m, Double depX, Double finX, Double depZ, Double finZ) {
+        ArrayList<Sommet> zone = new ArrayList<>();
         for (int i = 0; i < m.getListeSocle().size(); i++) {
-             if (m.getListeSocle().get(i).getX().compareTo((ch.getLargeur() + largeur) / 2) <= 0 
-                     && m.getListeSocle().get(i).getX().compareTo((ch.getLargeur() - largeur) / 2) >= 0) {
-                if (m.getListeSocle().get(i).getZ().compareTo((ch.getHauteur() + longueur) / 2) <= 0 
-                        && m.getListeSocle().get(i).getZ().compareTo((ch.getHauteur() - longueur) / 2) >= 0) {
-                    listeADeplacer.add(m.getListeSocle().get(i));
+             if (m.getListeSocle().get(i).getX().compareTo(depX) >= 0 
+                     && m.getListeSocle().get(i).getX().compareTo(finX) <= 0) {
+                if (m.getListeSocle().get(i).getZ().compareTo(depZ) >= 0 
+                        && m.getListeSocle().get(i).getZ().compareTo(finZ) <= 0) {
+                    zone.add(m.getListeSocle().get(i));
                 }
             }
         }
+        
+        return zone;
+    }
+    
+    
+    /**
+     * Permet de creuser un rectangle sur le socle, centré avec une certaine longueur et une certaine largeur
+     * @param m : maillage contenant tout les sommets
+     * @param ch : image chargée
+     * @param longueur : longueur (Z) du rectangle
+     * @param largeur : largeur (X) du rectangle
+     */
+    public static void creuserRectangle(Maillage m, Charger ch, Double longueur, Double largeur) { 
+        //rajouter test si longueur et largeur inférieur à celles de l'image
+        List<Sommet> listeADeplacer = recupererZone(m, (ch.getLargeur()-largeur)/2 , (ch.getLargeur()+largeur)/2, (ch.getHauteur()-longueur)/2, (ch.getHauteur()+longueur)/2);
         for (int i = 0; i< listeADeplacer.size(); i++) {
             listeADeplacer.get(i).deplacerY(5.0);
         }
@@ -71,6 +105,7 @@ public class Traitement {
         Sommet socleBG;
         Sommet sommetBD;
         Sommet socleBD;
+        
         
         for (Double i = 0.0; i < ch.getLargeur() - 1; i++) {
             for(Double j = 0.0; j < ch.getHauteur() - 1; j++) {

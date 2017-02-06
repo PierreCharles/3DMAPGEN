@@ -37,4 +37,9 @@ public class Exporter {
             e.printStackTrace();
         }
     }
+    
+    static public void createDiretory(String destFile, String dirName) {
+       /* String path = destFile + "\" + dirName;
+        File dir = new File(destFile+ "\" + dirName);*/
+    }
 }
