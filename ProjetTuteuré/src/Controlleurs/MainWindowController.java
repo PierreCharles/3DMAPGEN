@@ -4,7 +4,6 @@ import Maillage.Maillage;
 import TraitementImage.Charger;
 import TraitementImage.Traitement;
 import static TraitementImage.Traitement.traitementNiveauDeGris;
-import static TraitementImage.Exporter.ExportToObj;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +18,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
+import static TraitementImage.Exporter.exportToObj;
 
 public class MainWindowController extends Stage {
     
@@ -91,7 +91,8 @@ public class MainWindowController extends Stage {
         File selectedSaveFile = dir.showDialog(this);
         System.out.println(selectedSaveFile.toString());
         if(selectedSaveFile != null){
-            ExportToObj(m,selectedSaveFile.toString());
+            
+            exportToObj(m,selectedSaveFile.toString());
         }
         this.setButtonTrue();
     }
