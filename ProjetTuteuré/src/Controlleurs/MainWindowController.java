@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 import static TraitementImage.Exporter.exportToObj;
+import static TraitementImage.Exporter.createDirectory;
 
 public class MainWindowController extends Stage {
     
@@ -91,8 +92,8 @@ public class MainWindowController extends Stage {
         File selectedSaveFile = dir.showDialog(this);
         System.out.println(selectedSaveFile.toString());
         if(selectedSaveFile != null){
-            
-            exportToObj(m,selectedSaveFile.toString());
+            createDirectory(selectedSaveFile.toString(), "Maillage");
+            exportToObj(m,selectedSaveFile.toString(), "Maillage", 1);
         }
         this.setButtonTrue();
     }
