@@ -2,7 +2,7 @@ package Controlleurs;
 
 import Maillage.Maillage;
 import TraitementImage.Charger;
-import TraitementImage.Traitement;
+import static TraitementImage.Decoupage.decouperImage;
 import static TraitementImage.Traitement.traitementNiveauDeGris;
 import static TraitementImage.Exporter.ExportToObj;
 
@@ -78,10 +78,12 @@ public class MainWindowController extends Stage {
         Charger ch = new Charger(new File(selectedFile.toURI()));
         m = new Maillage();
         ch.ajouterImage();
-        traitementNiveauDeGris(ch, m, 50.0, 0);
+        decouperImage(ch, 0, 0);
+        traitementNiveauDeGris(ch.getImage(), m, 50.0, 0);
         enregistrer.setDisable(false);
         traitementBtn.setDisable(true);
     }
+    
     @FXML
     public void enregistrer(ActionEvent envent) throws IOException{
         DirectoryChooser dir = new DirectoryChooser();
@@ -90,7 +92,7 @@ public class MainWindowController extends Stage {
         
         File selectedSaveFile = dir.showDialog(this);
         System.out.println(selectedSaveFile.toString());
-        if(selectedSaveFile != null){
+        if(selectedSaveFile != null) {
             ExportToObj(m,selectedSaveFile.toString());
         }
         this.setButtonTrue();
