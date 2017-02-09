@@ -50,6 +50,10 @@ public class Sommet {
         this.id = id;
     }
     
+    public static void resetCpt() {
+        cpt = 1;
+    }
+    
     public boolean equals(Sommet s) {
         return (this==s);
     }

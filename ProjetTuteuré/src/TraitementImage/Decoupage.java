@@ -15,21 +15,20 @@ import java.util.List;
  */
 public class Decoupage {
     
-    public static List<BufferedImage> decouperImage(Charger ch, double longueurVoulue, double largeurVoulue, double tailleImpression) {
+    public static List<BufferedImage> decouperImage(Charger ch, double largeurVoulue, double hauteurVoulue, double tailleImpression) {
         List<BufferedImage> listeImages = new ArrayList<>();
         BufferedImage imageBase = ch.getImage();
-        int longueur = ch.getHauteur();
+        int hauteur = ch.getHauteur();
         int largueur = ch.getLargeur();
-        int nbDecoupeLongueur = (int) Math.ceil(longueurVoulue / tailleImpression);
+        int nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / tailleImpression);
         int nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / tailleImpression);
-        System.out.println("nbDecoupeLongueur : " + nbDecoupeLongueur);
-        System.out.println("nbDecoupeLargeur : " + nbDecoupeLargeur);
-        for(int x = 0; x < nbDecoupeLongueur; x++) {
-            for(int y = 0; y < nbDecoupeLargeur; y++) {
-                System.out.println("coucou");
-                listeImages.add(imageBase.getSubimage((int) Math.floor(x * (longueurVoulue / nbDecoupeLongueur)),
-                        (int) Math.floor(y * (largeurVoulue / nbDecoupeLargeur)),
-                        (int) Math.floor(longueurVoulue / nbDecoupeLongueur), (int) Math.floor(largeurVoulue / nbDecoupeLargeur)));
+        int hauteurParcelle = (int) Math.floor(imageBase.getHeight() / nbDecoupeHauteur);
+        int largeurParcelle = (int) Math.floor(imageBase.getWidth() / nbDecoupeLargeur);
+        System.out.println("hauteurParcelle : " + hauteurParcelle);
+        System.out.println("largeurParcelle : " + largeurParcelle);
+        for(int x = 0; x < nbDecoupeLargeur; x++) {
+            for(int y = 0; y < nbDecoupeHauteur; y++) {
+                listeImages.add(imageBase.getSubimage(x * largeurParcelle, y * hauteurParcelle, largeurParcelle, hauteurParcelle));
             }
         }
         return listeImages;

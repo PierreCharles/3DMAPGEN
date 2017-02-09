@@ -61,8 +61,8 @@ public class Traitement {
     public static ArrayList<Sommet> recupererZone(Maillage m, double depX,double finX, double depZ, double finZ) {
         ArrayList<Sommet> zone = new ArrayList<>();
         for (int i = 0; i < m.getListeSocle().size(); i++) {
-             if (m.getListeSocle().get(i).getX().compareTo(depX) >= 0 && m.getListeSocle().get(i).getX().compareTo(finX) <= 0) {
-                if (m.getListeSocle().get(i).getZ().compareTo(depZ) >= 0 && m.getListeSocle().get(i).getZ().compareTo(finZ) <= 0) {
+             if (m.getListeSocle().get(i).getX() >= depX && m.getListeSocle().get(i).getX() <= finX) {
+                if (m.getListeSocle().get(i).getZ() >= depZ && m.getListeSocle().get(i).getZ() <= finZ) {
                     zone.add(m.getListeSocle().get(i));
                 }
             }

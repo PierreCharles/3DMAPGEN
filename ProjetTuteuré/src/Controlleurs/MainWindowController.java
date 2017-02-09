@@ -81,7 +81,7 @@ public class MainWindowController extends Stage {
         
         Charger ch = new Charger(new File(selectedFile.toURI()));
         ch.ajouterImage();
-        List<BufferedImage> listeImages = decouperImage(ch, 45, 23, 20);
+        List<BufferedImage> listeImages = decouperImage(ch, 45, 45, 20);
         for(BufferedImage image : listeImages) {
             listeParcelles.add(ParcelleToMaillage(image, 50.0, 0));
         }
