@@ -13,7 +13,7 @@ public class Exporter {
     
     
     static public void exportToObj(Maillage m, String destFile,String dirName, int partie) throws IOException {
-        File fi = new File(destFile + "\\" + dirName + "\\" + dirName + "partie" + partie + ".obj");
+        File fi = new File(destFile + "\\" + dirName + "\\" + dirName + "Partie" + partie + ".obj");
         try (FileWriter fw = new FileWriter(fi)) {
             fw.write("# Fichier réalisé par\n");
             fw.write("# Alexis Dardinier\n");

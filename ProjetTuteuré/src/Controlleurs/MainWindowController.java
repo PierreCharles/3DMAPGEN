@@ -3,7 +3,6 @@ package Controlleurs;
 import Maillage.Maillage;
 import TraitementImage.Charger;
 import static TraitementImage.Decoupage.decouperImage;
-import static TraitementImage.Traitement.traitementNiveauDeGris;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +19,10 @@ import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 import static TraitementImage.Exporter.exportToObj;
 import static TraitementImage.Exporter.createDirectory;
+import static TraitementImage.Traitement.ParcelleToMaillage;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainWindowController extends Stage {
     
@@ -35,7 +38,7 @@ public class MainWindowController extends Stage {
     @FXML private Button ouvrirBtn;
     
     
-    public  Maillage m;
+    public List<Maillage> listeParcelles = new ArrayList<>();
     
     public void initialize() {
         enregistrer.setDisable(true);
@@ -75,18 +78,20 @@ public class MainWindowController extends Stage {
     
     @FXML
     public void onTraitement(ActionEvent envent) {
- 
+        
         Charger ch = new Charger(new File(selectedFile.toURI()));
-        m = new Maillage();
         ch.ajouterImage();
-        decouperImage(ch, 0, 0);
-        traitementNiveauDeGris(ch.getImage(), m, 50.0, 0);
+        List<BufferedImage> listeImages = decouperImage(ch, 45, 23, 20);
+        for(BufferedImage image : listeImages) {
+            listeParcelles.add(ParcelleToMaillage(image, 50.0, 0));
+        }
         enregistrer.setDisable(false);
         traitementBtn.setDisable(true);
     }
     
     @FXML
     public void enregistrer(ActionEvent envent) throws IOException{
+        int i = 1;
         DirectoryChooser dir = new DirectoryChooser();
         dir.setTitle("Enregistrer");
         dir.setInitialDirectory(new File("C://"));
@@ -95,7 +100,10 @@ public class MainWindowController extends Stage {
         System.out.println(selectedSaveFile.toString());
         if(selectedSaveFile != null){
             createDirectory(selectedSaveFile.toString(), "Maillage");
-            exportToObj(m,selectedSaveFile.toString(), "Maillage", 1);
+            for(Maillage m : listeParcelles) {
+                exportToObj(m, selectedSaveFile.toString(), "Maillage", i);
+                i++;
+            }
         }
         this.setButtonTrue();
     }

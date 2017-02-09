@@ -29,7 +29,7 @@ public class Traitement {
     si oui renvoie l'existant
     sinon renvoie le nouveau créé
     */
-    public static Sommet creationSommet(Double i, Double j, Double resolution, BufferedImage image) {
+    public static Sommet creationSommet(double i, double j, double resolution, BufferedImage image) {
         int pixel;
         int rouge;
         int vert;
@@ -37,7 +37,7 @@ public class Traitement {
         int moyenne;
         int k = (int) Math.round(i);
         int l = (int) Math.round(j);
-        Double hauteur;
+        double hauteur;
         pixel = image.getRGB(k,l);
         rouge = (pixel >> 16) & 0xff;
         vert = (pixel >> 8) & 0xff;
@@ -58,13 +58,11 @@ public class Traitement {
      * @param finZ : "profondeur" de la borne basse de la zone
      * @return : une liste de sommets qui contient tous ceux présents dans la zone
      */
-    public static ArrayList<Sommet> recupererZone(Maillage m, Double depX, Double finX, Double depZ, Double finZ) {
+    public static ArrayList<Sommet> recupererZone(Maillage m, double depX,double finX, double depZ, double finZ) {
         ArrayList<Sommet> zone = new ArrayList<>();
         for (int i = 0; i < m.getListeSocle().size(); i++) {
-             if (m.getListeSocle().get(i).getX().compareTo(depX) >= 0 
-                     && m.getListeSocle().get(i).getX().compareTo(finX) <= 0) {
-                if (m.getListeSocle().get(i).getZ().compareTo(depZ) >= 0 
-                        && m.getListeSocle().get(i).getZ().compareTo(finZ) <= 0) {
+             if (m.getListeSocle().get(i).getX().compareTo(depX) >= 0 && m.getListeSocle().get(i).getX().compareTo(finX) <= 0) {
+                if (m.getListeSocle().get(i).getZ().compareTo(depZ) >= 0 && m.getListeSocle().get(i).getZ().compareTo(finZ) <= 0) {
                     zone.add(m.getListeSocle().get(i));
                 }
             }
@@ -80,7 +78,7 @@ public class Traitement {
      * @param longueur : longueur (Z) du rectangle
      * @param largeur : largeur (X) du rectangle
      */
-    public static void creuserRectangle(Maillage m, BufferedImage image, Double longueur, Double largeur) { 
+    public static void creuserRectangle(Maillage m, BufferedImage image, double longueur, double largeur) { 
         //rajouter test si longueur et largeur inférieur à celles de l'image
         List<Sommet> listeADeplacer = recupererZone(m, (image.getWidth()-largeur)/2 , (image.getWidth()+largeur)/2, (image.getHeight()-longueur)/2, (image.getHeight()+longueur)/2);
         for (int i = 0; i< listeADeplacer.size(); i++) {
@@ -88,16 +86,17 @@ public class Traitement {
         }
     }
     
-    public static void traitementNiveauDeGris(BufferedImage image, Maillage m, Double max, int min) {
+    public static Maillage ParcelleToMaillage(BufferedImage image, double max, int min) {
         
+        Maillage m = new Maillage();
         int rouge;
         int vert;
         int bleu;
         int moyenne;
         int pixel = 0;
         int couleur = 0;
-        Double hauteurSommet = 0.0;
-        Double resolution = max/256;
+        double hauteurSommet = 0.0;
+        double resolution = max/256;
         Sommet sommetHG;
         Sommet socleHG;
         Sommet sommetHD;
@@ -107,8 +106,8 @@ public class Traitement {
         Sommet sommetBD;
         Sommet socleBD;
         
-        for (Double i = 0.0; i < image.getWidth()- 1; i++) {
-            for(Double j = 0.0; j < image.getHeight() - 1; j++) {
+        for (double i = 0.0; i < image.getWidth()- 1; i++) {
+            for(double j = 0.0; j < image.getHeight() - 1; j++) {
                 
                 sommetHG = creationSommet(i,j,resolution, image);
                 m.getEnsembleSommets().put(sommetHG.getId(), sommetHG);
@@ -198,5 +197,7 @@ public class Traitement {
             }
         }
         creuserRectangle(m, image, image.getHeight() * 0.8, image.getWidth() * 0.8);
+        
+        return m;
     }
 }
