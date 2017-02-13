@@ -18,10 +18,14 @@ public class Traitement {
     /**
      * permet de créer un sommet du socle à partir un sommet du maillage de la carte
      * @param s : Sommet du maillage de la carte
+     * @param img: parcelle à mailler
      * @return : Sommet du socle en dessous du paramètre s
      */
-    public static Sommet pointDuSocle(Sommet s) {
-        return new Sommet(s.getX(), 0.0, s.getZ());
+    public static Sommet pointDuSocle(Sommet s, BufferedImage img) {
+        double h=0.0;
+        if (doitEtreRemonte(img, s))
+            h = 2.0;
+        return new Sommet(s.getX(), h, s.getZ());
     }
     
     /*
@@ -128,25 +132,25 @@ public class Traitement {
                 
                 //ajoute le sommet i,j dans l'ensemble de tout les sommets
                 //crée le sommet du socle à une hauteur de 0
-                socleHG = pointDuSocle(sommetHG);
+                socleHG = pointDuSocle(sommetHG, image);
                 m.getEnsembleSommets().put(socleHG.getId(), socleHG);
                 m.getListeSocle().add(socleHG);
                 
                 //ajoute le sommet i+1,j dans l'ensemble de tout les sommets
                 //crée le sommet du socle à une hauteur de 0
-                socleHD = pointDuSocle(sommetHD);
+                socleHD = pointDuSocle(sommetHD, image);
                 m.getEnsembleSommets().put(socleHD.getId(), socleHD);
                 m.getListeSocle().add(socleHD);
                 
                  //ajoute le sommet i,j+1 dans l'ensemble de tout les sommets
                 //crée le sommet du socle à une hauteur de 0
-                socleBG = pointDuSocle(sommetBG);
+                socleBG = pointDuSocle(sommetBG, image);
                 m.getEnsembleSommets().put(socleBG.getId(), socleBG);
                 m.getListeSocle().add(socleBG);
                 
                 //ajoute le sommet i+1,j+1 dans l'ensemble de tout les sommets
                 //crée le sommet du socle à une hauteur de 0
-                socleBD = pointDuSocle(sommetBD);
+                socleBD = pointDuSocle(sommetBD, image);
                 m.getEnsembleSommets().put(socleBD.getId(), socleBD);
                 m.getListeSocle().add(socleBD);
                 
@@ -196,8 +200,25 @@ public class Traitement {
                 }
             }
         }
-        creuserRectangle(m, image, image.getHeight() * 0.8, image.getWidth() * 0.8);
+        //creuserRectangle(m, image, image.getHeight() * 0.8, image.getWidth() * 0.8);
         
         return m;
+    }
+    
+    public static boolean doitEtreRemonte(BufferedImage image, Sommet s) {
+        return (s.getX() >= image.getWidth()*0.1 && s.getX() <= image.getWidth()*0.9 
+                && s.getZ() >= image.getHeight()*0.1 &&s.getZ() <= image.getHeight()*0.9   //zone du rectangle du socle
+                
+                || s.getX() >= image.getWidth()*0.45 && s.getX() <= image.getWidth()*0.55
+                && s.getZ() <= image.getHeight()*0.1    //slot haut
+                
+                || s.getX() <= image.getWidth()*0.1
+                && s.getZ() >= image.getHeight()*0.45 && s.getZ() <= image.getHeight()*0.55 //slot gauche
+                
+                || s.getX() >= image.getWidth()*0.45 && s.getX() <= image.getWidth()*0.55
+                && s.getZ() >= image.getHeight()*0.9     //slot bas
+                
+                || s.getZ() >= image.getHeight()*0.45 && s.getZ() <= image.getHeight()*0.55
+                && s.getX() >= image.getWidth()*0.9);       //slot droit
     }
 }
