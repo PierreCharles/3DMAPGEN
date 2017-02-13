@@ -11,9 +11,17 @@ import java.util.Set;
 
 public class Exporter {
     
-    static public void ExportToObj(Maillage m, String destFile) throws IOException {
-        File fi = new File(destFile + "\\maillage.obj");
+    
+    static public void exportToObj(Maillage m, String destFile,String dirName, int partie) throws IOException {
+        File fi = new File(destFile + "\\" + dirName + "\\" + dirName + "Partie" + partie + ".obj");
         try (FileWriter fw = new FileWriter(fi)) {
+            fw.write("# Fichier réalisé par\n");
+            fw.write("# Alexis Dardinier\n");
+            fw.write("# Thomas Klein\n");
+            fw.write("# Pierre Petit\n");
+            fw.write("# Timothé Rouzé\n");
+            fw.write("# Mathieu Vincent\n\n");
+            fw.write("o maillage\n\n");
             Set set = m.getEnsembleSommets().entrySet();
             Iterator it = set.iterator();
             while(it.hasNext()) {
@@ -29,5 +37,11 @@ public class Exporter {
         catch(IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    static public void createDirectory(String destFile, String dirName) {
+       String path = destFile + "\\" + dirName;
+       File dir = new File(path);
+       dir.mkdir();
     }
 }

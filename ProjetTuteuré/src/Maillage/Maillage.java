@@ -1,5 +1,6 @@
 package Maillage;
 
+import static Maillage.Sommet.resetCpt;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TreeMap;
@@ -15,6 +16,7 @@ public class Maillage {
         ensembleFaces = new LinkedList();
         ensembleSommets = new TreeMap();
         listeSocle = new ArrayList<>();
+        resetCpt();
     }
     
     public TreeMap getEnsembleSommets() {

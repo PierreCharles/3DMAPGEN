@@ -3,6 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
             <file>file:/D:/Documents/IUT/Deuxième%20Année/cartes-tactiles/ProjetTuteuré/src/TraitementImage/Traitement.java</file>
             <file>file:/D:/Documents/IUT/Deuxième%20Année/cartes-tactiles/ProjetTuteuré/src/Maillage/Maillage.java</file>
             <file>file:/D:/Documents/IUT/Deuxième%20Année/cartes-tactiles/ProjetTuteuré/src/Maillage/Sommet.java</file>
@@ -10,6 +11,15 @@
             <file>file:/D:/Documents/IUT/Deuxième%20Année/cartes-tactiles/ProjetTuteuré/src/TraitementImage/Charger.java</file>
             <file>file:/D:/Documents/IUT/Deuxième%20Année/cartes-tactiles/ProjetTuteuré/src/ProgPrincipal.java</file>
             <file>file:/D:/Documents/IUT/Deuxième%20Année/cartes-tactiles/ProjetTuteuré/src/TraitementImage/Exporter.java</file>
+=======
+            <file>file:/C:/Users/Thomas%20Klein/Desktop/cartes-tactiles/ProjetTuteuré/src/TraitementImage/Decoupage.java</file>
+            <file>file:/C:/Users/Thomas%20Klein/Desktop/cartes-tactiles/ProjetTuteuré/src/Maillage/Face.java</file>
+            <file>file:/C:/Users/Thomas%20Klein/Desktop/cartes-tactiles/ProjetTuteuré/src/TraitementImage/Traitement.java</file>
+            <file>file:/C:/Users/Thomas%20Klein/Desktop/cartes-tactiles/ProjetTuteuré/src/Maillage/Sommet.java</file>
+            <file>file:/C:/Users/Thomas%20Klein/Desktop/cartes-tactiles/ProjetTuteuré/src/Maillage/Maillage.java</file>
+            <file>file:/C:/Users/Thomas%20Klein/Desktop/cartes-tactiles/ProjetTuteuré/src/TraitementImage/Charger.java</file>
+            <file>file:/C:/Users/Thomas%20Klein/Desktop/cartes-tactiles/ProjetTuteuré/src/TraitementImage/Exporter.java</file>
+>>>>>>> a6419e51b07ea2a4b529fa5200db75ed0db70ed4
         </group>
     </open-files>
 </project-private>

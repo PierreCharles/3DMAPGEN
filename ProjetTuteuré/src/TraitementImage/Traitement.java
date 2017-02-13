@@ -7,11 +7,26 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import javafx.beans.property.StringProperty;
 
 public class Traitement {
-    
-    public static Sommet pointDuSocle(Sommet s) {
-        return new Sommet(s.getZ(), -15.0, s.getX());
+
+    /**
+     *
+     */
+    public StringProperty etat;
+     
+    /**
+     * permet de créer un sommet du socle à partir un sommet du maillage de la carte
+     * @param s : Sommet du maillage de la carte
+     * @param img: parcelle à mailler
+     * @return : Sommet du socle en dessous du paramètre s
+     */
+    public static Sommet pointDuSocle(Sommet s, BufferedImage img) {
+        double h=0.0;
+        if (doitEtreRemonte(img, s))
+            h = 2.0;
+        return new Sommet(s.getZ(), h, s.getX());
     }
     
     /**
@@ -32,29 +47,36 @@ public class Traitement {
         int x = (int) Math.ceil(colonne);
         int y = (int) Math.ceil(ligne);
         pixel = image.getRGB(x,y);
+
         rouge = (pixel >> 16) & 0xff;
         vert = (pixel >> 8) & 0xff;
         bleu = (pixel) & 0xff;
-        moyenne = (rouge+vert+bleu)/3;
+        moyenne = 255-(rouge+vert+bleu)/3;
         hauteur = resolution*moyenne;
+        
         return hauteur;
     }
     
-    public static void creuserRectangle(Maillage m, Charger ch, Double longueur, Double largeur) {
-        ArrayList<Sommet> listeADeplacer = new ArrayList<>();
-        //récupérer les sommets à déplacer pour le rectangle
+    /**
+     * Retourne une liste de sommets compris dans la zone limitée par depX, finX, depZ, finY
+     * fonctionne uniquement pour les sommets du socle y compris ceux creusés
+     * @param m : maillage contenant tous les points
+     * @param depX : abscisse de la borne gauche de la zone
+     * @param finX : abscisse de la borne droite de la zone
+     * @param depZ : "profondeur" de la borne haute de la zone
+     * @param finZ : "profondeur" de la borne basse de la zone
+     * @return : une liste de sommets qui contient tous ceux présents dans la zone
+     */
+    public static ArrayList<Sommet> recupererZone(Maillage m, double depX,double finX, double depZ, double finZ) {
+        ArrayList<Sommet> zone = new ArrayList<>();
         for (int i = 0; i < m.getListeSocle().size(); i++) {
-             if (m.getListeSocle().get(i).getX().compareTo((ch.getLargeur() + largeur) / 2) <= 0 
-                     && m.getListeSocle().get(i).getX().compareTo((ch.getLargeur() - largeur) / 2) >= 0) {
-                if (m.getListeSocle().get(i).getZ().compareTo((ch.getHauteur() + longueur) / 2) <= 0 
-                        && m.getListeSocle().get(i).getZ().compareTo((ch.getHauteur() - longueur) / 2) >= 0) {
-                    listeADeplacer.add(m.getListeSocle().get(i));
+             if (m.getListeSocle().get(i).getX() >= depX && m.getListeSocle().get(i).getX() <= finX) {
+                if (m.getListeSocle().get(i).getZ() >= depZ && m.getListeSocle().get(i).getZ() <= finZ) {
+                    zone.add(m.getListeSocle().get(i));
                 }
             }
         }
-        for (int i = 0; i< listeADeplacer.size(); i++) {
-            listeADeplacer.get(i).deplacerY(5.0);
-        }
+        return zone;
     }
     
     /**
@@ -78,44 +100,47 @@ public class Traitement {
         return vecteurSommet;
     }
     
-    public static Sommet testSommet (int ligne, int colonne, Double resolution, Charger ch, Maillage m)
+    public static Sommet testSommet (int ligne, int colonne, Double resolution, BufferedImage image, Maillage m)
     {
         List<Sommet> vecteurPrecedent;
         
         if(ligne == 0)
         {
             Sommet sommet = (Sommet)m.getEnsembleSommets().get(colonne);
-            if(sommet != null && sommet.getX() == colonne && sommet.getY() == getHauteurPixel(ligne, colonne, resolution, ch.getImage()) && sommet.getZ() == ligne)
+            if(sommet != null && sommet.getX() == colonne && sommet.getY() == getHauteurPixel(ligne, colonne, resolution, image) && sommet.getZ() == ligne)
             {
                 return sommet;
             }
-            return new Sommet((double)ligne, getHauteurPixel(ligne, colonne, resolution, ch.getImage()), (double)colonne);
+            return new Sommet((double)ligne, getHauteurPixel(ligne, colonne, resolution, image), (double)colonne);
         }
         else
         {
-            vecteurPrecedent = vecteurSommet(ligne-1, ch.getLargeur(), ch.getHauteur(), m.getEnsembleSommets());
+            vecteurPrecedent = vecteurSommet(ligne-1, image.getWidth(), image.getHeight(), m.getEnsembleSommets());
             //System.out.println("colonne : "+colonne+" ligne : "+ligne+" taille vecteur : "+vecteurPrecedent.size());
             Sommet sommet = vecteurPrecedent.get(colonne);
-            if (sommet != null && sommet.getX() == colonne && sommet.getY() == getHauteurPixel(ligne, colonne, resolution, ch.getImage()) && sommet.getZ() == ligne) 
+            if (sommet != null && sommet.getX() == colonne && sommet.getY() == getHauteurPixel(ligne, colonne, resolution, image) && sommet.getZ() == ligne) 
             {
                 return sommet;
             }
             else 
             {
-                return new Sommet((double)ligne, getHauteurPixel(ligne, colonne, resolution, ch.getImage()), (double)colonne);
+                return new Sommet((double)ligne, getHauteurPixel(ligne, colonne, resolution, image), (double)colonne);
             }
         }
     }
     
-    public static void traitementNiveauDeGris(Charger ch, Maillage m, Double max, int min) {
+   
+    public static Maillage ParcelleToMaillage(BufferedImage image, double max, int min) {
+        
+        Maillage m = new Maillage();
         int rouge;
         int vert;
         int bleu;
         int moyenne;
         int pixel = 0;
         int couleur = 0;
-        Double hauteurSommet = 0.0;
-        Double resolution = max/256;
+        double hauteurSommet = 0.0;
+        double resolution = max/256;
         Sommet sommetHG;
         Sommet socleHG;
         Sommet sommetHD;
@@ -125,59 +150,58 @@ public class Traitement {
         Sommet sommetBD;
         Sommet socleBD;
         
-        for (int ligne = 0; ligne < ch.getHauteur()-1; ligne++) {
-            for(int colonne = 0; colonne < ch.getLargeur()-1; colonne++) {
-                if (ligne+1 < ch.getHauteur()-1 || colonne+1 < ch.getLargeur()-1 || ligne < ch.getHauteur()-1 || colonne < ch.getLargeur()-1){
-                    sommetHG = testSommet(ligne, colonne, resolution, ch, m);
+        for (int ligne = 0; ligne < image.getHeight()-1; ligne++) {
+            for(int colonne = 0; colonne < image.getWidth()-1; colonne++) {
+                if (ligne+1 < image.getHeight()-1 || colonne+1 < image.getWidth()-1 || ligne < image.getHeight()-1 || colonne < image.getWidth()-1){
+                    sommetHG = testSommet(ligne, colonne, resolution, image, m);
                     //sommetHG = creationSommet(i,j,resolution);
                     m.getEnsembleSommets().put(sommetHG.getId(), sommetHG);
 
-                    sommetHD = testSommet(ligne, colonne+1, resolution, ch, m);
+                    sommetHD = testSommet(ligne, colonne+1, resolution, image, m);
                     //sommetHD = creationSommet(i+1, j, resolution);
                     m.getEnsembleSommets().put(sommetHD.getId(), sommetHD);
 
-                    sommetBG = testSommet(ligne+1, colonne, resolution, ch, m);
+                    sommetBG = testSommet(ligne+1, colonne, resolution, image, m);
                     //sommetBG = creationSommet(i, j+1, resolution);
                     m.getEnsembleSommets().put(sommetBG.getId(), sommetBG);
                     //System.out.println("Sommet BD : i = "+ i + " j = " + j);
-                    sommetBD = testSommet(ligne+1, colonne+1, resolution, ch, m);
+                    sommetBD = testSommet(ligne+1, colonne+1, resolution, image, m);
                     //sommetBD = creationSommet(i+1, j+1, resolution);
                     m.getEnsembleSommets().put(sommetBD.getId(), sommetBD);
 
                     Face triangleG = new Face(sommetHG.getId(),sommetHD.getId(),sommetBG.getId());
                     Face triangleD = new Face(sommetHD.getId(),sommetBD.getId(),sommetBG.getId());
-
-                
                 
                     /*SOCLE*/
 
                     //ajoute le sommet i,j dans l'ensemble de tout les sommets
                     //crée le sommet du socle à une hauteur de 0
-                    socleHG = pointDuSocle(sommetHG);
+                    socleHG = pointDuSocle(sommetHG, image);
                     m.getEnsembleSommets().put(socleHG.getId(), socleHG);
                     m.getListeSocle().add(socleHG);
 
                     //ajoute le sommet i+1,j dans l'ensemble de tout les sommets
                     //crée le sommet du socle à une hauteur de 0
-                    socleHD = pointDuSocle(sommetHD);
+                    socleHD = pointDuSocle(sommetHD, image);
                     m.getEnsembleSommets().put(socleHD.getId(), socleHD);
                     m.getListeSocle().add(socleHD);
 
                      //ajoute le sommet i,j+1 dans l'ensemble de tout les sommets
                     //crée le sommet du socle à une hauteur de 0
-                    socleBG = pointDuSocle(sommetBG);
+                    socleBG = pointDuSocle(sommetBG, image);
                     m.getEnsembleSommets().put(socleBG.getId(), socleBG);
                     m.getListeSocle().add(socleBG);
 
                     //ajoute le sommet i+1,j+1 dans l'ensemble de tout les sommets
                     //crée le sommet du socle à une hauteur de 0
-                    socleBD = pointDuSocle(sommetBD);
+                    socleBD = pointDuSocle(sommetBD, image);
                     m.getEnsembleSommets().put(socleBD.getId(), socleBD);
                     m.getListeSocle().add(socleBD);
 
                     //crée les faces à partir des sommets du socle
                     Face socleTriangleG = new Face(socleHG.getId(), socleHD.getId(), socleBG.getId());
                     Face socleTriangleD = new Face(socleHD.getId(), socleBD.getId(), socleBG.getId());
+
 
                    //ajout des faces
                     m.getEnsembleFaces().add(triangleG);
@@ -203,9 +227,10 @@ public class Traitement {
                         m.getEnsembleFaces().add(cote1);
                         m.getEnsembleFaces().add(cote2);
                     }
+
                     
                         // Cote droit
-                   if(ligne == (ch.getHauteur() - 2)) {
+                   if(ligne == (image.getHeight()- 2)) {
                         Face cote1 = new Face(sommetBG.getId(), sommetBD.getId(), socleBG.getId());
                         Face cote2 = new Face(sommetBD.getId(), socleBD.getId(), socleBG.getId());
 
@@ -213,7 +238,7 @@ public class Traitement {
                         m.getEnsembleFaces().add(cote2);
                     }
                         // Cote bas
-                    if(colonne == (ch.getLargeur() - 2)) {
+                    if(colonne == (image.getWidth()- 2)) {
                         Face cote1 = new Face(sommetHD.getId(), sommetBD.getId(), socleHD.getId());
                         Face cote2 = new Face(sommetBD.getId(), socleBD.getId(), socleHD.getId());
 
@@ -223,6 +248,24 @@ public class Traitement {
                 }
             }
         }
-        creuserRectangle(m, ch, ch.getHauteur()*0.8, ch.getLargeur()*0.8);
+        
+        return m;
+    }
+    
+    public static boolean doitEtreRemonte(BufferedImage image, Sommet s) {
+        return (s.getX() >= image.getWidth()*0.1 && s.getX() <= image.getWidth()*0.9 
+                && s.getZ() >= image.getHeight()*0.1 &&s.getZ() <= image.getHeight()*0.9   //zone du rectangle du socle
+                
+                || s.getX() >= image.getWidth()*0.45 && s.getX() <= image.getWidth()*0.55
+                && s.getZ() <= image.getHeight()*0.1    //slot haut
+                
+                || s.getX() <= image.getWidth()*0.1
+                && s.getZ() >= image.getHeight()*0.45 && s.getZ() <= image.getHeight()*0.55 //slot gauche
+                
+                || s.getX() >= image.getWidth()*0.45 && s.getX() <= image.getWidth()*0.55
+                && s.getZ() >= image.getHeight()*0.9     //slot bas
+                
+                || s.getZ() >= image.getHeight()*0.45 && s.getZ() <= image.getHeight()*0.55
+                && s.getX() >= image.getWidth()*0.9);       //slot droit
     }
 }

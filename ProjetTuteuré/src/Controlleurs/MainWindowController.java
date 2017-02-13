@@ -1,8 +1,8 @@
+package Controlleurs;
+
 import Maillage.Maillage;
 import TraitementImage.Charger;
-import TraitementImage.Traitement;
-import static TraitementImage.Traitement.traitementNiveauDeGris;
-import static TraitementImage.Exporter.ExportToObj;
+import static TraitementImage.Decoupage.decouperImage;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,22 +17,38 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
+import static TraitementImage.Exporter.exportToObj;
+import static TraitementImage.Exporter.createDirectory;
+import static TraitementImage.Traitement.ParcelleToMaillage;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainWindowController extends Stage {
     
-    @FXML MenuItem ouvrir;
+   // @FXML MenuItem ouvrir;
     private String imagePath;
     @FXML private ImageView viewImage;
     @FXML private Label etat;
-    @FXML private Label traitementLabel;
+    //@FXML private Label traitementLabel;
     @FXML private Button traitementButton;
     @FXML private MenuItem close;
-    @FXML private MenuItem enregistrer;
+    @FXML private Button enregistrer;
+    @FXML private Button traitementBtn;
+    @FXML private Button ouvrirBtn;
     
-    public  Maillage m;
     
-    public void setEtat(String val) {
-        etat.setText(val);
+    public List<Maillage> listeParcelles = new ArrayList<>();
+    
+    public void initialize() {
+        enregistrer.setDisable(true);
+        traitementBtn.setDisable(true);
+        
+    }
+    public void setButtonTrue() {
+        enregistrer.setDisable(false);
+        traitementBtn.setDisable(false);
+        ouvrirBtn.setDisable(false);
     }
     
     private File selectedFile;
@@ -49,12 +65,10 @@ public class MainWindowController extends Stage {
         if(selectedFile != null) {
             imagePath = selectedFile.toURI().toString();
             viewImage.setImage(new Image(imagePath));
-            setEtat("OK\n" + imagePath);
-            traitementButton.setDisable(false);       
+            traitementBtn.setDisable(false);   
+            ouvrirBtn.setDisable(true);           
         }
-        else{
-            setEtat("Non chargée");
-        }
+
     }
     
     @FXML 
@@ -64,17 +78,20 @@ public class MainWindowController extends Stage {
     
     @FXML
     public void onTraitement(ActionEvent envent) {
- 
-        Charger ch = new Charger(new File(selectedFile.toURI()));
-        m = new Maillage();
-        ch.ajouterImage();
-        traitementNiveauDeGris(ch, m, 50.0, 0);
         
-        traitementLabel.setText("Traitement effectué");
+        Charger ch = new Charger(new File(selectedFile.toURI()));
+        ch.ajouterImage();
+        List<BufferedImage> listeImages = decouperImage(ch, 45, 45, 20);
+        for(BufferedImage image : listeImages) {
+            listeParcelles.add(ParcelleToMaillage(image, 50.0, 0));
+        }
         enregistrer.setDisable(false);
+        traitementBtn.setDisable(true);
     }
+    
     @FXML
-    public void enregister(ActionEvent envent) throws IOException{
+    public void enregistrer(ActionEvent envent) throws IOException{
+        int i = 1;
         DirectoryChooser dir = new DirectoryChooser();
         dir.setTitle("Enregistrer");
         dir.setInitialDirectory(new File("C://"));
@@ -82,8 +99,13 @@ public class MainWindowController extends Stage {
         File selectedSaveFile = dir.showDialog(this);
         System.out.println(selectedSaveFile.toString());
         if(selectedSaveFile != null){
-            ExportToObj(m,selectedSaveFile.toString());
+            createDirectory(selectedSaveFile.toString(), "Maillage");
+            for(Maillage m : listeParcelles) {
+                exportToObj(m, selectedSaveFile.toString(), "Maillage", i);
+                i++;
+            }
         }
+        this.setButtonTrue();
     }
 //    public void erreur(){
 //        Stage dialogStage = new Stage();
@@ -96,4 +118,8 @@ public class MainWindowController extends Stage {
 //        dialogStage.setScene(new Scene(vbox));
 //        dialogStage.show();
 //    }
+    
+    public void ouvrirDialogue() {
+        
+    }
 }
