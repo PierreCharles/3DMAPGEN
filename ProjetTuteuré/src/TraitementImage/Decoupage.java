@@ -22,10 +22,8 @@ public class Decoupage {
         int largueur = ch.getLargeur();
         int nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / tailleImpression);
         int nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / tailleImpression);
-        int hauteurParcelle = (int) Math.floor(imageBase.getHeight() / nbDecoupeHauteur);
-        int largeurParcelle = (int) Math.floor(imageBase.getWidth() / nbDecoupeLargeur);
-        System.out.println("hauteurParcelle : " + hauteurParcelle);
-        System.out.println("largeurParcelle : " + largeurParcelle);
+        int hauteurParcelle = (int) Math.floor(hauteur / nbDecoupeHauteur);
+        int largeurParcelle = (int) Math.floor(largueur / nbDecoupeLargeur);
         for(int x = 0; x < nbDecoupeLargeur; x++) {
             for(int y = 0; y < nbDecoupeHauteur; y++) {
                 listeImages.add(imageBase.getSubimage(x * largeurParcelle, y * hauteurParcelle, largeurParcelle, hauteurParcelle));

@@ -81,10 +81,10 @@ public class MainWindowController extends Stage {
         
         Charger ch = new Charger(new File(selectedFile.toURI()));
         ch.ajouterImage();
-        List<BufferedImage> listeImages = decouperImage(ch, 45, 45, 20);
-        for(BufferedImage image : listeImages) {
+        List<BufferedImage> listeImages = decouperImage(ch, 25, 25, 20);
+        listeImages.forEach((image) -> {
             listeParcelles.add(ParcelleToMaillage(image, 50.0, 0));
-        }
+        });
         enregistrer.setDisable(false);
         traitementBtn.setDisable(true);
     }
