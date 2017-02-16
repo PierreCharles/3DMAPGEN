@@ -11,8 +11,9 @@ import java.util.Set;
 
 public class Exporter {
     
-    static public void ExportToObj(Maillage m, String destFile) throws IOException {
-        File fi = new File(destFile + "\\maillage.obj");
+    
+    static public void exportToObj(Maillage m, String destFile,String dirName, int partie) throws IOException {
+        File fi = new File(destFile + "\\" + dirName + "\\" + dirName + "Partie" + partie + ".obj");
         try (FileWriter fw = new FileWriter(fi)) {
             fw.write("# Fichier réalisé par\n");
             fw.write("# Alexis Dardinier\n");
@@ -38,8 +39,9 @@ public class Exporter {
         }
     }
     
-    static public void createDiretory(String destFile, String dirName) {
-       /* String path = destFile + "\" + dirName;
-        File dir = new File(destFile+ "\" + dirName);*/
+    static public void createDirectory(String destFile, String dirName) {
+       String path = destFile + "\\" + dirName;
+       File dir = new File(path);
+       dir.mkdir();
     }
 }

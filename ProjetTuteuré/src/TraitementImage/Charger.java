@@ -11,7 +11,11 @@ public class Charger {
     private int hauteur;
     private int largeur;
     int[][] imageTraitee = new int [largeur][hauteur];
-
+    
+    public Charger(File lien){
+        this.lien=lien;
+    }
+    
     public int[][] getImageTraitee() {
         return imageTraitee;
     }
@@ -24,10 +28,8 @@ public class Charger {
         return largeur;
     }
     
-    public Charger(File lien){
-        this.lien=lien;
-    }
-		
+
+    
     public void ajouterImage() {
         try {
             image = ImageIO.read(lien);

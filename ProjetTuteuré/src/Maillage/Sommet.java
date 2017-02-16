@@ -3,30 +3,31 @@ package Maillage;
 public class Sommet {
     private static int cpt = 1;
     //attributs
-    private Double x;
-    private Double y;
-    private Double z;
+    private double x;
+    private double y;
+    private double z;
     private int id;
     
     //constructeur
-    public Sommet(Double abs, Double ord, Double prof) {
-        x = abs;
-        y = ord;
-        z = prof;
+    public Sommet(Double ligne, Double hauteur, Double colonne) {
+        x = colonne;
+        y = hauteur;
+        z = ligne;
+
         id = cpt;
         cpt++;
     }
     
     //methodes
-    public Double getX() {
+    public double getX() {
         return x;
     }
     
-    public Double getY() {
+    public double getY() {
         return y;
     }
     
-    public Double getZ() {
+    public double getZ() {
         return z;
     }
     
@@ -34,20 +35,24 @@ public class Sommet {
         return id;
     }
     
-    public void setX (Double val) {
+    public void setX (double val) {
         x = val;
     }
     
-    public void setY (Double val) {
+    public void setY (double val) {
         y = val;
     }
     
-    public void setZ (Double val) {
+    public void setZ (double val) {
         z = val;
     }
     
     public void setId(int id) {
         this.id = id;
+    }
+    
+    public static void resetCpt() {
+        cpt = 1;
     }
     
     public boolean equals(Sommet s) {
@@ -59,15 +64,15 @@ public class Sommet {
         return "v " + x + " " + y + " " + z + "\r\n";
     }
     
-    public void deplacerX(Double d) {
+    public void deplacerX(double d) {
         setX(getX() + d);
     }
     
-    public void deplacerY(Double d) {
+    public void deplacerY(double d) {
         setY(getY() + d);
     }
     
-    public void deplacerZ(Double d) {
+    public void deplacerZ(double d) {
         setZ(getZ() + d);
     }
 }
