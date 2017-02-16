@@ -1,6 +1,7 @@
 package Controlleurs;
 
 import Maillage.Maillage;
+import Parametres.Parametres;
 import TraitementImage.Charger;
 import TraitementImage.Traitement;
 import static TraitementImage.Traitement.traitementNiveauDeGris;
@@ -11,6 +12,9 @@ import java.io.IOException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -32,13 +36,14 @@ public class MainWindowController extends Stage {
     @FXML private Button enregistrer;
     @FXML private Button traitementBtn;
     @FXML private Button ouvrirBtn;
-    
-    
+    Image image;
+    private Parametres para;
     public  Maillage m;
     
     public void initialize() {
         enregistrer.setDisable(true);
         traitementBtn.setDisable(true);
+        para = new Parametres();
         
     }
     public void setButtonTrue() {
@@ -49,7 +54,7 @@ public class MainWindowController extends Stage {
     
     private File selectedFile;
     @FXML
-    public void ouvrir(ActionEvent event) {
+    public void ouvrir(ActionEvent event) throws IOException {
         FileChooser imageChooser = new FileChooser();
         imageChooser.setTitle("ouvrir");
    
@@ -60,10 +65,12 @@ public class MainWindowController extends Stage {
         selectedFile = imageChooser.showOpenDialog(this);
         if(selectedFile != null) {
             imagePath = selectedFile.toURI().toString();
-            viewImage.setImage(new Image(imagePath));
+            image = new Image(imagePath);
+            viewImage.setImage(image);
             traitementBtn.setDisable(false);   
             ouvrirBtn.setDisable(true);           
         }
+        ouvrirDialogue();
 
     }
     
@@ -95,19 +102,18 @@ public class MainWindowController extends Stage {
         }
         this.setButtonTrue();
     }
-//    public void erreur(){
-//        Stage dialogStage = new Stage();
-//        dialogStage.initModality(Modality.WINDOW_MODAL);
-//
-//        VBox vbox = new VBox(new Text("Hi"), new Button("Ok."));
-//        vbox.setAlignment(Pos.CENTER);
-//
-//
-//        dialogStage.setScene(new Scene(vbox));
-//        dialogStage.show();
-//    }
-    
-    public void ouvrirDialogue() {
-        
+
+    public void ouvrirDialogue() throws IOException {
+            Stage paraStage = new Stage();
+            ParametresController controller = new ParametresController(image, para);
+            FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/Vues/Parametres.fxml"));
+            loader.setController(controller);
+            controller.setStage(paraStage);
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            paraStage.setTitle("Paramètres");
+            paraStage.setResizable(false);
+            paraStage.setScene(scene);
+            paraStage.showAndWait();
     }
 }
