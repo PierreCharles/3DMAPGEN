@@ -15,15 +15,18 @@ import java.util.List;
  */
 public class Decoupage {
     
+    private static int nbDecoupeHauteur;
+    private static int nbDecoupeLargeur;
+    private static int hauteurParcelle;
+    private static int largeurParcelle;
+    
     public static List<BufferedImage> decouperImage(Charger ch, double largeurVoulue, double hauteurVoulue, double tailleImpression) {
         List<BufferedImage> listeImages = new ArrayList<>();
         BufferedImage imageBase = ch.getImage();
-        int hauteur = ch.getHauteur();
-        int largueur = ch.getLargeur();
-        int nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / tailleImpression);
-        int nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / tailleImpression);
-        int hauteurParcelle = (int) Math.floor(imageBase.getHeight() / nbDecoupeHauteur);
-        int largeurParcelle = (int) Math.floor(imageBase.getWidth() / nbDecoupeLargeur);
+        Decoupage.nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / tailleImpression);
+        Decoupage.nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / tailleImpression);
+        Decoupage.hauteurParcelle = (int) Math.floor(imageBase.getHeight() / nbDecoupeHauteur);
+        Decoupage.largeurParcelle = (int) Math.floor(imageBase.getWidth() / nbDecoupeLargeur);
         System.out.println("hauteurParcelle : " + hauteurParcelle);
         System.out.println("largeurParcelle : " + largeurParcelle);
         for(int x = 0; x < nbDecoupeLargeur; x++) {

@@ -19,7 +19,9 @@ import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 import static TraitementImage.Exporter.exportToObj;
 import static TraitementImage.Exporter.createDirectory;
+import static TraitementImage.Exporter.exportAttacheToObj;
 import static TraitementImage.Traitement.ParcelleToMaillage;
+import static TraitementImage.Traitement.genererAttache;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,7 @@ public class MainWindowController extends Stage {
     
     
     public List<Maillage> listeParcelles = new ArrayList<>();
+    public Maillage attache = new Maillage();
     
     public void initialize() {
         enregistrer.setDisable(true);
@@ -85,6 +88,7 @@ public class MainWindowController extends Stage {
         for(BufferedImage image : listeImages) {
             listeParcelles.add(ParcelleToMaillage(image, 50.0, 0));
         }
+        attache = genererAttache(listeImages.get(0));
         enregistrer.setDisable(false);
         traitementBtn.setDisable(true);
     }
@@ -104,6 +108,8 @@ public class MainWindowController extends Stage {
                 exportToObj(m, selectedSaveFile.toString(), "Maillage", i);
                 i++;
             }
+            exportAttacheToObj(selectedSaveFile.toString(), "Maillage", attache);
+            System.out.println("Exportation terminée");
         }
         this.setButtonTrue();
     }
