@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import static TraitementImage.Traitement.getNbAttache;
 
 public class Exporter {
     
@@ -54,6 +55,7 @@ public class Exporter {
             fw.write("# Pierre Petit\n");
             fw.write("# Timothé Rouzé\n");
             fw.write("# Mathieu Vincent\n\n");
+            fw.write("Pièce à imprimer" + getNbAttache(Decoupage.getNbDecoupeLargeur(), Decoupage.getNbDecoupeHauteur()).toString() + "fois\n");
             fw.write("o attache\n\n");
             Set set = attache.getEnsembleSommets().entrySet();
             Iterator it = set.iterator();

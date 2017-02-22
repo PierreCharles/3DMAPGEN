@@ -271,9 +271,8 @@ public class Traitement {
             && s.getX() >= fin);       //slot droit
     }
     
-    public static int getNbAttache(int nbDecoupeH, int nbDecoupeL) {
-        
-        return 0;
+    public static Integer getNbAttache(int nbDecoupeL, int nbDecoupeH) {
+        return (nbDecoupeL - 1) + (2*nbDecoupeL - 1) * (nbDecoupeH - 1);
     }
     
     /*
