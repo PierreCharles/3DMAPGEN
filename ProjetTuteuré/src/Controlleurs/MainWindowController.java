@@ -34,17 +34,14 @@ public class MainWindowController extends Stage {
     
    // @FXML MenuItem ouvrir;
     private String imagePath;
-    @FXML private ImageView viewImage;
-    @FXML private Label etat;
-    //@FXML private Label traitementLabel;
-    @FXML private Button traitementButton;
-    @FXML private MenuItem close;
-    @FXML private Button enregistrer;
-    @FXML private Button traitementBtn;
-    @FXML private Button ouvrirBtn;
+    @FXML private ImageView viewImage;  
+    //@FXML private Button traitementButton;
+    //@FXML private MenuItem close;
+    @FXML private Button enregistrer, traitementBtn, ouvrirBtn;
 
     Image image;
     private Parametres para;
+    private double rapportH, rapportL;
 
 
     
@@ -96,11 +93,18 @@ public class MainWindowController extends Stage {
         
         Charger ch = new Charger(new File(selectedFile.toURI()));
         ch.ajouterImage();
-        List<BufferedImage> listeImages = decouperImage(ch, 25, 25, 20);
+        
+        rapportH = para.getHauteurImage()/ch.getHauteur();
+        rapportL = para.getLargeurImage()/ch.getLargeur();
+        
+        List<BufferedImage> listeImages  = decouperImage(ch, para.getLargeurImage(), para.getHauteurImage(), para.getLargeurMaxImpression(), para.getHauteurMaxImpression());
+        
         listeImages.forEach((image) -> {
-            listeParcelles.add(ParcelleToMaillage(image, 50.0, 0));
+            listeParcelles.add(ParcelleToMaillage(image, para.getHauteurMaillage()));
         });
+        
         attache = genererAttache(listeImages.get(0));
+        
         enregistrer.setDisable(false);
         traitementBtn.setDisable(true);
     }

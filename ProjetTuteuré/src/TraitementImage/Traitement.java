@@ -7,14 +7,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-import javafx.beans.property.StringProperty;
+
 
 public class Traitement {
 
-    /**
-     *
-     */
-    public StringProperty etat;
+    
      
     /**
      * permet de créer un sommet du socle à partir un sommet du maillage de la carte
@@ -130,7 +127,7 @@ public class Traitement {
     }
     
    
-    public static Maillage ParcelleToMaillage(BufferedImage image, double max, int min) {
+    public static Maillage ParcelleToMaillage(BufferedImage image, double max) {
         
         Maillage m = new Maillage();
         int rouge;
@@ -141,14 +138,8 @@ public class Traitement {
         int couleur = 0;
         double hauteurSommet = 0.0;
         double resolution = max/256;
-        Sommet sommetHG;
-        Sommet socleHG;
-        Sommet sommetHD;
-        Sommet socleHD;
-        Sommet sommetBG;
-        Sommet socleBG;
-        Sommet sommetBD;
-        Sommet socleBD;
+        Sommet sommetHG, socleHG, sommetHD, socleHD, sommetBG, socleBG, sommetBD, socleBD;
+        
         
         for (int ligne = 0; ligne < image.getHeight()-1; ligne++) {
             for(int colonne = 0; colonne < image.getWidth()-1; colonne++) {

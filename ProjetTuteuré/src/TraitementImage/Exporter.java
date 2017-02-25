@@ -55,7 +55,7 @@ public class Exporter {
             fw.write("# Pierre Petit\n");
             fw.write("# Timothé Rouzé\n");
             fw.write("# Mathieu Vincent\n\n");
-            fw.write("Pièce à imprimer" + getNbAttache(Decoupage.getNbDecoupeLargeur(), Decoupage.getNbDecoupeHauteur()).toString() + "fois\n");
+            fw.write("#Pièce à imprimer " + getNbAttache(Decoupage.getNbDecoupeLargeur(), Decoupage.getNbDecoupeHauteur()).toString() + " fois\n");
             fw.write("o attache\n\n");
             Set set = attache.getEnsembleSommets().entrySet();
             Iterator it = set.iterator();

@@ -20,11 +20,11 @@ public class Decoupage {
     private static int hauteurParcelle;
     private static int largeurParcelle;
     
-    public static List<BufferedImage> decouperImage(Charger ch, double largeurVoulue, double hauteurVoulue, double tailleImpression) {
+    public static List<BufferedImage> decouperImage(Charger ch, double largeurVoulue, double hauteurVoulue, double largeurMaxImpression, double hauteurMaxImpression) {
         List<BufferedImage> listeImages = new ArrayList<>();
         BufferedImage imageBase = ch.getImage();
-        Decoupage.nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / tailleImpression);
-        Decoupage.nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / tailleImpression);
+        Decoupage.nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / (hauteurMaxImpression/10));
+        Decoupage.nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / (largeurMaxImpression/10));
         Decoupage.hauteurParcelle = (int) Math.floor(imageBase.getHeight() / getNbDecoupeHauteur());
         Decoupage.largeurParcelle = (int) Math.floor(imageBase.getWidth() / getNbDecoupeLargeur());
         System.out.println("hauteurParcelle : " + hauteurParcelle);
