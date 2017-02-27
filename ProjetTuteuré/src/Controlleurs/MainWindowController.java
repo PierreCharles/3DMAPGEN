@@ -89,8 +89,8 @@ public class MainWindowController extends Stage {
     }
     
     @FXML
-    public void onTraitement(ActionEvent envent) {
-        
+    public void onTraitement(ActionEvent envent) throws IOException {
+        ouvrirProgressStage();
         Charger ch = new Charger(new File(selectedFile.toURI()));
         ch.ajouterImage();
         
@@ -142,5 +142,18 @@ public class MainWindowController extends Stage {
             paraStage.setResizable(false);
             paraStage.setScene(scene);
             paraStage.showAndWait();
+    }
+    
+    public void ouvrirProgressStage() throws IOException {
+        Stage progressStage = new Stage();
+        ProgressionController controller = new ProgressionController();
+        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/Vues/Progression.fxml"));
+        loader.setController(controller);
+        controller.setStage(progressStage);
+        //Parent root = loader.load();
+        //Scene scene = new Scene(root);
+        progressStage.setTitle("Traitement...");
+        progressStage.setResizable(false);
+        //progressStage.setScene(scene);
     }
 }
