@@ -89,20 +89,18 @@ public class MainWindowController extends Stage {
     }
     
     @FXML
-    public void onTraitement(ActionEvent envent) {
-        
+    public void onTraitement(ActionEvent envent) throws IOException {
+        ouvrirProgressStage();
         Charger ch = new Charger(new File(selectedFile.toURI()));
         ch.ajouterImage();
-<<<<<<< HEAD
-        List<BufferedImage> listeImages = decouperImage(ch, 1, 1, 20);
-=======
+
         
         rapportH = para.getHauteurImage()/ch.getHauteur();
         rapportL = para.getLargeurImage()/ch.getLargeur();
         
         List<BufferedImage> listeImages  = decouperImage(ch, para.getLargeurImage(), para.getHauteurImage(), para.getLargeurMaxImpression(), para.getHauteurMaxImpression());
         
->>>>>>> 4bfee1df01cd1fc73128ed80dee449992b50d199
+
         listeImages.forEach((image) -> {
             listeParcelles.add(ParcelleToMaillage(image, para.getHauteurMaillage()));
         });
@@ -146,5 +144,17 @@ public class MainWindowController extends Stage {
             paraStage.setResizable(false);
             paraStage.setScene(scene);
             paraStage.showAndWait();
+    }
+    
+    public void ouvrirProgressStage() throws IOException {
+        Stage progressStage = new Stage();
+        
+        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/Vues/Progression.fxml"));
+       
+        //Parent root = loader.load();
+        //Scene scene = new Scene(root);
+        progressStage.setTitle("Traitement...");
+        progressStage.setResizable(false);
+        //progressStage.setScene(scene);
     }
 }
