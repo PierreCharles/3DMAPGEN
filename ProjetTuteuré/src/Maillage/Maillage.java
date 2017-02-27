@@ -36,5 +36,11 @@ public class Maillage {
     }
     public int nbFace() {
         return ensembleFaces.size();
-    }            
+    }
+    
+    public void addSommet(Sommet s) {
+        this.ensembleSommets.put(s.getId(), s);
+    }
+    
+    
 }

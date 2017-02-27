@@ -23,7 +23,9 @@ import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 import static TraitementImage.Exporter.exportToObj;
 import static TraitementImage.Exporter.createDirectory;
+import static TraitementImage.Exporter.exportAttacheToObj;
 import static TraitementImage.Traitement.ParcelleToMaillage;
+import static TraitementImage.Traitement.genererAttache;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,23 +34,20 @@ public class MainWindowController extends Stage {
     
    // @FXML MenuItem ouvrir;
     private String imagePath;
-    @FXML private ImageView viewImage;
-    @FXML private Label etat;
-    //@FXML private Label traitementLabel;
-    @FXML private Button traitementButton;
-    @FXML private MenuItem close;
-    @FXML private Button enregistrer;
-    @FXML private Button traitementBtn;
-    @FXML private Button ouvrirBtn;
+    @FXML private ImageView viewImage;  
+    //@FXML private Button traitementButton;
+    //@FXML private MenuItem close;
+    @FXML private Button enregistrer, traitementBtn, ouvrirBtn;
 
     Image image;
     private Parametres para;
+    private double rapportH, rapportL;
 
 
     
     
     public List<Maillage> listeParcelles = new ArrayList<>();
-
+    public Maillage attache = new Maillage();
     
     public void initialize() {
         enregistrer.setDisable(true);
@@ -94,10 +93,22 @@ public class MainWindowController extends Stage {
         
         Charger ch = new Charger(new File(selectedFile.toURI()));
         ch.ajouterImage();
+<<<<<<< HEAD
         List<BufferedImage> listeImages = decouperImage(ch, 1, 1, 20);
+=======
+        
+        rapportH = para.getHauteurImage()/ch.getHauteur();
+        rapportL = para.getLargeurImage()/ch.getLargeur();
+        
+        List<BufferedImage> listeImages  = decouperImage(ch, para.getLargeurImage(), para.getHauteurImage(), para.getLargeurMaxImpression(), para.getHauteurMaxImpression());
+        
+>>>>>>> 4bfee1df01cd1fc73128ed80dee449992b50d199
         listeImages.forEach((image) -> {
-            listeParcelles.add(ParcelleToMaillage(image, 50.0, 0));
+            listeParcelles.add(ParcelleToMaillage(image, para.getHauteurMaillage()));
         });
+        
+        attache = genererAttache(listeImages.get(0));
+        
         enregistrer.setDisable(false);
         traitementBtn.setDisable(true);
     }
@@ -117,6 +128,8 @@ public class MainWindowController extends Stage {
                 exportToObj(m, selectedSaveFile.toString(), "Maillage", i);
                 i++;
             }
+            exportAttacheToObj(selectedSaveFile.toString(), "Maillage", attache);
+            System.out.println("Exportation terminée");
         }
         this.setButtonTrue();
     }

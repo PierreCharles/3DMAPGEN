@@ -15,20 +15,40 @@ import java.util.List;
  */
 public class Decoupage {
     
-    public static List<BufferedImage> decouperImage(Charger ch, double largeurVoulue, double hauteurVoulue, double tailleImpression) {
+    private static int nbDecoupeHauteur;
+    private static int nbDecoupeLargeur;
+    private static int hauteurParcelle;
+    private static int largeurParcelle;
+    
+    public static List<BufferedImage> decouperImage(Charger ch, double largeurVoulue, double hauteurVoulue, double largeurMaxImpression, double hauteurMaxImpression) {
         List<BufferedImage> listeImages = new ArrayList<>();
         BufferedImage imageBase = ch.getImage();
-        int hauteur = ch.getHauteur();
-        int largueur = ch.getLargeur();
-        int nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / tailleImpression);
-        int nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / tailleImpression);
-        int hauteurParcelle = (int) Math.floor(hauteur / nbDecoupeHauteur);
-        int largeurParcelle = (int) Math.floor(largueur / nbDecoupeLargeur);
-        for(int x = 0; x < nbDecoupeLargeur; x++) {
-            for(int y = 0; y < nbDecoupeHauteur; y++) {
+        Decoupage.nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / (hauteurMaxImpression/10));
+        Decoupage.nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / (largeurMaxImpression/10));
+        Decoupage.hauteurParcelle = (int) Math.floor(imageBase.getHeight() / getNbDecoupeHauteur());
+        Decoupage.largeurParcelle = (int) Math.floor(imageBase.getWidth() / getNbDecoupeLargeur());
+        System.out.println("hauteurParcelle : " + hauteurParcelle);
+        System.out.println("largeurParcelle : " + largeurParcelle);
+
+        for(int x = 0; x < getNbDecoupeLargeur(); x++) {
+            for(int y = 0; y < getNbDecoupeHauteur(); y++) {
                 listeImages.add(imageBase.getSubimage(x * largeurParcelle, y * hauteurParcelle, largeurParcelle, hauteurParcelle));
             }
         }
         return listeImages;
+    }
+
+    /**
+     * @return the nbDecoupeHauteur
+     */
+    public static int getNbDecoupeHauteur() {
+        return nbDecoupeHauteur;
+    }
+
+    /**
+     * @return the nbDecoupeLargeur
+     */
+    public static int getNbDecoupeLargeur() {
+        return nbDecoupeLargeur;
     }
 }

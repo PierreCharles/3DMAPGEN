@@ -7,14 +7,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-import javafx.beans.property.StringProperty;
+
 
 public class Traitement {
 
-    /**
-     *
-     */
-    public StringProperty etat;
+    
      
     /**
      * permet de créer un sommet du socle à partir un sommet du maillage de la carte
@@ -23,9 +20,9 @@ public class Traitement {
      * @return : Sommet du socle en dessous du paramètre s
      */
     public static Sommet pointDuSocle(Sommet s, BufferedImage img) {
-        double h=0.0;
+        double h= -5.0;
         if (doitEtreRemonte(img, s))
-            h = 2.0;
+            h = -2.0;
         return new Sommet(s.getZ(), h, s.getX());
     }
     
@@ -130,7 +127,7 @@ public class Traitement {
     }
     
    
-    public static Maillage ParcelleToMaillage(BufferedImage image, double max, int min) {
+    public static Maillage ParcelleToMaillage(BufferedImage image, double max) {
         
         Maillage m = new Maillage();
         int rouge;
@@ -141,14 +138,8 @@ public class Traitement {
         int couleur = 0;
         double hauteurSommet = 0.0;
         double resolution = max/256;
-        Sommet sommetHG;
-        Sommet socleHG;
-        Sommet sommetHD;
-        Sommet socleHD;
-        Sommet sommetBG;
-        Sommet socleBG;
-        Sommet sommetBD;
-        Sommet socleBD;
+        Sommet sommetHG, socleHG, sommetHD, socleHD, sommetBG, socleBG, sommetBD, socleBD;
+        
         
         for (int ligne = 0; ligne < image.getHeight()-1; ligne++) {
             for(int colonne = 0; colonne < image.getWidth()-1; colonne++) {
@@ -253,19 +244,143 @@ public class Traitement {
     }
     
     public static boolean doitEtreRemonte(BufferedImage image, Sommet s) {
-        return (s.getX() >= image.getWidth()*0.1 && s.getX() <= image.getWidth()*0.9 
-                && s.getZ() >= image.getHeight()*0.1 &&s.getZ() <= image.getHeight()*0.9   //zone du rectangle du socle
+        double deb = image.getWidth() * 0.1;
+        double fin = image.getWidth() * 0.9;
+        return (s.getX() >= deb && s.getX() <= fin 
+            && s.getZ() >= deb && s.getZ() <= image.getHeight() - deb  //zone du rectangle du socle
                 
-                || s.getX() >= image.getWidth()*0.45 && s.getX() <= image.getWidth()*0.55
-                && s.getZ() <= image.getHeight()*0.1    //slot haut
+            || s.getX() >= (image.getWidth()-deb)/2 && s.getX() <= (image.getWidth()+deb)/2
+            && s.getZ() <= deb   //slot haut
                 
-                || s.getX() <= image.getWidth()*0.1
-                && s.getZ() >= image.getHeight()*0.45 && s.getZ() <= image.getHeight()*0.55 //slot gauche
+            || s.getX() <= deb
+            && s.getZ() >= (image.getHeight()-deb)/2 && s.getZ() <= (image.getHeight()+deb)/2 //slot gauche
                 
-                || s.getX() >= image.getWidth()*0.45 && s.getX() <= image.getWidth()*0.55
-                && s.getZ() >= image.getHeight()*0.9     //slot bas
+            || s.getX() >= (image.getWidth()-deb)/2 && s.getX() <= (image.getWidth()+deb)/2
+            && s.getZ() >= image.getHeight()-deb     //slot bas
                 
-                || s.getZ() >= image.getHeight()*0.45 && s.getZ() <= image.getHeight()*0.55
-                && s.getX() >= image.getWidth()*0.9);       //slot droit
+            || s.getZ() >= (image.getHeight()-deb)/2 && s.getZ() <= (image.getHeight()+deb)/2
+            && s.getX() >= fin);       //slot droit
     }
+    
+    public static Integer getNbAttache(int nbDecoupeL, int nbDecoupeH) {
+        return (nbDecoupeL - 1) + (2*nbDecoupeL - 1) * (nbDecoupeH - 1);
+    }
+    
+    /*
+    Structure de l'attache:
+    3___4           11___12
+    |   |5__________7|   |
+    |                    |
+    |    6__________8    |
+    |___|            |___|
+    1   2           9    10
+    Sommet s0X: sommet au dessus de sX
+    */
+    public static Maillage genererAttache(BufferedImage parcelle) {
+        Maillage attache = new Maillage();
+        double deb = parcelle.getWidth() * 0.1;
+        Sommet s1 = new Sommet(0, 0, 0);
+        attache.getEnsembleSommets().put(s1.getId(), s1);
+        Sommet s01 = new Sommet(0, 3, 0);
+        attache.getEnsembleSommets().put(s01.getId(), s01);
+        Sommet s2 = new Sommet(deb/2, 0, 0);
+        attache.getEnsembleSommets().put(s2.getId(), s2);
+        Sommet s02 = new Sommet(deb/2, 3, 0);
+        attache.getEnsembleSommets().put(s02.getId(), s02);
+        Sommet s3 = new Sommet(0, 0, 2*deb);
+        attache.getEnsembleSommets().put(s3.getId(), s3);
+        Sommet s03 = new Sommet(0, 3, 2*deb);
+        attache.getEnsembleSommets().put(s03.getId(), s03);
+        Sommet s4 = new Sommet(deb/2, 0, 2*deb);
+        attache.getEnsembleSommets().put(s4.getId(), s4);
+        Sommet s04 = new Sommet(deb/2, 3, 2*deb);
+        attache.getEnsembleSommets().put(s04.getId(), s04);
+        Sommet s5 = new Sommet(deb/2, 0, 1.5*deb);
+        attache.getEnsembleSommets().put(s5.getId(), s5);
+        Sommet s05 = new Sommet(deb/2, 3, 1.5*deb);
+        attache.getEnsembleSommets().put(s05.getId(), s05);
+        Sommet s6 = new Sommet(deb/2, 0, deb/2);
+        attache.getEnsembleSommets().put(s6.getId(), s6);
+        Sommet s06 = new Sommet(deb/2, 3, deb/2);
+        attache.getEnsembleSommets().put(s06.getId(), s06);
+        Sommet s7 = new Sommet(2.5*deb, 0, 1.5*deb);
+        attache.getEnsembleSommets().put(s7.getId(), s7);
+        Sommet s07 = new Sommet(2.5*deb, 3, 1.5*deb);
+        attache.getEnsembleSommets().put(s07.getId(), s07);
+        Sommet s8 = new Sommet(2.5*deb, 0, deb/2);
+        attache.getEnsembleSommets().put(s8.getId(), s8);
+        Sommet s08 = new Sommet(2.5*deb, 3, deb/2);
+        attache.getEnsembleSommets().put(s08.getId(), s08);
+        Sommet s9 = new Sommet(2.5*deb, 0, 0);
+        attache.getEnsembleSommets().put(s9.getId(), s9);
+        Sommet s09 = new Sommet(2.5*deb, 3, 0);
+        attache.getEnsembleSommets().put(s09.getId(), s09);
+        Sommet s10 = new Sommet(3*deb, 0, 0);
+        attache.getEnsembleSommets().put(s10.getId(), s10);
+        Sommet s010 = new Sommet(3*deb, 3, 0);
+        attache.getEnsembleSommets().put(s010.getId(), s010);
+        Sommet s11 = new Sommet(2.5*deb, 0, 2*deb);
+        attache.getEnsembleSommets().put(s11.getId(), s11);
+        Sommet s011 = new Sommet(2.5*deb, 3, 2*deb);
+        attache.getEnsembleSommets().put(s011.getId(), s011);
+        Sommet s12 = new Sommet(3*deb, 0, 2*deb);
+        attache.getEnsembleSommets().put(s12.getId(), s12);
+        Sommet s012 = new Sommet(3*deb, 3, 2*deb);
+        attache.getEnsembleSommets().put(s012.getId(), s012);
+        //faces horizontales
+        attache.getEnsembleFaces().add(new Face (s1.getId(), s2.getId(), s3.getId()));
+        attache.getEnsembleFaces().add(new Face (s01.getId(), s02.getId(), s03.getId()));
+        attache.getEnsembleFaces().add(new Face (s2.getId(), s3.getId(), s4.getId()));
+        attache.getEnsembleFaces().add(new Face (s02.getId(), s03.getId(), s04.getId()));
+        attache.getEnsembleFaces().add(new Face (s5.getId(), s6.getId(), s7.getId()));
+        attache.getEnsembleFaces().add(new Face (s05.getId(), s06.getId(), s07.getId()));
+        attache.getEnsembleFaces().add(new Face (s6.getId(), s7.getId(), s8.getId()));
+        attache.getEnsembleFaces().add(new Face (s06.getId(), s07.getId(), s08.getId()));
+        attache.getEnsembleFaces().add(new Face (s9.getId(), s10.getId(), s11.getId()));
+        attache.getEnsembleFaces().add(new Face (s09.getId(), s010.getId(), s011.getId()));
+        attache.getEnsembleFaces().add(new Face (s10.getId(), s11.getId(), s12.getId()));
+        attache.getEnsembleFaces().add(new Face (s010.getId(), s011.getId(), s012.getId()));
+        
+        //faces verticales
+        
+        attache.getEnsembleFaces().add(new Face (s1.getId(), s01.getId(), s3.getId()));
+        attache.getEnsembleFaces().add(new Face(s3.getId(), s03.getId(), s01.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s1.getId(), s01.getId(), s2.getId()));
+        attache.getEnsembleFaces().add(new Face(s01.getId(), s02.getId(), s2.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s3.getId(), s03.getId(), s4.getId()));
+        attache.getEnsembleFaces().add(new Face(s03.getId(), s04.getId(), s4.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s2.getId(), s02.getId(), s6.getId()));
+        attache.getEnsembleFaces().add(new Face(s02.getId(), s06.getId(), s6.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s4.getId(), s04.getId(), s5.getId()));
+        attache.getEnsembleFaces().add(new Face(s04.getId(), s05.getId(), s5.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s6.getId(), s06.getId(), s8.getId()));
+        attache.getEnsembleFaces().add(new Face(s06.getId(), s08.getId(), s8.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s5.getId(), s05.getId(), s7.getId()));
+        attache.getEnsembleFaces().add(new Face(s05.getId(), s07.getId(), s7.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s8.getId(), s9.getId(), s08.getId()));
+        attache.getEnsembleFaces().add(new Face(s08.getId(), s9.getId(), s09.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s7.getId(), s07.getId(), s11.getId()));
+        attache.getEnsembleFaces().add(new Face(s07.getId(), s11.getId(), s011.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s9.getId(), s10.getId(), s09.getId()));
+        attache.getEnsembleFaces().add(new Face(s09.getId(), s10.getId(), s010.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s11.getId(), s12.getId(), s011.getId()));
+        attache.getEnsembleFaces().add(new Face(s011.getId(), s012.getId(), s12.getId()));
+        
+        attache.getEnsembleFaces().add(new Face(s12.getId(), s10.getId(), s012.getId()));
+        attache.getEnsembleFaces().add(new Face(s10.getId(), s012.getId(), s010.getId()));
+        
+
+        return attache;
+    }
+	
 }

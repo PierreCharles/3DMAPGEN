@@ -9,7 +9,10 @@ public class Sommet {
     private int id;
     
     //constructeur
-    public Sommet(Double ligne, Double hauteur, Double colonne) {
+
+
+    public Sommet(double ligne, double hauteur, double colonne) {
+
         x = colonne;
         y = hauteur;
         z = ligne;
