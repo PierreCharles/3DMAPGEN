@@ -26,6 +26,7 @@ import static TraitementImage.Exporter.createDirectory;
 import static TraitementImage.Exporter.exportAttacheToObj;
 import static TraitementImage.Traitement.ParcelleToMaillage;
 import static TraitementImage.Traitement.genererAttache;
+import static TraitementImage.Traitement.miseAEchelle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,6 @@ public class MainWindowController extends Stage {
 
     Image image;
     private Parametres para;
-    private double rapportH, rapportL;
 
 
     
@@ -92,20 +92,22 @@ public class MainWindowController extends Stage {
     public void onTraitement(ActionEvent envent) throws IOException {
         ouvrirProgressStage();
         Charger ch = new Charger(new File(selectedFile.toURI()));
-        ch.ajouterImage();
-
-        
-        rapportH = para.getHauteurImage()/ch.getHauteur();
-        rapportL = para.getLargeurImage()/ch.getLargeur();
+        ch.ajouterImage();        
         
         List<BufferedImage> listeImages  = decouperImage(ch, para.getLargeurImage(), para.getHauteurImage(), para.getLargeurMaxImpression(), para.getHauteurMaxImpression());
-        
-
+         
         listeImages.forEach((image) -> {
-            listeParcelles.add(ParcelleToMaillage(image, para.getHauteurMaillage()));
+            listeParcelles.add(ParcelleToMaillage(image, para.getHauteurMaillage(), para));
         });
         
+        listeParcelles.forEach((parcelle) -> {
+            System.out.println("mise à l'échelle parcelle");
+            miseAEchelle(parcelle, listeImages.get(0), para);
+        });
+    
+        System.out.println("mise à l'échelle attache");
         attache = genererAttache(listeImages.get(0));
+        miseAEchelle(attache, listeImages.get(0), para);
         
         enregistrer.setDisable(false);
         traitementBtn.setDisable(true);

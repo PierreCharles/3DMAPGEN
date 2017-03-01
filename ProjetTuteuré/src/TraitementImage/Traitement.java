@@ -7,6 +7,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import Parametres.Parametres;
+import static TraitementImage.Decoupage.getHauteurParcelle;
+import static TraitementImage.Decoupage.getLargeurParcelle;
+import java.util.Collection;
+import java.util.Iterator;
 
 
 public class Traitement {
@@ -97,9 +102,12 @@ public class Traitement {
         return vecteurSommet;
     }
     
-    public static Sommet testSommet (int ligne, int colonne, Double resolution, BufferedImage image, Maillage m)
+    
+    
+    public static Sommet testSommet (int ligne, int colonne, Double resolution, BufferedImage image, Maillage m, Parametres para)
     {
         List<Sommet> vecteurPrecedent;
+        
         
         if(ligne == 0)
         {
@@ -127,16 +135,9 @@ public class Traitement {
     }
     
    
-    public static Maillage ParcelleToMaillage(BufferedImage image, double max) {
+    public static Maillage ParcelleToMaillage(BufferedImage image, double max, Parametres para) {
         
         Maillage m = new Maillage();
-        int rouge;
-        int vert;
-        int bleu;
-        int moyenne;
-        int pixel = 0;
-        int couleur = 0;
-        double hauteurSommet = 0.0;
         double resolution = max/256;
         Sommet sommetHG, socleHG, sommetHD, socleHD, sommetBG, socleBG, sommetBD, socleBD;
         
@@ -144,19 +145,19 @@ public class Traitement {
         for (int ligne = 0; ligne < image.getHeight()-1; ligne++) {
             for(int colonne = 0; colonne < image.getWidth()-1; colonne++) {
                 if (ligne+1 < image.getHeight()-1 || colonne+1 < image.getWidth()-1 || ligne < image.getHeight()-1 || colonne < image.getWidth()-1){
-                    sommetHG = testSommet(ligne, colonne, resolution, image, m);
+                    sommetHG = testSommet(ligne, colonne, resolution, image, m, para);
                     //sommetHG = creationSommet(i,j,resolution);
                     m.getEnsembleSommets().put(sommetHG.getId(), sommetHG);
 
-                    sommetHD = testSommet(ligne, colonne+1, resolution, image, m);
+                    sommetHD = testSommet(ligne, colonne+1, resolution, image, m, para);
                     //sommetHD = creationSommet(i+1, j, resolution);
                     m.getEnsembleSommets().put(sommetHD.getId(), sommetHD);
 
-                    sommetBG = testSommet(ligne+1, colonne, resolution, image, m);
+                    sommetBG = testSommet(ligne+1, colonne, resolution, image, m, para);
                     //sommetBG = creationSommet(i, j+1, resolution);
                     m.getEnsembleSommets().put(sommetBG.getId(), sommetBG);
                     //System.out.println("Sommet BD : i = "+ i + " j = " + j);
-                    sommetBD = testSommet(ligne+1, colonne+1, resolution, image, m);
+                    sommetBD = testSommet(ligne+1, colonne+1, resolution, image, m, para);
                     //sommetBD = creationSommet(i+1, j+1, resolution);
                     m.getEnsembleSommets().put(sommetBD.getId(), sommetBD);
 
@@ -382,5 +383,17 @@ public class Traitement {
 
         return attache;
     }
-	
+    
+    public static void miseAEchelle(Maillage m, BufferedImage img, Parametres para) {
+        
+        double rapportX = para.getLargeurMaxImpression()/getLargeurParcelle();
+        double rapportZ = para.getHauteurMaxImpression()/getHauteurParcelle();
+        for (int i =1; i <= m.getEnsembleSommets().size(); i++) {
+            Sommet s = (Sommet)m.getEnsembleSommets().get(i);
+            s.setX(s.getX()*rapportX);
+            s.setZ(s.getZ()*rapportZ);
+        }
+        
+    }
+    
 }
