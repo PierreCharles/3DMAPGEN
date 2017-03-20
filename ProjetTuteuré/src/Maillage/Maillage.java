@@ -8,14 +8,16 @@ import java.util.TreeMap;
 public class Maillage {
 
     //attributs
-    private TreeMap ensembleSommets;
+    private TreeMap<Double,TreeMap<Double,Sommet>> ensembleSommets;
+    private TreeMap<Double,TreeMap<Double,Sommet>> ensembleSommetsSocle;
     private LinkedList<Face> ensembleFaces;
-    private ArrayList<Sommet> listeSocle;
+    //private ArrayList<Sommet> listeSocle;
     
     public Maillage() {
         ensembleFaces = new LinkedList();
-        ensembleSommets = new TreeMap();
-        listeSocle = new ArrayList<>();
+        ensembleSommets = new TreeMap<Double, TreeMap<Double, Sommet>>();
+        ensembleSommetsSocle = new TreeMap<Double, TreeMap<Double, Sommet>>();
+        //listeSocle = new ArrayList<>();
         resetCpt();
     }
     
@@ -27,8 +29,8 @@ public class Maillage {
         return ensembleFaces;
     }
     
-    public ArrayList<Sommet> getListeSocle() {
-        return listeSocle;
+    public TreeMap getEnsembleSommetsSocle() {
+        return ensembleSommetsSocle;
     }
     
     public void ajouterFace(Face f) {
@@ -38,9 +40,23 @@ public class Maillage {
         return ensembleFaces.size();
     }
     
-    public void addSommet(Sommet s) {
-        this.ensembleSommets.put(s.getId(), s);
+    public void ajouterSommet(double ligne, double colonne, Sommet sommet) {
+        if(!this.ensembleSommets.containsKey(ligne)){
+            this.ensembleSommets.put(ligne,new TreeMap());
+            this.ensembleSommets.get(ligne).put(colonne, sommet);
+        }
+        else{
+            this.ensembleSommets.get(ligne).put(colonne, sommet);
+        }
     }
     
-    
+    public void ajouterSommetSocle(double ligne, double colonne, Sommet sommet) {
+        if(!this.ensembleSommetsSocle.containsKey(ligne)){
+            this.ensembleSommetsSocle.put(ligne,new TreeMap());
+            this.ensembleSommetsSocle.get(ligne).put(colonne, sommet);
+        }
+        else{
+            this.ensembleSommetsSocle.get(ligne).put(colonne, sommet);
+        }
+    }
 }

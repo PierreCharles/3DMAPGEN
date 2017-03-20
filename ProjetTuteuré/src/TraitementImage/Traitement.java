@@ -10,26 +10,16 @@ import java.util.TreeMap;
 import Parametres.Parametres;
 import static TraitementImage.Decoupage.getHauteurParcelle;
 import static TraitementImage.Decoupage.getLargeurParcelle;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 
 public class Traitement {
 
     
      
-    /**
-     * permet de créer un sommet du socle à partir un sommet du maillage de la carte
-     * @param s : Sommet du maillage de la carte
-     * @param img: parcelle à mailler
-     * @return : Sommet du socle en dessous du paramètre s
-     */
-    public static Sommet pointDuSocle(Sommet s, BufferedImage img) {
-        double h= -5.0;
-        if (doitEtreRemonte(img, s))
-            h = -2.0;
-        return new Sommet(s.getZ(), h, s.getX());
-    }
+
     
     /**
      * Permet d'obtenir la hauteur d'un pixel donné de l'image chargée en fonction de ses coordonées
@@ -54,7 +44,7 @@ public class Traitement {
         vert = (pixel >> 8) & 0xff;
         bleu = (pixel) & 0xff;
         moyenne = 255-(rouge+vert+bleu)/3;
-        hauteur = resolution*moyenne;
+        hauteur = (resolution*moyenne) + 50;
         
         return hauteur;
     }
@@ -69,7 +59,7 @@ public class Traitement {
      * @param finZ : "profondeur" de la borne basse de la zone
      * @return : une liste de sommets qui contient tous ceux présents dans la zone
      */
-    public static ArrayList<Sommet> recupererZone(Maillage m, double depX,double finX, double depZ, double finZ) {
+    /*public static ArrayList<Sommet> recupererZone(Maillage m, double depX,double finX, double depZ, double finZ) {
         ArrayList<Sommet> zone = new ArrayList<>();
         for (int i = 0; i < m.getListeSocle().size(); i++) {
              if (m.getListeSocle().get(i).getX() >= depX && m.getListeSocle().get(i).getX() <= finX) {
@@ -79,142 +69,269 @@ public class Traitement {
             }
         }
         return zone;
-    }
+    }*/
     
-    /**
-     * Permet de retourner une liste de Sommet correspondant à une ligne de l'image
-     * Pour avoir uniquement les sommets correspondant a l'image de base, nous récupérons 1 sommet sur 2 car l'autre correspond au sommet du socle
-     * @param indiceLigne Indice de la ligne que l'on souhaite récupérer
-     * @param L Largeur de l'image
-     * @param H Hauteur de l'image
-     * @param ensembleSommet Liste de tous les Sommet du Maillage
-     * @return La liste des Sommet de la ligne
+        /**
+     * permet de créer un sommet du socle à partir un sommet du maillage de la carte
+     * @param s : Sommet du maillage de la carte
+     * @param img: parcelle à mailler
+     * @return : Sommet du socle en dessous du paramètre s
      */
-    public static List<Sommet> vecteurSommet (int indiceLigne, int L, int H, TreeMap ensembleSommet){
-        int debut = indiceLigne * (L-1);
-        int fin = (indiceLigne * (L-1)) + (L-1);
-        List<Sommet> vecteurSommet = new ArrayList<>();
-        
-        for(int i = debut; i<=fin; i++)
-        {
-            vecteurSommet.add((Sommet)ensembleSommet.get(i));
-        }
-        return vecteurSommet;
+    public static Sommet pointDuSocle(Sommet s, BufferedImage img) {
+        double h= -5.0;
+        if (doitEtreRemonte(img, s))
+            h = -2.0;
+        return new Sommet(s.getZ(), h, s.getX());
     }
     
-    
-    
-    public static Sommet testSommet (int ligne, int colonne, Double resolution, BufferedImage image, Maillage m, Parametres para)
-    {
-        List<Sommet> vecteurPrecedent;
-        
-        
-        if(ligne == 0)
-        {
-            Sommet sommet = (Sommet)m.getEnsembleSommets().get(colonne);
-            if(sommet != null && sommet.getX() == colonne && sommet.getY() == getHauteurPixel(ligne, colonne, resolution, image) && sommet.getZ() == ligne)
-            {
-                return sommet;
+    /*public static Sommet[] creerSommetSocle(double ligne, double colonne, BufferedImage image, Maillage m){
+        Sommet socleHG, socleHD, socleBG, socleBD;
+        Sommet[] ensembleSocleTmp = new Sommet[4];
+        if(ligne == 0){
+            if(colonne == 0){
+                socleHG = new Sommet(ligne, 0, colonne);
+                m.ajouterSommetSocle(ligne, colonne, socleHG);
+                socleHD = new Sommet(ligne, 0, colonne + 1);
+                m.ajouterSommetSocle(ligne, colonne + 1, socleHD);
+                socleBG = new Sommet(ligne + 1 , 0, colonne);
+                m.ajouterSommetSocle(ligne + 1, colonne, socleBG);
+                socleBD = new Sommet(ligne + 1, 0, colonne + 1);
+                m.ajouterSommetSocle(ligne + 1, colonne + 1, socleBD); 
             }
-            return new Sommet((double)ligne, getHauteurPixel(ligne, colonne, resolution, image), (double)colonne);
-        }
-        else
-        {
-            vecteurPrecedent = vecteurSommet(ligne-1, image.getWidth(), image.getHeight(), m.getEnsembleSommets());
-            //System.out.println("colonne : "+colonne+" ligne : "+ligne+" taille vecteur : "+vecteurPrecedent.size());
-            Sommet sommet = vecteurPrecedent.get(colonne);
-            if (sommet != null && sommet.getX() == colonne && sommet.getY() == getHauteurPixel(ligne, colonne, resolution, image) && sommet.getZ() == ligne) 
-            {
-                return sommet;
-            }
-            else 
-            {
-                return new Sommet((double)ligne, getHauteurPixel(ligne, colonne, resolution, image), (double)colonne);
+            else{
+                TreeMap socleHGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                socleHG = (Sommet) socleHGTreeMap.get(colonne);
+                TreeMap socleBGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne + 1);
+                socleBG = (Sommet) socleBGTreeMap.get(colonne);
+                socleHD = new Sommet(ligne, 0, colonne + 1);
+                m.ajouterSommetSocle(ligne, colonne + 1, socleHD);
+                socleBD = new Sommet(ligne + 1, 0, colonne + 1);
+                m.ajouterSommetSocle(ligne + 1, colonne + 1, socleBD); 
             }
         }
+        else{
+            if (colonne == 0){
+                TreeMap socleHGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                socleHG = (Sommet) socleHGTreeMap.get(colonne);
+                TreeMap socleHDTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                socleHD = (Sommet) socleHDTreeMap.get(colonne + 1); 
+                socleBG = new Sommet(ligne + 1 , 0, colonne);
+                m.ajouterSommetSocle(ligne + 1, colonne, socleBG);
+                socleBD = new Sommet(ligne + 1, 0, colonne + 1);
+                m.ajouterSommetSocle(ligne + 1, colonne + 1, socleBD);
+            }
+            else {
+                TreeMap socleHGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                socleHG = (Sommet) socleHGTreeMap.get(colonne);
+                TreeMap socleHDTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                socleHD = (Sommet) socleHDTreeMap.get(colonne + 1);
+                TreeMap socleBGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne+1);
+                socleBG = (Sommet) socleBGTreeMap.get(colonne);
+                socleBD = new Sommet(ligne + 1, 0, colonne + 1);
+                m.ajouterSommetSocle(ligne + 1, colonne + 1, socleBD);
+            }
+        }
+        
+        Face socleTriangleG = new Face(socleHG.getId(), socleHD.getId(), socleBG.getId());
+        Face socleTriangleD = new Face(socleHD.getId(), socleBD.getId(), socleBG.getId());
+                    
+        m.getEnsembleFaces().add(socleTriangleG);
+        m.getEnsembleFaces().add(socleTriangleD);
+                    
+        ensembleSocleTmp[0] = socleHG;
+        ensembleSocleTmp[1] = socleHD;
+        ensembleSocleTmp[2] = socleBG;
+        ensembleSocleTmp[3] = socleBD;
+        
+        return ensembleSocleTmp;
     }
+    
+    public static Sommet[] creerSommetSurface(double ligne, double colonne,double resolution, BufferedImage image, Maillage m){
+        Sommet sommetHG, sommetHD, sommetBG, sommetBD;
+        Sommet[] ensembleSocleTmp = new Sommet[4];
+        
+        if(ligne == 0){
+            if(colonne == 0){
+                sommetHG = new Sommet(ligne, getHauteurPixel(ligne, colonne, resolution, image), colonne);
+                m.ajouterSommet(ligne, colonne, sommetHG);
+                sommetHD = new Sommet(ligne, getHauteurPixel(ligne, colonne + 1, resolution, image), colonne + 1);
+                m.ajouterSommet(ligne, colonne + 1, sommetHD);
+                sommetBG = new Sommet(ligne + 1 , getHauteurPixel(ligne + 1, colonne, resolution, image), colonne);
+                m.ajouterSommet(ligne + 1, colonne, sommetBG);
+                sommetBD = new Sommet(ligne + 1, getHauteurPixel(ligne + 1, colonne + 1, resolution, image), colonne + 1);
+                m.ajouterSommet(ligne + 1, colonne + 1, sommetBD); 
+            }
+            else{
+                TreeMap sommetHGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                sommetHG = (Sommet) sommetHGTreeMap.get(colonne);
+                TreeMap sommetBGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne + 1);
+                sommetBG = (Sommet) sommetBGTreeMap.get(colonne);
+                sommetHD = new Sommet(ligne, getHauteurPixel(ligne, colonne + 1, resolution, image), colonne + 1);
+                m.ajouterSommet(ligne, colonne + 1, sommetHD);
+                sommetBD = new Sommet(ligne + 1, getHauteurPixel(ligne + 1, colonne + 1, resolution, image), colonne + 1);
+                m.ajouterSommet(ligne + 1, colonne + 1, sommetBD); 
+            }
+        }
+        else{
+            if (colonne == 0){
+                TreeMap sommetHGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                sommetHG = (Sommet) sommetHGTreeMap.get(colonne);
+                TreeMap sommetHDTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                sommetHD = (Sommet) sommetHDTreeMap.get(colonne + 1); 
+                sommetBG = new Sommet(ligne + 1 , 0, colonne);
+                m.ajouterSommet(ligne + 1, colonne, sommetBG);
+                sommetBD = new Sommet(ligne + 1, 0, colonne + 1);
+                m.ajouterSommet(ligne + 1, colonne + 1, sommetBD);
+            }
+            else {
+                TreeMap sommetHGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                sommetHG = (Sommet) sommetHGTreeMap.get(colonne);
+                TreeMap sommetHDTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                sommetHD = (Sommet) sommetHDTreeMap.get(colonne + 1);
+                TreeMap sommetBGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne+1);
+                sommetBG = (Sommet) sommetBGTreeMap.get(colonne);
+                sommetBD = new Sommet(ligne + 1, 0, colonne + 1);
+                m.ajouterSommet(ligne + 1, colonne + 1, sommetBD);
+            }
+        }
+        
+        Face triangleG = new Face(sommetHG.getId(),sommetHD.getId(),sommetBG.getId());
+        Face triangleD = new Face(sommetHD.getId(),sommetBD.getId(),sommetBG.getId());
+        
+        m.getEnsembleFaces().add(triangleG);
+        m.getEnsembleFaces().add(triangleD);
+        
+        ensembleSocleTmp[0] = sommetHG;
+        ensembleSocleTmp[1] = sommetHD;
+        ensembleSocleTmp[2] = sommetBG;
+        ensembleSocleTmp[3] = sommetBD;
+        
+        return ensembleSocleTmp;
+    }*/
     
    
     public static Maillage ParcelleToMaillage(BufferedImage image, double max, Parametres para) {
         
         Maillage m = new Maillage();
         double resolution = max/256;
-        Sommet sommetHG, socleHG, sommetHD, socleHD, sommetBG, socleBG, sommetBD, socleBD;
+        Sommet sommetHG,sommetHD,sommetBG,sommetBD,socleHG,socleHD,socleBG,socleBD;
         
-        
-        for (int ligne = 0; ligne < image.getHeight()-1; ligne++) {
-            for(int colonne = 0; colonne < image.getWidth()-1; colonne++) {
-                if (ligne+1 < image.getHeight()-1 || colonne+1 < image.getWidth()-1 || ligne < image.getHeight()-1 || colonne < image.getWidth()-1){
-                    sommetHG = testSommet(ligne, colonne, resolution, image, m, para);
-                    //sommetHG = creationSommet(i,j,resolution);
-                    m.getEnsembleSommets().put(sommetHG.getId(), sommetHG);
-
-                    sommetHD = testSommet(ligne, colonne+1, resolution, image, m, para);
-                    //sommetHD = creationSommet(i+1, j, resolution);
-                    m.getEnsembleSommets().put(sommetHD.getId(), sommetHD);
-
-                    sommetBG = testSommet(ligne+1, colonne, resolution, image, m, para);
-                    //sommetBG = creationSommet(i, j+1, resolution);
-                    m.getEnsembleSommets().put(sommetBG.getId(), sommetBG);
-                    //System.out.println("Sommet BD : i = "+ i + " j = " + j);
-                    sommetBD = testSommet(ligne+1, colonne+1, resolution, image, m, para);
-                    //sommetBD = creationSommet(i+1, j+1, resolution);
-                    m.getEnsembleSommets().put(sommetBD.getId(), sommetBD);
+        for (double ligne = 0; ligne+1 < image.getHeight()-1; ligne++) {
+            for(double colonne = 0; colonne+1 < image.getWidth()-1; colonne++) {
+                
+                //if (ligne+1 < image.getHeight() || colonne+1 < image.getWidth() || ligne < image.getHeight()-1 || colonne < image.getWidth()-1){
+                    
+                    //listeSommetSurface = creerSommetSurface(ligne, colonne, resolution, image, m);
+                    /**
+                     * Créer les sommet de la surface
+                     */
+                    
+                    /* Si on est en 0;0 */
+                    if(ligne == 0){
+                        if(colonne == 0){
+                            sommetHG = new Sommet(ligne, getHauteurPixel(ligne, colonne, resolution, image), colonne);
+                            m.ajouterSommet(ligne, colonne, sommetHG);
+                            sommetHD = new Sommet(ligne, getHauteurPixel(ligne, colonne + 1, resolution, image), colonne + 1);
+                            m.ajouterSommet(ligne, colonne + 1, sommetHD);
+                            sommetBG = new Sommet(ligne + 1 , getHauteurPixel(ligne + 1, colonne, resolution, image), colonne);
+                            m.ajouterSommet(ligne + 1, colonne, sommetBG);
+                            sommetBD = new Sommet(ligne + 1, getHauteurPixel(ligne + 1, colonne + 1, resolution, image), colonne + 1);
+                            m.ajouterSommet(ligne + 1, colonne + 1, sommetBD); 
+                            
+                            socleHG = new Sommet(ligne, 0, colonne);
+                            m.ajouterSommetSocle(ligne, colonne, socleHG);
+                            socleHD = new Sommet(ligne, 0, colonne + 1);
+                            m.ajouterSommetSocle(ligne, colonne + 1, socleHD);
+                            socleBG = new Sommet(ligne + 1 , 0, colonne);
+                            m.ajouterSommetSocle(ligne + 1, colonne, socleBG);
+                            socleBD = new Sommet(ligne + 1, 0, colonne + 1);
+                            m.ajouterSommetSocle(ligne + 1, colonne + 1, socleBD);
+                        }
+                        else{
+                            TreeMap sommetHGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                            sommetHG = (Sommet) sommetHGTreeMap.get(colonne);
+                            TreeMap sommetBGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne + 1);
+                            sommetBG = (Sommet) sommetBGTreeMap.get(colonne);
+                            sommetHD = new Sommet(ligne, getHauteurPixel(ligne, colonne + 1, resolution, image), colonne + 1);
+                            m.ajouterSommet(ligne, colonne + 1, sommetHD);
+                            sommetBD = new Sommet(ligne + 1, getHauteurPixel(ligne + 1, colonne + 1, resolution, image), colonne + 1);
+                            m.ajouterSommet(ligne + 1, colonne + 1, sommetBD); 
+                            
+                            TreeMap socleHGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                            socleHG = (Sommet) socleHGTreeMap.get(colonne);
+                            TreeMap socleBGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne + 1);
+                            socleBG = (Sommet) socleBGTreeMap.get(colonne);
+                            socleHD = new Sommet(ligne, 0, colonne + 1);
+                            m.ajouterSommetSocle(ligne, colonne + 1, socleHD);
+                            socleBD = new Sommet(ligne + 1, 0, colonne + 1);
+                            m.ajouterSommetSocle(ligne + 1, colonne + 1, socleBD);
+                        }
+                    }
+                    else{
+                        if (colonne == 0){
+                            TreeMap sommetHGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                            sommetHG = (Sommet) sommetHGTreeMap.get(colonne);
+                            TreeMap sommetHDTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                            sommetHD = (Sommet) sommetHDTreeMap.get(colonne + 1); 
+                            sommetBG = new Sommet(ligne + 1 , getHauteurPixel(ligne, colonne + 1, resolution, image), colonne);
+                            m.ajouterSommet(ligne + 1, colonne, sommetBG);
+                            sommetBD = new Sommet(ligne + 1, getHauteurPixel(ligne, colonne + 1, resolution, image), colonne + 1);
+                            m.ajouterSommet(ligne + 1, colonne + 1, sommetBD);
+                            
+                            TreeMap socleHGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                            socleHG = (Sommet) socleHGTreeMap.get(colonne);
+                            TreeMap socleHDTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                            socleHD = (Sommet) socleHDTreeMap.get(colonne + 1); 
+                            socleBG = new Sommet(ligne + 1 , 0, colonne);
+                            m.ajouterSommetSocle(ligne + 1, colonne, socleBG);
+                            socleBD = new Sommet(ligne + 1, 0, colonne + 1);
+                            m.ajouterSommetSocle(ligne + 1, colonne + 1, socleBD);
+                        }
+                        else {
+                            TreeMap sommetHGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                            sommetHG = (Sommet) sommetHGTreeMap.get(colonne);
+                            TreeMap sommetHDTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne);
+                            sommetHD = (Sommet) sommetHDTreeMap.get(colonne + 1);
+                            TreeMap sommetBGTreeMap = (TreeMap) m.getEnsembleSommets().get(ligne+1);
+                            sommetBG = (Sommet) sommetBGTreeMap.get(colonne);
+                            sommetBD = new Sommet(ligne + 1, getHauteurPixel(ligne, colonne + 1, resolution, image), colonne + 1);
+                            m.ajouterSommet(ligne + 1, colonne + 1, sommetBD);
+                            
+                            TreeMap socleHGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                            socleHG = (Sommet) socleHGTreeMap.get(colonne);
+                            TreeMap socleHDTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne);
+                            socleHD = (Sommet) socleHDTreeMap.get(colonne + 1);
+                            TreeMap socleBGTreeMap = (TreeMap) m.getEnsembleSommetsSocle().get(ligne+1);
+                            socleBG = (Sommet) socleBGTreeMap.get(colonne);
+                            socleBD = new Sommet(ligne + 1, 0, colonne + 1);
+                            m.ajouterSommetSocle(ligne + 1, colonne + 1, socleBD);
+                        }
+                    }
 
                     Face triangleG = new Face(sommetHG.getId(),sommetHD.getId(),sommetBG.getId());
                     Face triangleD = new Face(sommetHD.getId(),sommetBD.getId(),sommetBG.getId());
-                
-                    /*SOCLE*/
-
-                    //ajoute le sommet i,j dans l'ensemble de tout les sommets
-                    //crée le sommet du socle à une hauteur de 0
-                    socleHG = pointDuSocle(sommetHG, image);
-                    m.getEnsembleSommets().put(socleHG.getId(), socleHG);
-                    m.getListeSocle().add(socleHG);
-
-                    //ajoute le sommet i+1,j dans l'ensemble de tout les sommets
-                    //crée le sommet du socle à une hauteur de 0
-                    socleHD = pointDuSocle(sommetHD, image);
-                    m.getEnsembleSommets().put(socleHD.getId(), socleHD);
-                    m.getListeSocle().add(socleHD);
-
-                     //ajoute le sommet i,j+1 dans l'ensemble de tout les sommets
-                    //crée le sommet du socle à une hauteur de 0
-                    socleBG = pointDuSocle(sommetBG, image);
-                    m.getEnsembleSommets().put(socleBG.getId(), socleBG);
-                    m.getListeSocle().add(socleBG);
-
-                    //ajoute le sommet i+1,j+1 dans l'ensemble de tout les sommets
-                    //crée le sommet du socle à une hauteur de 0
-                    socleBD = pointDuSocle(sommetBD, image);
-                    m.getEnsembleSommets().put(socleBD.getId(), socleBD);
-                    m.getListeSocle().add(socleBD);
-
-                    //crée les faces à partir des sommets du socle
                     Face socleTriangleG = new Face(socleHG.getId(), socleHD.getId(), socleBG.getId());
                     Face socleTriangleD = new Face(socleHD.getId(), socleBD.getId(), socleBG.getId());
-
-
-                   //ajout des faces
+                    
+                    
                     m.getEnsembleFaces().add(triangleG);
                     m.getEnsembleFaces().add(triangleD);
-                    //ajout des faces du socle
                     m.getEnsembleFaces().add(socleTriangleG);
                     m.getEnsembleFaces().add(socleTriangleD);
 
                     // COTES
-                        // Cote gauche
+                    // Cote gauche
                     if(colonne == 0) {
-                        Face cote1 = new Face(sommetHG.getId(), sommetBG.getId(), socleHG.getId());
-                        Face cote2 = new Face(sommetBG.getId(), socleBG.getId(), socleHG.getId());
+                        Face cote1 = new Face(sommetHG.getId(),sommetBG.getId(),socleHG.getId());
+                        Face cote2 = new Face(sommetBG.getId(), socleBG.getId(),socleHG.getId());
 
                         m.getEnsembleFaces().add(cote1);
                         m.getEnsembleFaces().add(cote2);
                     }
                         // Cote haut
                     if(ligne == 0) {
-                        Face cote1 = new Face(sommetHG.getId(), sommetHD.getId(), socleHG.getId());
-                        Face cote2 = new Face(sommetHD.getId(), socleHD.getId(), socleHG.getId());
+                        Face cote1 = new Face(sommetHG.getId(),sommetHD.getId(),socleHG.getId());
+                        Face cote2 = new Face(sommetHD.getId(),socleHD.getId(),socleHG.getId());
 
                         m.getEnsembleFaces().add(cote1);
                         m.getEnsembleFaces().add(cote2);
@@ -223,21 +340,23 @@ public class Traitement {
                     
                         // Cote droit
                    if(ligne == (image.getHeight()- 2)) {
-                        Face cote1 = new Face(sommetBG.getId(), sommetBD.getId(), socleBG.getId());
-                        Face cote2 = new Face(sommetBD.getId(), socleBD.getId(), socleBG.getId());
+                       Face cote1 = new Face(sommetBG.getId(),sommetBD.getId(),socleBG.getId());
+                        Face cote2 = new Face(sommetBD.getId(),socleBD.getId(),socleBG.getId());
+                        
 
                         m.getEnsembleFaces().add(cote1);
                         m.getEnsembleFaces().add(cote2);
                     }
                         // Cote bas
                     if(colonne == (image.getWidth()- 2)) {
-                        Face cote1 = new Face(sommetHD.getId(), sommetBD.getId(), socleHD.getId());
-                        Face cote2 = new Face(sommetBD.getId(), socleBD.getId(), socleHD.getId());
+                        Face cote1 = new Face(sommetHD.getId(),sommetBD.getId(),socleHD.getId());
+                        Face cote2 = new Face(sommetBD.getId(),socleBD.getId(),socleHD.getId());
 
                         m.getEnsembleFaces().add(cote1);
                         m.getEnsembleFaces().add(cote2);
+                        
                     }
-                }
+                //}
             }
         }
         
@@ -388,11 +507,45 @@ public class Traitement {
         
         double rapportX = para.getLargeurMaxImpression()/getLargeurParcelle();
         double rapportZ = para.getHauteurMaxImpression()/getHauteurParcelle();
-        for (int i =1; i <= m.getEnsembleSommets().size(); i++) {
-            Sommet s = (Sommet)m.getEnsembleSommets().get(i);
-            s.setX(s.getX()*rapportX);
-            s.setZ(s.getZ()*rapportZ);
-        }
+        
+        Set<Map.Entry<Double, TreeMap>> setLigne = m.getEnsembleSommets().entrySet();
+            Iterator<Map.Entry<Double, TreeMap>> it = setLigne.iterator();
+            while(it.hasNext()){
+                Map.Entry<Double, TreeMap> e = it.next();
+                TreeMap sommetTreeMap = e.getValue();
+                
+                
+                Set<Map.Entry<Double,Sommet>> setColonne = sommetTreeMap.entrySet();
+                Iterator<Map.Entry<Double,Sommet>> it2 = setColonne.iterator();
+                
+                while(it2.hasNext()){
+                    Map.Entry<Double, Sommet> sommetEntry = it2.next();
+                    sommetEntry.getValue().setX(sommetEntry.getValue().getX()*rapportX);
+                    sommetEntry.getValue().setZ(sommetEntry.getValue().getZ()*rapportZ);
+                }
+                
+            }
+            
+            /**
+             * Ecriture de l'ensemble des points du socle
+             */
+            Set<Map.Entry<Double, TreeMap>> setLigneSocle = m.getEnsembleSommetsSocle().entrySet();
+            Iterator<Map.Entry<Double, TreeMap>> it3 = setLigneSocle.iterator();
+            while(it3.hasNext()){
+                Map.Entry<Double, TreeMap> e2 = it3.next();
+                TreeMap sommetTreeMapSocle = e2.getValue();
+                
+                
+                Set<Map.Entry<Double,Sommet>> setColonneSocle = sommetTreeMapSocle.entrySet();
+                Iterator<Map.Entry<Double,Sommet>> it4 = setColonneSocle.iterator();
+                
+                while(it4.hasNext()){
+                    Map.Entry<Double, Sommet> sommetEntrySocle = it4.next();
+                    sommetEntrySocle.getValue().setX(sommetEntrySocle.getValue().getX()*rapportX);
+                    sommetEntrySocle.getValue().setZ(sommetEntrySocle.getValue().getZ()*rapportZ);
+                }
+                
+            }
         
     }
     
