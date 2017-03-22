@@ -30,15 +30,17 @@ import static TraitementImage.Traitement.miseAEchelle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.layout.GridPane;
 
 public class MainWindowController extends Stage {
     
-   // @FXML MenuItem ouvrir;
+    @FXML GridPane gridPane;
     private String imagePath;
     @FXML private ImageView viewImage;  
     //@FXML private Button traitementButton;
     //@FXML private MenuItem close;
     @FXML private Button enregistrer, traitementBtn, ouvrirBtn;
+    @FXML private MenuItem preferences, preferences1;
 
     Image image;
     private Parametres para;
@@ -159,4 +161,26 @@ public class MainWindowController extends Stage {
         progressStage.setResizable(false);
 
     }
+    @FXML 
+    public void changerTheme1() {
+        gridPane.setStyle("-fx-background-color:white");
+        enregistrer.getStyleClass().remove("record-sales");
+        enregistrer.getStyleClass().add("basic");
+        traitementBtn.getStyleClass().remove("record-sales");
+        traitementBtn.getStyleClass().add("basic");
+        ouvrirBtn.getStyleClass().remove("record-sales");
+        ouvrirBtn.getStyleClass().add("basic");
+        
+    }
+    public void changerTheme2() {
+        gridPane.setStyle("-fx-background-color:#2c3e50");
+              enregistrer.getStyleClass().remove("basic");
+        enregistrer.getStyleClass().add("record-sales");
+        traitementBtn.getStyleClass().remove("basic");
+        traitementBtn.getStyleClass().add("record-sales");
+        ouvrirBtn.getStyleClass().remove("basic");
+        ouvrirBtn.getStyleClass().add("record-sales");
+        
+    }
+    
 }
