@@ -14,6 +14,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -21,11 +23,13 @@ import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 import static TraitementImage.Exporter.exportToObj;
 import static TraitementImage.Exporter.createDirectory;
+import static TraitementImage.Exporter.exportAttacheToObj;
 import static TraitementImage.Traitement.ParcelleToMaillage;
+import static TraitementImage.Traitement.genererAttache;
+import static TraitementImage.Traitement.miseAEchelle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import TraitementImage.Traitement;
 
 public class MainWindowController extends Stage {
     
@@ -73,9 +77,10 @@ public class MainWindowController extends Stage {
             image = new Image(imagePath);
             viewImage.setImage(image);
             traitementBtn.setDisable(false);   
-            ouvrirBtn.setDisable(true);           
+            ouvrirBtn.setDisable(true); 
+            ouvrirDialogue();
         }
-        ouvrirDialogue();
+        
 
     }
     
@@ -98,12 +103,12 @@ public class MainWindowController extends Stage {
         
         listeParcelles.forEach((parcelle) -> {
             System.out.println("mise à l'échelle parcelle");
-            Traitement.miseAEchelle(parcelle, listeImages.get(0), para);
+            miseAEchelle(parcelle, listeImages.get(0), para);
         });
     
         System.out.println("mise à l'échelle attache");
-        //attache = genererAttache(listeImages.get(0));
-        //miseAEchelle(attache, listeImages.get(0), para);
+        attache = genererAttache(listeImages.get(0));
+        miseAEchelle(attache, listeImages.get(0), para);
         
         enregistrer.setDisable(false);
         traitementBtn.setDisable(true);
@@ -124,7 +129,7 @@ public class MainWindowController extends Stage {
                 exportToObj(m, selectedSaveFile.toString(), "Maillage", i);
                 i++;
             }
-            //exportAttacheToObj(selectedSaveFile.toString(), "Maillage", attache);
+            exportAttacheToObj(selectedSaveFile.toString(), "Maillage", attache);
             System.out.println("Exportation terminée");
         }
         this.setButtonTrue();
@@ -149,10 +154,9 @@ public class MainWindowController extends Stage {
         
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/Vues/Progression.fxml"));
        
-        //Parent root = loader.load();
-        //Scene scene = new Scene(root);
+
         progressStage.setTitle("Traitement...");
         progressStage.setResizable(false);
-        //progressStage.setScene(scene);
+
     }
 }
