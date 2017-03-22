@@ -10,7 +10,6 @@ public class Sommet {
     
     //constructeur
 
-
     public Sommet(double ligne, double hauteur, double colonne) {
 
         x = colonne;

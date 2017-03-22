@@ -59,4 +59,26 @@ public class Maillage {
             this.ensembleSommetsSocle.get(ligne).put(colonne, sommet);
         }
     }
+    
+    public Sommet getPointSurface(double ligne, double colonne) {
+        if (getEnsembleSommets().containsKey(ligne)){
+            TreeMap sommetTreeMap = (TreeMap) getEnsembleSommets().get(ligne);
+            if (sommetTreeMap.containsKey(colonne)) {
+                Sommet sommet = (Sommet) sommetTreeMap.get(colonne);
+                return sommet;
+            }
+        }
+        return null;
+    }
+    
+    public Sommet getPointSocle(double ligne, double colonne) {
+        if (getEnsembleSommetsSocle().containsKey(ligne)) {
+            TreeMap sommetTreeMap = (TreeMap) getEnsembleSommetsSocle().get(ligne);
+            if (sommetTreeMap.containsKey(colonne)) {
+                Sommet sommet = (Sommet) sommetTreeMap.get(colonne);
+                return sommet;
+            }
+        }
+        return null;
+    }
 }
