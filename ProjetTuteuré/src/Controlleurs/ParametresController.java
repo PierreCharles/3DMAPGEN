@@ -34,7 +34,7 @@ public class ParametresController implements Initializable {
     public void setHauteurP(StringProperty hauteurP) {
         this.hauteurP = hauteurP;
     }
-    @FXML private Button annuler, valider;
+    @FXML private Button ajustL, ajustH, resetBtn;
     @FXML private TextField hauteurField, largeurField,hauteurMaillageField, largeurMaxImpressionField, hauteurMaxImpressionField;
     @FXML private Label labelError, adjLabel;
     private double hauteurMaillage, largeurMaxImpression, hauteurMaxImpression, hauteur, largeur;
@@ -76,15 +76,37 @@ public class ParametresController implements Initializable {
     }
     @FXML
     public void HauteurBtn () {
-        largeur = Double.parseDouble(largeurField.getText());
-        hauteur = largeur * ratioH;
-        hauteurField.setText(String.valueOf(hauteur));
+         if(hauteurField.getText().isEmpty()) {
+            hauteurField.setStyle("-fx-control-inner-background: red");
+         }
+         else {
+            largeur = Double.parseDouble(largeurField.getText());
+            hauteur = largeur * ratioH;
+            hauteurField.setText(String.valueOf(hauteur));
+            ajustH.setDisable(true);
+         }
     }
     @FXML 
     public void LargeurBtn () {
-        hauteur = Double.parseDouble(largeurField.getText());
-        largeur = hauteur * ratioL;
-        largeurField.setText(String.valueOf(largeur));
+        if(largeurField.getText().isEmpty()) {
+            largeurField.setStyle("-fx-control-inner-background: red");
+
+            
+            
+        }else {
+            hauteur = Double.parseDouble(largeurField.getText());
+            largeur = hauteur * ratioL;
+            largeurField.setText(String.valueOf(largeur));
+            ajustL.setDisable(true);
+        }
+        
+    }
+    @FXML
+    public void reset() {
+        largeurField.setText(null);
+        hauteurField.setText(null);  
+        ajustL.setDisable(false);
+        ajustH.setDisable(false);
     }
     @FXML 
     public void Valider() {
