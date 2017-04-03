@@ -30,8 +30,8 @@ public class Traitement {
     public static double getHauteurPixel(double ligne, double colonne, double resolution, BufferedImage image){
         int pixel, rouge, vert, bleu, moyenne;
         double hauteur;
-        int x = (int) Math.floor(ligne);
-        int y = (int) Math.floor(colonne);
+        int x = (int) Math.floor(colonne);
+        int y = (int) Math.floor(ligne);
         pixel = image.getRGB(x,y);
 
         rouge = (pixel >> 16) & 0xff;
@@ -43,62 +43,45 @@ public class Traitement {
         return hauteur;
     }
 
-    private static boolean isBordHaut(double x, double y) {
-        return (y == 0 && x!= 0);
+    private static boolean isBordHaut(double ligne, double colonne) {
+        return (ligne == 0 && colonne!= 0);
     }
     
-    private static boolean isBordGauche(double x, double y) {
-        return (x == 0 && y != 0);
+    private static boolean isBordGauche(double ligne, double colonne) {
+        return (colonne == 0 && ligne != 0);
     }
     
-    private static boolean isBordDroit(double x, double y, double maxX, double maxY) {
-        return (x == maxX && y != 0 && y != maxY);
+    private static boolean isBordDroit(double ligne, double colonne, double largeur, double hauteur) {
+        return (colonne == largeur && ligne != 0 && ligne != hauteur);
     }
     
-    private static boolean isBordBas(double x, double y, double maxX, double maxY) {
-        return (y == maxY && x != 0 && x != maxX);
+    private static boolean isBordBas(double ligne, double colonne, double largeur, double hauteur) {
+        return (ligne == hauteur && colonne != 0 && colonne != largeur);
     }
     
-    private static boolean isCentre(double x, double y, double maxX, double maxY) {
-        return (0 < x && x < maxX && 0 < y && y < maxY);
+    private static boolean isCentre(double ligne, double colonne, double largeur, double hauteur) {
+        return (0 < ligne && ligne < hauteur && 0 < colonne && colonne < largeur);
     }
     
     public static Maillage ParcelleToMaillage(BufferedImage image, double max, Parametres para) {
         
         Maillage m = new Maillage();
         double resolution = max/256;
-        double hauteur = image.getHeight();
-        double largeur = image.getWidth();
+        double hauteur = image.getHeight()-1;
+        double largeur = image.getWidth()-1;
         double epaisseur = 3;
         double debutLargeur = 0.1 * largeur, finLargeur = 0.9 * largeur, debutHauteur = 0.1 * hauteur, finHauteur = 0.9 * hauteur;
         
-        for (double ligne = 0; ligne < image.getWidth(); ligne++) {
-            for(double colonne = 0; colonne < image.getHeight(); colonne++) {
+        for (double ligne = 0; ligne < hauteur; ligne++) {
+            for(double colonne = 0; colonne < largeur; colonne++) {
                 
                 /* On créé le point de la surface en coordonnées ligne;colonne */
                 m.ajouterSommet(ligne, colonne, new Sommet(ligne, getHauteurPixel(ligne, colonne, resolution, image), colonne));
             }
         }
-        /*
         
-        (s.getX() >= deb && s.getX() <= fin 
-            && s.getZ() >= deb && s.getZ() <= image.getHeight() - deb  //zone du rectangle du socle
-                
-            || s.getX() >= (image.getWidth()-deb)/2 && s.getX() <= (image.getWidth()+deb)/2
-            && s.getZ() <= deb   //slot haut
-                
-            || s.getX() <= deb
-            && s.getZ() >= (image.getHeight()-deb)/2 && s.getZ() <= (image.getHeight()+deb)/2 //slot gauche
-                
-            || s.getX() >= (image.getWidth()-deb)/2 && s.getX() <= (image.getWidth()+deb)/2
-            && s.getZ() >= image.getHeight()-deb     //slot bas
-                
-            || s.getZ() >= (image.getHeight()-deb)/2 && s.getZ() <= (image.getHeight()+deb)/2
-            && s.getX() >= fin); 
-        
-        */
-        for (double ligne = 0; ligne < image.getWidth(); ligne++) {
-            for(double colonne = 0; colonne < image.getHeight(); colonne++) {
+        for (double ligne = 0; ligne < hauteur; ligne++) {
+            for(double colonne = 0; colonne < largeur; colonne++) {
                 if(doitEtreRemonte(image, ligne, colonne, debutLargeur, finLargeur, debutHauteur, finHauteur)){
                     m.ajouterSommetSocle(ligne, colonne, new Sommet(ligne, epaisseur, colonne));
                 }
@@ -110,43 +93,43 @@ public class Traitement {
             }
         }
         
-        for (double colonne = 0; colonne < image.getWidth(); colonne++) {
-            for(double ligne = 0; ligne < image.getHeight(); ligne++) {
+        for (double ligne = 0; ligne < hauteur; ligne++) {
+            for(double colonne = 0; colonne < largeur; colonne++) {
                 //System.out.println("ligne : " + ligne + " ; colonne : " + colonne);
                 
                 if(isBordHaut(ligne, colonne) || isBordBas(ligne, colonne, largeur, hauteur - 1)) {
                     /* Création du coté haut ou bas */
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne).getId()));
-                    m.ajouterFace(new Face(m.getPointSocle(ligne - 1, colonne).getId(), m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSurface(ligne, colonne).getId()));
-                }
-                
-                if(isBordGauche(ligne, colonne)) {
-                    /* Création de la face de la surface collée au bord */
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne + 1, colonne - 1).getId(), m.getPointSurface(ligne, colonne - 1).getId()));
-                    /* Création de la face du socle collée au bord */
-                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne + 1, colonne - 1).getId(), m.getPointSocle(ligne, colonne - 1).getId()));
-                    /* Création du côté gauche */
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne, colonne - 1).getId(), m.getPointSocle(ligne, colonne).getId()));
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne - 1).getId(), m.getPointSocle(ligne, colonne - 1).getId(), m.getPointSocle(ligne, colonne).getId()));
-                }
-                
-                if(isBordDroit(ligne, colonne, largeur - 1, hauteur)) {
-                    /*Création de la face de la surface collée au bord */
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne, colonne - 1).getId(), m.getPointSurface(ligne - 1, colonne).getId()));
-                    /* Création de la face du socle collé au bord */
-                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne, colonne - 1).getId(), m.getPointSocle(ligne - 1, colonne).getId()));
-                    /* Création du côté droit */
                     m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne, colonne - 1).getId()));
                     m.ajouterFace(new Face(m.getPointSocle(ligne, colonne - 1).getId(), m.getPointSurface(ligne, colonne - 1).getId(), m.getPointSurface(ligne, colonne).getId()));
                 }
                 
+                if(isBordGauche(ligne, colonne)) {
+                    /* Création de la face de la surface collée au bord */
+                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne + 1).getId(), m.getPointSurface(ligne - 1, colonne).getId()));
+                    /* Création de la face du socle collée au bord */
+                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne + 1).getId(), m.getPointSocle(ligne - 1, colonne).getId()));
+                    /* Création du côté gauche */
+                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSocle(ligne, colonne).getId()));
+                    m.ajouterFace(new Face(m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSocle(ligne - 1, colonne).getId(), m.getPointSocle(ligne, colonne).getId()));
+                }
+                
+                if(isBordDroit(ligne, colonne, largeur - 1, hauteur)) {
+                    /*Création de la face de la surface collée au bord */
+                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSurface(ligne, colonne - 1).getId()));
+                    /* Création de la face du socle collé au bord */
+                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne).getId(), m.getPointSocle(ligne, colonne - 1).getId()));
+                    /* Création du côté droit */
+                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne).getId()));
+                    m.ajouterFace(new Face(m.getPointSocle(ligne - 1, colonne).getId(), m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSurface(ligne, colonne).getId()));
+                }
+                
                 if(isCentre(ligne, colonne, largeur - 1, hauteur)) {
-                    System.out.println("ligne : " + ligne + " ; colonne : " + colonne);
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne, colonne - 1).getId(), m.getPointSurface(ligne - 1, colonne).getId()));
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne + 1, colonne - 1).getId(), m.getPointSurface(ligne, colonne - 1).getId()));
+                    //System.out.println("ligne : " + ligne + " ; colonne : " + colonne);
+                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSurface(ligne, colonne - 1).getId()));
+                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne + 1).getId(), m.getPointSurface(ligne - 1, colonne).getId()));
                     
-                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne, colonne - 1).getId(), m.getPointSocle(ligne - 1, colonne).getId()));
-                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne + 1, colonne - 1).getId(), m.getPointSocle(ligne, colonne - 1).getId()));
+                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne).getId(), m.getPointSocle(ligne, colonne - 1).getId()));
+                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne + 1).getId(), m.getPointSocle(ligne - 1, colonne).getId()));
                 }
             }
         }
