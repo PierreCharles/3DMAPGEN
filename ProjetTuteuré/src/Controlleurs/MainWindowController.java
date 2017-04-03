@@ -108,9 +108,9 @@ public class MainWindowController extends Stage {
             miseAEchelle(parcelle, listeImages.get(0), para);
         });
     
-        System.out.println("mise à l'échelle attache");
+        /*System.out.println("mise à l'échelle attache");
         attache = genererAttache(listeImages.get(0));
-        miseAEchelle(attache, listeImages.get(0), para);
+        miseAEchelle(attache, listeImages.get(0), para);*/
         
         enregistrer.setDisable(false);
         traitementBtn.setDisable(true);
@@ -131,7 +131,7 @@ public class MainWindowController extends Stage {
                 exportToObj(m, selectedSaveFile.toString(), "Maillage", i);
                 i++;
             }
-            exportAttacheToObj(selectedSaveFile.toString(), "Maillage", attache);
+            //exportAttacheToObj(selectedSaveFile.toString(), "Maillage", attache);
             System.out.println("Exportation terminée");
         }
         this.setButtonTrue();
