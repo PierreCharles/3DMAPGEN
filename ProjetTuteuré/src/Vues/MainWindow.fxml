@@ -36,19 +36,19 @@
             <Insets left="15.0" />
          </GridPane.margin></ImageView>
     <Label fx:id="traitementLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-      <Button id="buttonStyle" fx:id="ouvrirBtn" mnemonicParsing="false" onAction="#ouvrir" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@style.css" text="ETAPE 1 :&#10;Ouvrir image" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+      <Button id="buttonStyle" fx:id="ouvrirBtn" mnemonicParsing="false" onAction="#ouvrir" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@../Styles/style.css" text="ETAPE 1 :&#10;Ouvrir image" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets right="10.0" />
          </GridPane.margin></Button>
-      <Button fx:id="traitementBtn" mnemonicParsing="false" onAction="#onTraitement" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@style.css" text="ETAPE 2: &#10;Traitement &#10;" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
+      <Button fx:id="traitementBtn" mnemonicParsing="false" onAction="#onTraitement" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@../Styles/style.css" text="ETAPE 2: &#10;Traitement &#10;" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets right="10.0" />
          </GridPane.margin></Button>
-      <Button fx:id="enregistrer" mnemonicParsing="false" onAction="#enregistrer" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@style.css" text="ETAPE 3:&#10;Enregistrer" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
+      <Button fx:id="enregistrer" mnemonicParsing="false" onAction="#enregistrer" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@../Styles/style.css" text="ETAPE 3:&#10;Enregistrer" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
          <GridPane.margin>
             <Insets right="10.0" />
          </GridPane.margin></Button>
-      <Label style="-fx-font-style: bold;" text="3DMapGen" textFill="WHITE" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+      <Label style="-fx-font-weight: bold;" text="3DMapGen" textFill="WHITE" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
          <font>
             <Font name="Gill Sans MT Bold" size="22.0" />
          </font>
