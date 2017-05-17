@@ -1,10 +1,10 @@
-package TraitementImage;
+package treatments;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class Charger {
+public class Load {
     
     BufferedImage image = null;
     private File lien;
@@ -12,7 +12,7 @@ public class Charger {
     private int largeur;
     int[][] imageTraitee = new int [largeur][hauteur];
     
-    public Charger(File lien){
+    public Load(File lien){
         this.lien=lien;
     }
     
@@ -29,7 +29,6 @@ public class Charger {
     }
     
 
-    
     public void ajouterImage() {
         try {
             image = ImageIO.read(lien);

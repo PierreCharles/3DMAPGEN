@@ -1,21 +1,23 @@
-package TraitementImage;
+package treatments;
 
-import Maillage.Face;
-import Maillage.Maillage;
-import Maillage.Sommet;
+import static treatments.Treatment.getNbAttache;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import static TraitementImage.Traitement.getNbAttache;
 import java.util.TreeMap;
 
-public class Exporter {
+import mesh.Face;
+import mesh.Mesh;
+import mesh.Vertices;
+
+public class Export {
     
     
-    static public void exportToObj(Maillage m, String destFile,String dirName, int partie) throws IOException {
+    static public void exportToObj(Mesh m, String destFile,String dirName, int partie) throws IOException {
         File fi = new File(destFile + "\\" + dirName + "\\" + dirName + "Partie" + partie + ".obj");
         try (FileWriter fw = new FileWriter(fi)) {
             fw.write("# Fichier réalisé par\r\n");
@@ -36,11 +38,11 @@ public class Exporter {
                 TreeMap sommetTreeMap = e.getValue();
                 
                 
-                Set<Map.Entry<Double,Sommet>> setColonne = sommetTreeMap.entrySet();
-                Iterator<Map.Entry<Double,Sommet>> it2 = setColonne.iterator();
+                Set<Map.Entry<Double,Vertices>> setColonne = sommetTreeMap.entrySet();
+                Iterator<Map.Entry<Double,Vertices>> it2 = setColonne.iterator();
                 
                 while(it2.hasNext()){
-                    Map.Entry<Double, Sommet> sommetEntry = it2.next();
+                    Map.Entry<Double, Vertices> sommetEntry = it2.next();
                     fw.write(sommetEntry.getValue().toString());
                 }
                 
@@ -56,11 +58,11 @@ public class Exporter {
                 TreeMap sommetTreeMapSocle = e2.getValue();
                 
                 
-                Set<Map.Entry<Double,Sommet>> setColonneSocle = sommetTreeMapSocle.entrySet();
-                Iterator<Map.Entry<Double,Sommet>> it4 = setColonneSocle.iterator();
+                Set<Map.Entry<Double,Vertices>> setColonneSocle = sommetTreeMapSocle.entrySet();
+                Iterator<Map.Entry<Double,Vertices>> it4 = setColonneSocle.iterator();
                 
                 while(it4.hasNext()){
-                    Map.Entry<Double, Sommet> sommetEntrySocle = it4.next();
+                    Map.Entry<Double, Vertices> sommetEntrySocle = it4.next();
                     fw.write(sommetEntrySocle.getValue().toString());
                 }
                 
@@ -85,7 +87,7 @@ public class Exporter {
        dir.mkdir();
     }
     
-    static public void exportAttacheToObj(String destFile, String dirName, Maillage attache) {
+    static public void exportAttacheToObj(String destFile, String dirName, Mesh attache) {
         File fi = new File(destFile + "\\" + dirName + "\\" + "Attache.obj");
         try (FileWriter fw = new FileWriter(fi)) {
             fw.write("# Fichier réalisé par\n");
@@ -94,7 +96,7 @@ public class Exporter {
             fw.write("# Pierre Petit\n");
             fw.write("# Timothé Rouzé\n");
             fw.write("# Mathieu Vincent\n\n");
-            fw.write("#Pièce à imprimer " + getNbAttache(Decoupage.getNbDecoupeLargeur(), Decoupage.getNbDecoupeHauteur()).toString() + " fois\n");
+            fw.write("#Pièce à imprimer " + getNbAttache(Cut.getNbDecoupeLargeur(), Cut.getNbDecoupeHauteur()).toString() + " fois\n");
             fw.write("o attache\n\n");
             Set set = attache.getEnsembleSommets().entrySet();
             Iterator it = set.iterator();

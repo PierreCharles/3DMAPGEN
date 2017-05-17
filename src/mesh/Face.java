@@ -1,4 +1,4 @@
-package Maillage;
+package mesh;
 
 public class Face {
 

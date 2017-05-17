@@ -1,19 +1,22 @@
-package TraitementImage;
+package treatments;
 
-import Maillage.Maillage;
-import Maillage.Sommet;
-import Maillage.Face;
+import static treatments.Cut.getHauteurParcelle;
+import static treatments.Cut.getLargeurParcelle;
+
 import java.awt.image.BufferedImage;
 import java.util.TreeMap;
-import Parametres.Parametres;
-import static TraitementImage.Decoupage.getHauteurParcelle;
-import static TraitementImage.Decoupage.getLargeurParcelle;
+
+import mesh.Face;
+import mesh.Mesh;
+import mesh.Vertices;
+import parameters.Parameters;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 
-public class Traitement {
+public class Treatment {
 
     
      
@@ -63,9 +66,9 @@ public class Traitement {
         return (0 < ligne && ligne < hauteur && 0 < colonne && colonne < largeur);
     }
     
-    public static Maillage ParcelleToMaillage(BufferedImage image, double max, Parametres para) {
+    public static Mesh ParcelleToMaillage(BufferedImage image, double max, Parameters para) {
         
-        Maillage m = new Maillage();
+        Mesh m = new Mesh();
         double resolution = max/256;
         double hauteur = image.getHeight()-1;
         double largeur = image.getWidth()-1;
@@ -76,18 +79,18 @@ public class Traitement {
             for(double colonne = 0; colonne < largeur; colonne++) {
                 
                 /* On créé le point de la surface en coordonnées ligne;colonne */
-                m.ajouterSommet(ligne, colonne, new Sommet(ligne, getHauteurPixel(ligne, colonne, resolution, image), colonne));
+                m.ajouterSommet(ligne, colonne, new Vertices(ligne, getHauteurPixel(ligne, colonne, resolution, image), colonne));
             }
         }
         
         for (double ligne = 0; ligne < hauteur; ligne++) {
             for(double colonne = 0; colonne < largeur; colonne++) {
                 if(doitEtreRemonte(image, ligne, colonne, debutLargeur, finLargeur, debutHauteur, finHauteur)){
-                    m.ajouterSommetSocle(ligne, colonne, new Sommet(ligne, epaisseur, colonne));
+                    m.ajouterSommetSocle(ligne, colonne, new Vertices(ligne, epaisseur, colonne));
                 }
                 else {
                   /* On créé le point du socle en coordonnées ligne;colonne */
-                    m.ajouterSommetSocle(ligne, colonne, new Sommet(ligne, 0, colonne));  
+                    m.ajouterSommetSocle(ligne, colonne, new Vertices(ligne, 0, colonne));  
                 }
                 
             }
@@ -167,58 +170,58 @@ public class Traitement {
     |    6__________8    |
     |___|            |___|
     1   2           9    10
-    Sommet s0X: sommet au dessus de sX
+    Vertices s0X: sommet au dessus de sX
     */
-    public static Maillage genererAttache(BufferedImage parcelle) {
-        Maillage attache = new Maillage();
+    public static Mesh genererAttache(BufferedImage parcelle) {
+        Mesh attache = new Mesh();
         double deb = parcelle.getWidth() * 0.1;
-        Sommet s1 = new Sommet(0, 0, 0);
+        Vertices s1 = new Vertices(0, 0, 0);
         attache.getEnsembleSommets().put(s1.getId(), s1);
-        Sommet s01 = new Sommet(0, 3, 0);
+        Vertices s01 = new Vertices(0, 3, 0);
         attache.getEnsembleSommets().put(s01.getId(), s01);
-        Sommet s2 = new Sommet(deb/2, 0, 0);
+        Vertices s2 = new Vertices(deb/2, 0, 0);
         attache.getEnsembleSommets().put(s2.getId(), s2);
-        Sommet s02 = new Sommet(deb/2, 3, 0);
+        Vertices s02 = new Vertices(deb/2, 3, 0);
         attache.getEnsembleSommets().put(s02.getId(), s02);
-        Sommet s3 = new Sommet(0, 0, 2*deb);
+        Vertices s3 = new Vertices(0, 0, 2*deb);
         attache.getEnsembleSommets().put(s3.getId(), s3);
-        Sommet s03 = new Sommet(0, 3, 2*deb);
+        Vertices s03 = new Vertices(0, 3, 2*deb);
         attache.getEnsembleSommets().put(s03.getId(), s03);
-        Sommet s4 = new Sommet(deb/2, 0, 2*deb);
+        Vertices s4 = new Vertices(deb/2, 0, 2*deb);
         attache.getEnsembleSommets().put(s4.getId(), s4);
-        Sommet s04 = new Sommet(deb/2, 3, 2*deb);
+        Vertices s04 = new Vertices(deb/2, 3, 2*deb);
         attache.getEnsembleSommets().put(s04.getId(), s04);
-        Sommet s5 = new Sommet(deb/2, 0, 1.5*deb);
+        Vertices s5 = new Vertices(deb/2, 0, 1.5*deb);
         attache.getEnsembleSommets().put(s5.getId(), s5);
-        Sommet s05 = new Sommet(deb/2, 3, 1.5*deb);
+        Vertices s05 = new Vertices(deb/2, 3, 1.5*deb);
         attache.getEnsembleSommets().put(s05.getId(), s05);
-        Sommet s6 = new Sommet(deb/2, 0, deb/2);
+        Vertices s6 = new Vertices(deb/2, 0, deb/2);
         attache.getEnsembleSommets().put(s6.getId(), s6);
-        Sommet s06 = new Sommet(deb/2, 3, deb/2);
+        Vertices s06 = new Vertices(deb/2, 3, deb/2);
         attache.getEnsembleSommets().put(s06.getId(), s06);
-        Sommet s7 = new Sommet(2.5*deb, 0, 1.5*deb);
+        Vertices s7 = new Vertices(2.5*deb, 0, 1.5*deb);
         attache.getEnsembleSommets().put(s7.getId(), s7);
-        Sommet s07 = new Sommet(2.5*deb, 3, 1.5*deb);
+        Vertices s07 = new Vertices(2.5*deb, 3, 1.5*deb);
         attache.getEnsembleSommets().put(s07.getId(), s07);
-        Sommet s8 = new Sommet(2.5*deb, 0, deb/2);
+        Vertices s8 = new Vertices(2.5*deb, 0, deb/2);
         attache.getEnsembleSommets().put(s8.getId(), s8);
-        Sommet s08 = new Sommet(2.5*deb, 3, deb/2);
+        Vertices s08 = new Vertices(2.5*deb, 3, deb/2);
         attache.getEnsembleSommets().put(s08.getId(), s08);
-        Sommet s9 = new Sommet(2.5*deb, 0, 0);
+        Vertices s9 = new Vertices(2.5*deb, 0, 0);
         attache.getEnsembleSommets().put(s9.getId(), s9);
-        Sommet s09 = new Sommet(2.5*deb, 3, 0);
+        Vertices s09 = new Vertices(2.5*deb, 3, 0);
         attache.getEnsembleSommets().put(s09.getId(), s09);
-        Sommet s10 = new Sommet(3*deb, 0, 0);
+        Vertices s10 = new Vertices(3*deb, 0, 0);
         attache.getEnsembleSommets().put(s10.getId(), s10);
-        Sommet s010 = new Sommet(3*deb, 3, 0);
+        Vertices s010 = new Vertices(3*deb, 3, 0);
         attache.getEnsembleSommets().put(s010.getId(), s010);
-        Sommet s11 = new Sommet(2.5*deb, 0, 2*deb);
+        Vertices s11 = new Vertices(2.5*deb, 0, 2*deb);
         attache.getEnsembleSommets().put(s11.getId(), s11);
-        Sommet s011 = new Sommet(2.5*deb, 3, 2*deb);
+        Vertices s011 = new Vertices(2.5*deb, 3, 2*deb);
         attache.getEnsembleSommets().put(s011.getId(), s011);
-        Sommet s12 = new Sommet(3*deb, 0, 2*deb);
+        Vertices s12 = new Vertices(3*deb, 0, 2*deb);
         attache.getEnsembleSommets().put(s12.getId(), s12);
-        Sommet s012 = new Sommet(3*deb, 3, 2*deb);
+        Vertices s012 = new Vertices(3*deb, 3, 2*deb);
         attache.getEnsembleSommets().put(s012.getId(), s012);
         //faces horizontales
         attache.getEnsembleFaces().add(new Face (s1.getId(), s2.getId(), s3.getId()));
@@ -276,7 +279,7 @@ public class Traitement {
         return attache;
     }
     
-    public static void miseAEchelle(Maillage m, BufferedImage img, Parametres para) {
+    public static void miseAEchelle(Mesh m, BufferedImage img, Parameters para) {
         
         double rapportX = para.getLargeurMaxImpression()/getLargeurParcelle();
         double rapportZ = para.getHauteurMaxImpression()/getHauteurParcelle();
@@ -288,11 +291,11 @@ public class Traitement {
                 TreeMap sommetTreeMap = e.getValue();
                 
                 
-                Set<Map.Entry<Double,Sommet>> setColonne = sommetTreeMap.entrySet();
-                Iterator<Map.Entry<Double,Sommet>> it2 = setColonne.iterator();
+                Set<Map.Entry<Double,Vertices>> setColonne = sommetTreeMap.entrySet();
+                Iterator<Map.Entry<Double,Vertices>> it2 = setColonne.iterator();
                 
                 while(it2.hasNext()){
-                    Map.Entry<Double, Sommet> sommetEntry = it2.next();
+                    Map.Entry<Double, Vertices> sommetEntry = it2.next();
                     sommetEntry.getValue().setX(sommetEntry.getValue().getX()*rapportX);
                     sommetEntry.getValue().setZ(sommetEntry.getValue().getZ()*rapportZ);
                 }
@@ -309,11 +312,11 @@ public class Traitement {
                 TreeMap sommetTreeMapSocle = e2.getValue();
                 
                 
-                Set<Map.Entry<Double,Sommet>> setColonneSocle = sommetTreeMapSocle.entrySet();
-                Iterator<Map.Entry<Double,Sommet>> it4 = setColonneSocle.iterator();
+                Set<Map.Entry<Double,Vertices>> setColonneSocle = sommetTreeMapSocle.entrySet();
+                Iterator<Map.Entry<Double,Vertices>> it4 = setColonneSocle.iterator();
                 
                 while(it4.hasNext()){
-                    Map.Entry<Double, Sommet> sommetEntrySocle = it4.next();
+                    Map.Entry<Double, Vertices> sommetEntrySocle = it4.next();
                     sommetEntrySocle.getValue().setX(sommetEntrySocle.getValue().getX()*rapportX);
                     sommetEntrySocle.getValue().setZ(sommetEntrySocle.getValue().getZ()*rapportZ);
                 }

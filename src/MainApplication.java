@@ -6,11 +6,11 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-public class ProgPrincipal  extends Application {
+public class MainApplication extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("Vues/MainWindow.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("views/MainWindow.fxml"));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         Image icon = new Image(getClass().getResourceAsStream("icone.png"));

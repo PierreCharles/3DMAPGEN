@@ -1,6 +1,6 @@
-package Maillage;
+package mesh;
 
-public class Sommet {
+public class Vertices {
     private static int cpt = 1;
     //attributs
     private double x;
@@ -10,7 +10,7 @@ public class Sommet {
     
     //constructeur
 
-    public Sommet(double ligne, double hauteur, double colonne) {
+    public Vertices(double ligne, double hauteur, double colonne) {
 
         x = colonne;
         y = hauteur;
@@ -57,7 +57,7 @@ public class Sommet {
         cpt = 1;
     }
     
-    public boolean equals(Sommet s) {
+    public boolean equals(Vertices s) {
         return (this==s);
     }
     

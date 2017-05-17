@@ -1,9 +1,4 @@
-package Controlleurs;
-
-import Maillage.Maillage;
-import Parametres.Parametres;
-import TraitementImage.Charger;
-import static TraitementImage.Decoupage.decouperImage;
+package controllers;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,14 +14,20 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import mesh.Mesh;
+import parameters.Parameters;
+import treatments.Load;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
-import static TraitementImage.Exporter.exportToObj;
-import static TraitementImage.Exporter.createDirectory;
-import static TraitementImage.Exporter.exportAttacheToObj;
-import static TraitementImage.Traitement.ParcelleToMaillage;
-import static TraitementImage.Traitement.genererAttache;
-import static TraitementImage.Traitement.miseAEchelle;
+
+import static treatments.Cut.decouperImage;
+import static treatments.Export.createDirectory;
+import static treatments.Export.exportAttacheToObj;
+import static treatments.Export.exportToObj;
+import static treatments.Treatment.ParcelleToMaillage;
+import static treatments.Treatment.genererAttache;
+import static treatments.Treatment.miseAEchelle;
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,18 +44,18 @@ public class MainWindowController extends Stage {
     @FXML private MenuItem preferences, preferences1;
 
     Image image;
-    private Parametres para;
+    private Parameters para;
 
 
     
     
-    public List<Maillage> listeParcelles = new ArrayList<>();
-    public Maillage attache = new Maillage();
+    public List<Mesh> listeParcelles = new ArrayList<>();
+    public Mesh attache = new Mesh();
     
     public void initialize() {
         enregistrer.setDisable(true);
         traitementBtn.setDisable(true);
-        para = new Parametres();
+        para = new Parameters();
         
     }
     public void setButtonTrue() {
@@ -94,7 +95,7 @@ public class MainWindowController extends Stage {
     @FXML
     public void onTraitement(ActionEvent envent) throws IOException {
         ouvrirProgressStage();
-        Charger ch = new Charger(new File(selectedFile.toURI()));
+        Load ch = new Load(new File(selectedFile.toURI()));
         ch.ajouterImage();        
         
         List<BufferedImage> listeImages  = decouperImage(ch, para.getLargeurImage(), para.getHauteurImage(), para.getLargeurMaxImpression(), para.getHauteurMaxImpression());
@@ -126,12 +127,12 @@ public class MainWindowController extends Stage {
         File selectedSaveFile = dir.showDialog(this);
         System.out.println(selectedSaveFile.toString());
         if(selectedSaveFile != null){
-            createDirectory(selectedSaveFile.toString(), "Maillage");
-            for(Maillage m : listeParcelles) {
-                exportToObj(m, selectedSaveFile.toString(), "Maillage", i);
+            createDirectory(selectedSaveFile.toString(), "Mesh");
+            for(Mesh m : listeParcelles) {
+                exportToObj(m, selectedSaveFile.toString(), "Mesh", i);
                 i++;
             }
-            //exportAttacheToObj(selectedSaveFile.toString(), "Maillage", attache);
+            //exportAttacheToObj(selectedSaveFile.toString(), "Mesh", attache);
             System.out.println("Exportation terminée");
         }
         this.setButtonTrue();
@@ -139,8 +140,8 @@ public class MainWindowController extends Stage {
 
     public void ouvrirDialogue() throws IOException {
             Stage paraStage = new Stage();
-            ParametresController controller = new ParametresController(image, para);
-            FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/Vues/Parametres.fxml"));
+            ParametersWindowController controller = new ParametersWindowController(image, para);
+            FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/views/ParametersWindow.fxml"));
             loader.setController(controller);
             controller.setStage(paraStage);
             Parent root = loader.load();
@@ -154,10 +155,10 @@ public class MainWindowController extends Stage {
     public void ouvrirProgressStage() throws IOException {
         Stage progressStage = new Stage();
         
-        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/Vues/Progression.fxml"));
+        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/views/ProgressWindow.fxml"));
        
 
-        progressStage.setTitle("Traitement...");
+        progressStage.setTitle("Treatment...");
         progressStage.setResizable(false);
 
     }

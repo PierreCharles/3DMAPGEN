@@ -1,22 +1,23 @@
-package Maillage;
+package mesh;
 
-import static Maillage.Sommet.resetCpt;
+import static mesh.Vertices.resetCpt;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
-public class Maillage {
+public class Mesh {
 
     //attributs
-    private TreeMap<Double,TreeMap<Double,Sommet>> ensembleSommets;
-    private TreeMap<Double,TreeMap<Double,Sommet>> ensembleSommetsSocle;
+    private TreeMap<Double,TreeMap<Double,Vertices>> ensembleSommets;
+    private TreeMap<Double,TreeMap<Double,Vertices>> ensembleSommetsSocle;
     private LinkedList<Face> ensembleFaces;
-    //private ArrayList<Sommet> listeSocle;
+    //private ArrayList<Vertices> listeSocle;
     
-    public Maillage() {
+    public Mesh() {
         ensembleFaces = new LinkedList();
-        ensembleSommets = new TreeMap<Double, TreeMap<Double, Sommet>>();
-        ensembleSommetsSocle = new TreeMap<Double, TreeMap<Double, Sommet>>();
+        ensembleSommets = new TreeMap<Double, TreeMap<Double, Vertices>>();
+        ensembleSommetsSocle = new TreeMap<Double, TreeMap<Double, Vertices>>();
         //listeSocle = new ArrayList<>();
         resetCpt();
     }
@@ -40,43 +41,43 @@ public class Maillage {
         return ensembleFaces.size();
     }
     
-    public void ajouterSommet(double ligne, double colonne, Sommet sommet) {
+    public void ajouterSommet(double ligne, double colonne, Vertices vertices) {
         if(!this.ensembleSommets.containsKey(ligne)){
             this.ensembleSommets.put(ligne,new TreeMap());
-            this.ensembleSommets.get(ligne).put(colonne, sommet);
+            this.ensembleSommets.get(ligne).put(colonne, vertices);
         }
         else{
-            this.ensembleSommets.get(ligne).put(colonne, sommet);
+            this.ensembleSommets.get(ligne).put(colonne, vertices);
         }
     }
     
-    public void ajouterSommetSocle(double ligne, double colonne, Sommet sommet) {
+    public void ajouterSommetSocle(double ligne, double colonne, Vertices vertices) {
         if(!this.ensembleSommetsSocle.containsKey(ligne)){
             this.ensembleSommetsSocle.put(ligne,new TreeMap());
-            this.ensembleSommetsSocle.get(ligne).put(colonne, sommet);
+            this.ensembleSommetsSocle.get(ligne).put(colonne, vertices);
         }
         else{
-            this.ensembleSommetsSocle.get(ligne).put(colonne, sommet);
+            this.ensembleSommetsSocle.get(ligne).put(colonne, vertices);
         }
     }
     
-    public Sommet getPointSurface(double ligne, double colonne) {
+    public Vertices getPointSurface(double ligne, double colonne) {
         if (getEnsembleSommets().containsKey(ligne)){
             TreeMap sommetTreeMap = (TreeMap) getEnsembleSommets().get(ligne);
             if (sommetTreeMap.containsKey(colonne)) {
-                Sommet sommet = (Sommet) sommetTreeMap.get(colonne);
-                return sommet;
+                Vertices vertices = (Vertices) sommetTreeMap.get(colonne);
+                return vertices;
             }
         }
         return null;
     }
     
-    public Sommet getPointSocle(double ligne, double colonne) {
+    public Vertices getPointSocle(double ligne, double colonne) {
         if (getEnsembleSommetsSocle().containsKey(ligne)) {
             TreeMap sommetTreeMap = (TreeMap) getEnsembleSommetsSocle().get(ligne);
             if (sommetTreeMap.containsKey(colonne)) {
-                Sommet sommet = (Sommet) sommetTreeMap.get(colonne);
-                return sommet;
+                Vertices vertices = (Vertices) sommetTreeMap.get(colonne);
+                return vertices;
             }
         }
         return null;

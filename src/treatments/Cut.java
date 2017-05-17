@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package TraitementImage;
+package treatments;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author alexi
  */
-public class Decoupage {
+public class Cut {
 
     /**
      * @return the hauteurParcelle
@@ -34,13 +34,13 @@ public class Decoupage {
     private static int hauteurParcelle;
     private static int largeurParcelle;
     
-    public static List<BufferedImage> decouperImage(Charger ch, double largeurVoulue, double hauteurVoulue, double largeurMaxImpression, double hauteurMaxImpression) {
+    public static List<BufferedImage> decouperImage(Load ch, double largeurVoulue, double hauteurVoulue, double largeurMaxImpression, double hauteurMaxImpression) {
         List<BufferedImage> listeImages = new ArrayList<>();
         BufferedImage imageBase = ch.getImage();
-        Decoupage.nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / (hauteurMaxImpression/10));
-        Decoupage.nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / (largeurMaxImpression/10));
-        Decoupage.hauteurParcelle = (int) Math.floor(imageBase.getHeight() / getNbDecoupeHauteur());
-        Decoupage.largeurParcelle = (int) Math.floor(imageBase.getWidth() / getNbDecoupeLargeur());
+        Cut.nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / (hauteurMaxImpression/10));
+        Cut.nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / (largeurMaxImpression/10));
+        Cut.hauteurParcelle = (int) Math.floor(imageBase.getHeight() / getNbDecoupeHauteur());
+        Cut.largeurParcelle = (int) Math.floor(imageBase.getWidth() / getNbDecoupeLargeur());
         System.out.println("hauteurParcelle : " + getHauteurParcelle());
         System.out.println("largeurParcelle : " + getLargeurParcelle());
 
