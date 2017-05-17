@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package controllers;
+package controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -19,7 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import parameters.Parameters;
+import parameter.Parameter;
 
 /**
  * FXML Controller class
@@ -40,7 +40,7 @@ public class ParametersWindowController implements Initializable {
     private double hauteurMaillage, largeurMaxImpression, hauteurMaxImpression, hauteur, largeur;
     private Image image;
     private Stage thisStage;
-    static Parameters para = new Parameters();
+    static Parameter para = new Parameter();
     private StringProperty hauteurP = new SimpleStringProperty();
     private StringProperty largeurP = new SimpleStringProperty();
     private Double ratioH, ratioL;
@@ -52,7 +52,7 @@ public class ParametersWindowController implements Initializable {
         return hauteurProperty().get();
     }
     
-    ParametersWindowController(Image image, Parameters para) {
+    ParametersWindowController(Image image, Parameter para) {
         this.image = image; 
         this.para = para;
 

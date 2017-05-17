@@ -8,8 +8,8 @@ import java.util.TreeMap;
 
 import mesh.Face;
 import mesh.Mesh;
-import mesh.Vertices;
-import parameters.Parameters;
+import mesh.Vertice;
+import parameter.Parameter;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -66,7 +66,7 @@ public class Treatment {
         return (0 < ligne && ligne < hauteur && 0 < colonne && colonne < largeur);
     }
     
-    public static Mesh ParcelleToMaillage(BufferedImage image, double max, Parameters para) {
+    public static Mesh ParcelleToMaillage(BufferedImage image, double max, Parameter para) {
         
         Mesh m = new Mesh();
         double resolution = max/256;
@@ -79,18 +79,18 @@ public class Treatment {
             for(double colonne = 0; colonne < largeur; colonne++) {
                 
                 /* On créé le point de la surface en coordonnées ligne;colonne */
-                m.ajouterSommet(ligne, colonne, new Vertices(ligne, getHauteurPixel(ligne, colonne, resolution, image), colonne));
+                m.ajouterSommet(ligne, colonne, new Vertice(ligne, getHauteurPixel(ligne, colonne, resolution, image), colonne));
             }
         }
         
         for (double ligne = 0; ligne < hauteur; ligne++) {
             for(double colonne = 0; colonne < largeur; colonne++) {
                 if(doitEtreRemonte(image, ligne, colonne, debutLargeur, finLargeur, debutHauteur, finHauteur)){
-                    m.ajouterSommetSocle(ligne, colonne, new Vertices(ligne, epaisseur, colonne));
+                    m.ajouterSommetSocle(ligne, colonne, new Vertice(ligne, epaisseur, colonne));
                 }
                 else {
                   /* On créé le point du socle en coordonnées ligne;colonne */
-                    m.ajouterSommetSocle(ligne, colonne, new Vertices(ligne, 0, colonne));  
+                    m.ajouterSommetSocle(ligne, colonne, new Vertice(ligne, 0, colonne));  
                 }
                 
             }
@@ -175,53 +175,53 @@ public class Treatment {
     public static Mesh genererAttache(BufferedImage parcelle) {
         Mesh attache = new Mesh();
         double deb = parcelle.getWidth() * 0.1;
-        Vertices s1 = new Vertices(0, 0, 0);
+        Vertice s1 = new Vertice(0, 0, 0);
         attache.getEnsembleSommets().put(s1.getId(), s1);
-        Vertices s01 = new Vertices(0, 3, 0);
+        Vertice s01 = new Vertice(0, 3, 0);
         attache.getEnsembleSommets().put(s01.getId(), s01);
-        Vertices s2 = new Vertices(deb/2, 0, 0);
+        Vertice s2 = new Vertice(deb/2, 0, 0);
         attache.getEnsembleSommets().put(s2.getId(), s2);
-        Vertices s02 = new Vertices(deb/2, 3, 0);
+        Vertice s02 = new Vertice(deb/2, 3, 0);
         attache.getEnsembleSommets().put(s02.getId(), s02);
-        Vertices s3 = new Vertices(0, 0, 2*deb);
+        Vertice s3 = new Vertice(0, 0, 2*deb);
         attache.getEnsembleSommets().put(s3.getId(), s3);
-        Vertices s03 = new Vertices(0, 3, 2*deb);
+        Vertice s03 = new Vertice(0, 3, 2*deb);
         attache.getEnsembleSommets().put(s03.getId(), s03);
-        Vertices s4 = new Vertices(deb/2, 0, 2*deb);
+        Vertice s4 = new Vertice(deb/2, 0, 2*deb);
         attache.getEnsembleSommets().put(s4.getId(), s4);
-        Vertices s04 = new Vertices(deb/2, 3, 2*deb);
+        Vertice s04 = new Vertice(deb/2, 3, 2*deb);
         attache.getEnsembleSommets().put(s04.getId(), s04);
-        Vertices s5 = new Vertices(deb/2, 0, 1.5*deb);
+        Vertice s5 = new Vertice(deb/2, 0, 1.5*deb);
         attache.getEnsembleSommets().put(s5.getId(), s5);
-        Vertices s05 = new Vertices(deb/2, 3, 1.5*deb);
+        Vertice s05 = new Vertice(deb/2, 3, 1.5*deb);
         attache.getEnsembleSommets().put(s05.getId(), s05);
-        Vertices s6 = new Vertices(deb/2, 0, deb/2);
+        Vertice s6 = new Vertice(deb/2, 0, deb/2);
         attache.getEnsembleSommets().put(s6.getId(), s6);
-        Vertices s06 = new Vertices(deb/2, 3, deb/2);
+        Vertice s06 = new Vertice(deb/2, 3, deb/2);
         attache.getEnsembleSommets().put(s06.getId(), s06);
-        Vertices s7 = new Vertices(2.5*deb, 0, 1.5*deb);
+        Vertice s7 = new Vertice(2.5*deb, 0, 1.5*deb);
         attache.getEnsembleSommets().put(s7.getId(), s7);
-        Vertices s07 = new Vertices(2.5*deb, 3, 1.5*deb);
+        Vertice s07 = new Vertice(2.5*deb, 3, 1.5*deb);
         attache.getEnsembleSommets().put(s07.getId(), s07);
-        Vertices s8 = new Vertices(2.5*deb, 0, deb/2);
+        Vertice s8 = new Vertice(2.5*deb, 0, deb/2);
         attache.getEnsembleSommets().put(s8.getId(), s8);
-        Vertices s08 = new Vertices(2.5*deb, 3, deb/2);
+        Vertice s08 = new Vertice(2.5*deb, 3, deb/2);
         attache.getEnsembleSommets().put(s08.getId(), s08);
-        Vertices s9 = new Vertices(2.5*deb, 0, 0);
+        Vertice s9 = new Vertice(2.5*deb, 0, 0);
         attache.getEnsembleSommets().put(s9.getId(), s9);
-        Vertices s09 = new Vertices(2.5*deb, 3, 0);
+        Vertice s09 = new Vertice(2.5*deb, 3, 0);
         attache.getEnsembleSommets().put(s09.getId(), s09);
-        Vertices s10 = new Vertices(3*deb, 0, 0);
+        Vertice s10 = new Vertice(3*deb, 0, 0);
         attache.getEnsembleSommets().put(s10.getId(), s10);
-        Vertices s010 = new Vertices(3*deb, 3, 0);
+        Vertice s010 = new Vertice(3*deb, 3, 0);
         attache.getEnsembleSommets().put(s010.getId(), s010);
-        Vertices s11 = new Vertices(2.5*deb, 0, 2*deb);
+        Vertice s11 = new Vertice(2.5*deb, 0, 2*deb);
         attache.getEnsembleSommets().put(s11.getId(), s11);
-        Vertices s011 = new Vertices(2.5*deb, 3, 2*deb);
+        Vertice s011 = new Vertice(2.5*deb, 3, 2*deb);
         attache.getEnsembleSommets().put(s011.getId(), s011);
-        Vertices s12 = new Vertices(3*deb, 0, 2*deb);
+        Vertice s12 = new Vertice(3*deb, 0, 2*deb);
         attache.getEnsembleSommets().put(s12.getId(), s12);
-        Vertices s012 = new Vertices(3*deb, 3, 2*deb);
+        Vertice s012 = new Vertice(3*deb, 3, 2*deb);
         attache.getEnsembleSommets().put(s012.getId(), s012);
         //faces horizontales
         attache.getEnsembleFaces().add(new Face (s1.getId(), s2.getId(), s3.getId()));
@@ -279,7 +279,7 @@ public class Treatment {
         return attache;
     }
     
-    public static void miseAEchelle(Mesh m, BufferedImage img, Parameters para) {
+    public static void miseAEchelle(Mesh m, BufferedImage img, Parameter para) {
         
         double rapportX = para.getLargeurMaxImpression()/getLargeurParcelle();
         double rapportZ = para.getHauteurMaxImpression()/getHauteurParcelle();
@@ -291,11 +291,11 @@ public class Treatment {
                 TreeMap sommetTreeMap = e.getValue();
                 
                 
-                Set<Map.Entry<Double,Vertices>> setColonne = sommetTreeMap.entrySet();
-                Iterator<Map.Entry<Double,Vertices>> it2 = setColonne.iterator();
+                Set<Map.Entry<Double,Vertice>> setColonne = sommetTreeMap.entrySet();
+                Iterator<Map.Entry<Double,Vertice>> it2 = setColonne.iterator();
                 
                 while(it2.hasNext()){
-                    Map.Entry<Double, Vertices> sommetEntry = it2.next();
+                    Map.Entry<Double, Vertice> sommetEntry = it2.next();
                     sommetEntry.getValue().setX(sommetEntry.getValue().getX()*rapportX);
                     sommetEntry.getValue().setZ(sommetEntry.getValue().getZ()*rapportZ);
                 }
@@ -312,11 +312,11 @@ public class Treatment {
                 TreeMap sommetTreeMapSocle = e2.getValue();
                 
                 
-                Set<Map.Entry<Double,Vertices>> setColonneSocle = sommetTreeMapSocle.entrySet();
-                Iterator<Map.Entry<Double,Vertices>> it4 = setColonneSocle.iterator();
+                Set<Map.Entry<Double,Vertice>> setColonneSocle = sommetTreeMapSocle.entrySet();
+                Iterator<Map.Entry<Double,Vertice>> it4 = setColonneSocle.iterator();
                 
                 while(it4.hasNext()){
-                    Map.Entry<Double, Vertices> sommetEntrySocle = it4.next();
+                    Map.Entry<Double, Vertice> sommetEntrySocle = it4.next();
                     sommetEntrySocle.getValue().setX(sommetEntrySocle.getValue().getX()*rapportX);
                     sommetEntrySocle.getValue().setZ(sommetEntrySocle.getValue().getZ()*rapportZ);
                 }

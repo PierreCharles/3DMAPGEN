@@ -12,7 +12,7 @@ import java.util.TreeMap;
 
 import mesh.Face;
 import mesh.Mesh;
-import mesh.Vertices;
+import mesh.Vertice;
 
 public class Export {
     
@@ -38,11 +38,11 @@ public class Export {
                 TreeMap sommetTreeMap = e.getValue();
                 
                 
-                Set<Map.Entry<Double,Vertices>> setColonne = sommetTreeMap.entrySet();
-                Iterator<Map.Entry<Double,Vertices>> it2 = setColonne.iterator();
+                Set<Map.Entry<Double,Vertice>> setColonne = sommetTreeMap.entrySet();
+                Iterator<Map.Entry<Double,Vertice>> it2 = setColonne.iterator();
                 
                 while(it2.hasNext()){
-                    Map.Entry<Double, Vertices> sommetEntry = it2.next();
+                    Map.Entry<Double, Vertice> sommetEntry = it2.next();
                     fw.write(sommetEntry.getValue().toString());
                 }
                 
@@ -58,11 +58,11 @@ public class Export {
                 TreeMap sommetTreeMapSocle = e2.getValue();
                 
                 
-                Set<Map.Entry<Double,Vertices>> setColonneSocle = sommetTreeMapSocle.entrySet();
-                Iterator<Map.Entry<Double,Vertices>> it4 = setColonneSocle.iterator();
+                Set<Map.Entry<Double,Vertice>> setColonneSocle = sommetTreeMapSocle.entrySet();
+                Iterator<Map.Entry<Double,Vertice>> it4 = setColonneSocle.iterator();
                 
                 while(it4.hasNext()){
-                    Map.Entry<Double, Vertices> sommetEntrySocle = it4.next();
+                    Map.Entry<Double, Vertice> sommetEntrySocle = it4.next();
                     fw.write(sommetEntrySocle.getValue().toString());
                 }
                 
