@@ -1,10 +1,11 @@
 package mesh;
 
 /**
- * Class Face
- * The face that will be composed of three points will be written like this: f 1 2 3.
- * To write the OBJ files, we instantiate the faces with f followed by the number of the lines of the desired points.
- * @author picharles
+ * Class Face The face that will be composed of three points will be written
+ * like this: f 1 2 3. To write the OBJ files, we instantiate the faces with f
+ * followed by the number of the lines of the desired points.
+ * 
+ * @author
  */
 public class Face {
 
@@ -16,6 +17,7 @@ public class Face {
 
 	/**
 	 * Constructor of a face
+	 * 
 	 * @param idVertice1
 	 * @param idVertice2
 	 * @param idVertice3
@@ -30,6 +32,7 @@ public class Face {
 
 	/**
 	 * Getter of face id
+	 * 
 	 * @return id of face
 	 */
 	public int getId() {
@@ -38,14 +41,16 @@ public class Face {
 
 	/**
 	 * Setter of face id
+	 * 
 	 * @param id of current face
 	 */
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
 	/**
 	 * Getter of first vertice id
+	 * 
 	 * @return first vertice id
 	 */
 	public int getIdVertice1() {
@@ -54,6 +59,7 @@ public class Face {
 
 	/**
 	 * Setter of first vertice id
+	 * 
 	 * @param idVertice1
 	 */
 	public void setIdVertice1(int idVertice1) {
@@ -62,6 +68,7 @@ public class Face {
 
 	/**
 	 * Getter of second vertice id
+	 * 
 	 * @return second vertice id
 	 */
 	public int getIdVertice2() {
@@ -70,6 +77,7 @@ public class Face {
 
 	/**
 	 * Setter of second vertice id
+	 * 
 	 * @param idVertice2
 	 */
 	public void setIdVertice2(int idVertice2) {
@@ -78,6 +86,7 @@ public class Face {
 
 	/**
 	 * Getter of third vertice id
+	 * 
 	 * @return third vertice id
 	 */
 	public int getIdVertice3() {
@@ -86,6 +95,7 @@ public class Face {
 
 	/**
 	 * Setter of third vertice id
+	 * 
 	 * @param idVertice3
 	 */
 	public void setIdVertice3(int idVertice3) {
@@ -94,6 +104,7 @@ public class Face {
 
 	/**
 	 * ToString method of a face object
+	 * 
 	 * @return a string
 	 */
 	@Override

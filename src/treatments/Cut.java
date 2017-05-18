@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package treatments;
 
 import java.awt.image.BufferedImage;
@@ -10,59 +5,80 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Class Cut Processing to the calculate of necessary cuts takes care
+ * 
  * @author alexi
  */
 public class Cut {
 
-    /**
-     * @return the hauteurParcelle
-     */
-    public static int getHauteurParcelle() {
-        return hauteurParcelle;
-    }
+	private static int heightCutNumber;
+	private static int widthCutNumber;
+	private static int heightOfParcel;
+	private static int widthOfParcel;
 
-    /**
-     * @return the largeurParcelle
-     */
-    public static int getLargeurParcelle() {
-        return largeurParcelle;
-    }
-    
-    private static int nbDecoupeHauteur;
-    private static int nbDecoupeLargeur;
-    private static int hauteurParcelle;
-    private static int largeurParcelle;
-    
-    public static List<BufferedImage> decouperImage(Load ch, double largeurVoulue, double hauteurVoulue, double largeurMaxImpression, double hauteurMaxImpression) {
-        List<BufferedImage> listeImages = new ArrayList<>();
-        BufferedImage imageBase = ch.getImage();
-        Cut.nbDecoupeHauteur = (int) Math.ceil(hauteurVoulue / (hauteurMaxImpression/10));
-        Cut.nbDecoupeLargeur = (int) Math.ceil(largeurVoulue / (largeurMaxImpression/10));
-        Cut.hauteurParcelle = (int) Math.floor(imageBase.getHeight() / getNbDecoupeHauteur());
-        Cut.largeurParcelle = (int) Math.floor(imageBase.getWidth() / getNbDecoupeLargeur());
-        System.out.println("hauteurParcelle : " + getHauteurParcelle());
-        System.out.println("largeurParcelle : " + getLargeurParcelle());
+	/**
+	 * Getter of the height of the parcel
+	 * 
+	 * @return the height of the parcel
+	 */
+	public static int getHeightOfParcel() {
+		return heightOfParcel;
+	}
 
-        for(int x = 0; x < getNbDecoupeLargeur(); x++) {
-            for(int y = 0; y < getNbDecoupeHauteur(); y++) {
-                listeImages.add(imageBase.getSubimage(x * getLargeurParcelle(), y * getHauteurParcelle(), getLargeurParcelle(), getHauteurParcelle()));
-            }
-        }
-        return listeImages;
-    }
+	/**
+	 * Getter of the width of the parcel
+	 * 
+	 * @return the width of the parcel
+	 */
+	public static int getWidthOfParcel() {
+		return widthOfParcel;
+	}
 
-    /**
-     * @return the nbDecoupeHauteur
-     */
-    public static int getNbDecoupeHauteur() {
-        return nbDecoupeHauteur;
-    }
+	/**
+	 * Getter of the height cut number
+	 * 
+	 * @return the height cut number
+	 */
+	public static int getHeightCutNumber() {
+		return heightCutNumber;
+	}
 
-    /**
-     * @return the nbDecoupeLargeur
-     */
-    public static int getNbDecoupeLargeur() {
-        return nbDecoupeLargeur;
-    }
+	/**
+	 * Getter of the width cut number
+	 * 
+	 * @return the width cut number
+	 */
+	public static int getWidthCutNumber() {
+		return widthCutNumber;
+	}
+
+	/**
+	 * Method for cut the image with some parameters
+	 * 
+	 * @param load
+	 * @param expectedWidth
+	 * @param expectedHeight
+	 * @param maxWidthOfPrint
+	 * @param maxHeightOfPrint
+	 * @return a list of cut images
+	 */
+	public static List<BufferedImage> cutImage(Load load, double expectedWidth, double expectedHeight,
+			double maxWidthOfPrint, double maxHeightOfPrint) {
+		List<BufferedImage> imageList = new ArrayList<>();
+		BufferedImage imageBase = load.getBufferedImage();
+		Cut.heightCutNumber = (int) Math.ceil(expectedHeight / (maxHeightOfPrint / 10));
+		Cut.widthCutNumber = (int) Math.ceil(expectedWidth / (maxWidthOfPrint / 10));
+		Cut.heightOfParcel = (int) Math.floor(imageBase.getHeight() / getHeightCutNumber());
+		Cut.widthOfParcel = (int) Math.floor(imageBase.getWidth() / getWidthCutNumber());
+		System.out.println("Height of parcel : " + getHeightOfParcel());
+		System.out.println("Width of parcel : " + getWidthOfParcel());
+
+		for (int x = 0; x < getWidthCutNumber(); x++) {
+			for (int y = 0; y < getHeightCutNumber(); y++) {
+				imageList.add(imageBase.getSubimage(x * getWidthOfParcel(), y * getHeightOfParcel(), getWidthOfParcel(),
+						getHeightOfParcel()));
+			}
+		}
+		return imageList;
+	}
 }

@@ -47,7 +47,7 @@
                   <Insets right="10.0" />
                </padding>
             </Label>
-            <TextField fx:id="hauteurField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="heightField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label text="cm" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="1">
                <opaqueInsets>
                   <Insets />
@@ -64,7 +64,7 @@
                   <Insets right="10.0" />
                </GridPane.margin>
             </Label>
-            <TextField fx:id="largeurField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <TextField fx:id="widthField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Label text="cm" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="2">
                <opaqueInsets>
                   <Insets />
@@ -81,7 +81,7 @@
                   <Insets right="10.0" />
                </GridPane.margin>
             </Label>
-            <TextField fx:id="hauteurMaillageField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <TextField fx:id="heightMeshField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Label text="mm" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="4">
                <opaqueInsets>
                   <Insets />
@@ -98,13 +98,13 @@
                   <Insets right="5.0" />
                </GridPane.margin>
             </Label>
-            <TextField fx:id="largeurMaxImpressionField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <Label fx:id="hauteurMaxImpression" text="Longueur max impression:" textFill="WHITE" GridPane.rowIndex="6">
+            <TextField fx:id="maxWidthPrintField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label fx:id="maxHeightPrint" text="Longueur max impression:" textFill="WHITE" GridPane.rowIndex="6">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <TextField fx:id="hauteurMaxImpressionField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <TextField fx:id="maxHeightPrintField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
             <Label text="mm" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="5">
                <opaqueInsets>
                   <Insets />
@@ -121,33 +121,33 @@
                   <Insets left="5.0" />
                </GridPane.margin>
             </Label>
-            <Button fx:id="valider" mnemonicParsing="false" onAction="#Valider" text="Valider" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+            <Button fx:id="validateButton" mnemonicParsing="false" onAction="#ValidateAction" text="Valider" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
                <GridPane.margin>
                   <Insets right="25.0" />
                </GridPane.margin>
             </Button>
-            <Button fx:id="annuler" mnemonicParsing="false" onAction="#Annuler" text="Annuler" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#CancelAction" text="Annuler" GridPane.columnIndex="1" GridPane.rowIndex="7" />
             <Label fx:id="labelError" text="Erreur: veuillez remplir&#10;tous les paramètres " textFill="RED" visible="false" GridPane.rowIndex="7">
                <font>
                   <Font size="16.0" />
                </font>
             </Label>
-            <Button fx:id="ajustH" mnemonicParsing="false" onAction="#HauteurBtn" text="Ajuster " GridPane.rowIndex="1">
+            <Button fx:id="adjustHeightButton" mnemonicParsing="false" onAction="#AdjustHeightAction" text="Ajuster " GridPane.rowIndex="1">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
             </Button>
-            <Label fx:id="adjLabel" text="Veuillez ajuster la &#10;taille de la pièce pour&#10;ne pas la déformer " textAlignment="CENTER" textFill="#f20000" visible="false" GridPane.rowIndex="3">
+            <Label fx:id="adjustLabel" text="Veuillez ajuster la &#10;taille de la pièce pour&#10;ne pas la déformer " textAlignment="CENTER" textFill="#f20000" visible="false" GridPane.rowIndex="3">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>
             </Label>
-            <Button fx:id="ajustL" mnemonicParsing="false" onAction="#LargeurBtn" text="Ajuster" GridPane.rowIndex="2">
+            <Button fx:id="adjustWidthButton" mnemonicParsing="false" onAction="#AdjustWidthAction" text="Ajuster" GridPane.rowIndex="2">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
             </Button>
-            <Button fx:id="resetBtn" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#reset" text="Reset" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="BOTTOM">
+            <Button fx:id="resestButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#ResetAction" text="Reset" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="BOTTOM">
                <effect>
                   <Blend />
                </effect>

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controller;
 
 import java.net.URL;
@@ -22,115 +17,153 @@ import javafx.stage.Stage;
 import parameter.Parameter;
 
 /**
- * FXML Controller class
- *
+ * FXML Controller class of paramaters window
+ * 
  * @author petit
  */
 public class ParametersWindowController implements Initializable {
 
-    /**
-     * @param hauteurP the hauteurP to set
-     */
-    public void setHauteurP(StringProperty hauteurP) {
-        this.hauteurP = hauteurP;
-    }
-    @FXML private Button ajustL, ajustH, resetBtn;
-    @FXML private TextField hauteurField, largeurField,hauteurMaillageField, largeurMaxImpressionField, hauteurMaxImpressionField;
-    @FXML private Label labelError, adjLabel;
-    private double hauteurMaillage, largeurMaxImpression, hauteurMaxImpression, hauteur, largeur;
-    private Image image;
-    private Stage thisStage;
-    static Parameter para = new Parameter();
-    private StringProperty hauteurP = new SimpleStringProperty();
-    private StringProperty largeurP = new SimpleStringProperty();
-    private Double ratioH, ratioL;
-    
-    public StringProperty hauteurProperty () {
-        return hauteurP;
-    }
-    public String getHauteur () {
-        return hauteurProperty().get();
-    }
-    
-    ParametersWindowController(Image image, Parameter para) {
-        this.image = image; 
-        this.para = para;
+	@FXML
+	private Button adjustWidthButton, adjustHeightButton, resetButton;
+	@FXML
+	private TextField heightField, widthField, heightMeshField, maxWidthPrintField, maxHeightPrintField;
+	@FXML
+	private Label errorLabel, adjustLabel;
 
-    }
-    public void setStage(Stage thisStage) {
-        this.thisStage = thisStage;    
-    }   
-    /**
-     * Initializes the controller class.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        ratioL = image.getWidth() / image.getHeight();
-        ratioH = image.getHeight() / image.getWidth();
-    }   
+	private double heightMesh, maxWidthPrint, maxHeightPrint, height, width;
+	private Image image;
+	private Stage stage;
+	static Parameter parameters = new Parameter();
+	private StringProperty heightProperty = new SimpleStringProperty();
+	private StringProperty widthProperty = new SimpleStringProperty();
+	private Double ratioHeight, ratioWidth;
 
+	/**
+	 * Constructor of the window
+	 * 
+	 * @param image
+	 * @param parameters
+	 */
+	ParametersWindowController(Image image, Parameter parameters) {
+		this.image = image;
+		this.parameters = parameters;
+	}
 
-    @FXML 
-    public void Annuler() {
-        thisStage.close();
-    }
-    @FXML
-    public void HauteurBtn () {
-         if(hauteurField.getText().isEmpty()) {
-            hauteurField.setStyle("-fx-control-inner-background: red");
-         }
-         else {
-            largeur = Double.parseDouble(largeurField.getText());
-            hauteur = largeur * ratioH;
-            hauteurField.setText(String.valueOf(hauteur));
-            ajustH.setDisable(true);
-         }
-    }
-    @FXML 
-    public void LargeurBtn () {
-        if(largeurField.getText().isEmpty()) {
-            largeurField.setStyle("-fx-control-inner-background: red");
+	/**
+	 * Setter of the Height Property the heightProperty to set
+	 * 
+	 * @param heightProperty
+	 */
+	public void setHeightProperty(StringProperty heightProperty) {
+		this.heightProperty = heightProperty;
+	}
 
-            
-            
-        }else {
-            hauteur = Double.parseDouble(largeurField.getText());
-            largeur = hauteur * ratioL;
-            largeurField.setText(String.valueOf(largeur));
-            ajustL.setDisable(true);
-        }
-        
-    }
-    @FXML
-    public void reset() {
-        largeurField.setText(null);
-        hauteurField.setText(null);  
-        ajustL.setDisable(false);
-        ajustH.setDisable(false);
-    }
-    @FXML 
-    public void Valider() {
-        if(hauteurField.getText().isEmpty() || largeurField.getText().isEmpty() || largeurMaxImpressionField.getText().isEmpty()
-                || hauteurMaxImpressionField.getText().isEmpty() ) {
-            labelError.setVisible(true);
-        }
-        else {
-            hauteur = Double.parseDouble(hauteurField.getText());
-            largeur = Double.parseDouble(largeurField.getText());
-            hauteurMaillage = Double.parseDouble(hauteurMaillageField.getText());
-            largeurMaxImpression = Double.parseDouble(largeurMaxImpressionField.getText());
-            hauteurMaxImpression = Double.parseDouble(hauteurMaxImpressionField.getText()); 
-            if(hauteur/largeur != ratioH) {
-                adjLabel.setVisible(true);
-            }
-            else{
-                para.setHauteurImage(hauteur);
-                para.setHauteurMaillage(hauteurMaillage);
-                para.setLargeurImage(largeur);
-                para.setHauteurMaxImpression(hauteurMaxImpression);
-                para.setLargeurMaxImpression(largeurMaxImpression);
-                thisStage.close();
-            }
-        }
-    }
+	/**
+	 * Getter of the height property
+	 * 
+	 * @return the height property
+	 */
+	public StringProperty getHeightProperty() {
+		return heightProperty;
+	}
+
+	/**
+	 * Getter of the height
+	 * 
+	 * @returnthe height with the hauteur property
+	 */
+	public String getHeight() {
+		return getHeightProperty().get();
+	}
+
+	public void setStage(Stage stage) {
+		this.stage = stage;
+	}
+
+	/**
+	 * Initializes the controller class.
+	 */
+	@Override
+	public void initialize(URL url, ResourceBundle ressourceBundle) {
+		ratioWidth = image.getWidth() / image.getHeight();
+		ratioHeight = image.getHeight() / image.getWidth();
+	}
+
+	/**
+	 * Method launch when close button is pressed
+	 */
+	@FXML
+	public void CancelAction() {
+		stage.close();
+	}
+
+	/**
+	 * Method to adjust the height entered by users
+	 */
+	@FXML
+	public void AdjustHeightAction() {
+		if (heightField.getText().isEmpty()) {
+			heightField.setStyle("-fx-control-inner-background: red");
+		} else {
+			width = Double.parseDouble(widthField.getText());
+			height = width * ratioHeight;
+			heightField.setText(String.valueOf(height));
+			adjustHeightButton.setDisable(true);
+		}
+	}
+
+	/**
+	 * Method to adjust the with entered by users
+	 */
+	@FXML
+	public void AdjustWidthAction() {
+		if (widthField.getText().isEmpty()) {
+			widthField.setStyle("-fx-control-inner-background: red");
+		} else {
+			height = Double.parseDouble(widthField.getText());
+			width = height * ratioWidth;
+			widthField.setText(String.valueOf(width));
+			adjustWidthButton.setDisable(true);
+		}
+	}
+
+	/**
+	 * Method to reset wiht and height fields
+	 */
+	@FXML
+	public void ResetAction() {
+		widthField.setText("");
+		heightField.setText("");
+		adjustWidthButton.setDisable(false);
+		adjustHeightButton.setDisable(false);
+	}
+
+	/**
+	 * Method to validate parameters fields
+	 */
+	@FXML
+	public void ValidateAction() {
+		if (heightField.getText().isEmpty() || 
+				widthField.getText().isEmpty() || 
+				maxWidthPrintField.getText().isEmpty() || 
+				maxHeightPrintField.getText().isEmpty()) {
+			errorLabel.setVisible(true);
+		} else {
+			height = Double.parseDouble(heightField.getText());
+			width = Double.parseDouble(widthField.getText());
+			heightMesh = Double.parseDouble(heightMeshField.getText());
+			maxWidthPrint = Double.parseDouble(maxWidthPrintField.getText());
+			maxHeightPrint = Double.parseDouble(maxHeightPrintField.getText());
+			if (height / width != ratioHeight) {
+				adjustLabel.setVisible(true);
+			} else {
+				parameters.setImageHeight(height);
+				parameters.setMeshHeight(heightMesh);
+				parameters.setImageWidth(width);
+				parameters.setMaxHeightOfPrint(maxHeightPrint);
+				parameters.setMaxWidthOfPrint(maxWidthPrint);
+				stage.close();
+			}
+		}
+	}
 }

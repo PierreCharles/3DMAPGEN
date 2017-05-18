@@ -7,12 +7,14 @@ import javafx.stage.Stage;
 
 /**
  * Main application : extends Application This is entry point of this application
- * @author picharles
+ * 
+ * @author
  */
 public class MainApplication extends Application {
 
 	/**
 	 * Entry point of the application : Start method for create and open a main window application.
+	 * 
 	 * @param primaryStage : main windows system
 	 * @throws IOException : when FXML not found
 	 */
@@ -29,6 +31,7 @@ public class MainApplication extends Application {
 
 	/**
 	 * main method
+	 * 
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) {

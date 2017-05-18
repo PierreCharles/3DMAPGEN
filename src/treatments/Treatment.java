@@ -1,328 +1,430 @@
 package treatments;
 
-import static treatments.Cut.getHauteurParcelle;
-import static treatments.Cut.getLargeurParcelle;
+import static treatments.Cut.getHeightOfParcel;
+import static treatments.Cut.getWidthOfParcel;
 
 import java.awt.image.BufferedImage;
 import java.util.TreeMap;
 
 import mesh.Face;
 import mesh.Mesh;
-import mesh.Vertice;
+import mesh.Vertices;
 import parameter.Parameter;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-
+/**
+ * Class treatment It is the class for execute the treatment of the task
+ * 
+ * @author
+ *
+ */
 public class Treatment {
 
-    
-     
+	/**
+	 * Allow to obtain the height of a pixel of the loaded image in function of
+	 * these coordonate
+	 * 
+	 * @param line y coordonate
+	 * @param column x coordonate
+	 * @param resolution Resolution of the height in function of the grey level
+	 * @param bufferedImage loaded image into application
+	 * @return the attempt height for the vertices of the mesh associated at the attempt pixel
+	 */
+	public static double getPixelHeight(double line, double column, double resolution, BufferedImage bufferedImage) {
+		int pixel, red, green, blue, medium;
+		double height;
+		int x = (int) Math.floor(column);
+		int y = (int) Math.floor(line);
+		pixel = bufferedImage.getRGB(x, y);
 
-    
+		red = (pixel >> 16) & 0xff;
+		green = (pixel >> 8) & 0xff;
+		blue = (pixel) & 0xff;
+		medium = 255 - (red + green + blue) / 3;
+		height = (resolution * medium) + 5;
+
+		return height;
+	}
+
+	/**
+	 * Method to know if an edge is a top edge
+	 * 
+	 * @param line
+	 * @param column
+	 * @return a boolean (true if an edge is a top edge)
+	 */
+	private static boolean isTopEdge(double line, double column) {
+		return (line == 0 && column != 0);
+	}
+
+	/**
+	 * Method to know if an edge is a left edge
+	 * 
+	 * @param ligne
+	 * @param column
+	 * @return a boolean (true if an edge is a left edge)
+	 */
+	private static boolean isLeftEdge(double ligne, double column) {
+		return (column == 0 && ligne != 0);
+	}
+
+	/**
+	 * Method to know if an edge is a right edge
+	 * 
+	 * @param line
+	 * @param column
+	 * @param width
+	 * @param height
+	 * @return a boolean (true if an edge is a right edge)
+	 */
+	private static boolean isRightEdge(double line, double column, double width, double height) {
+		return (column == width && line != 0 && line != height);
+	}
+
+	/**
+	 * Method to know if an edge is a bottom edge
+	 * 
+	 * @param line
+	 * @param column
+	 * @param width
+	 * @param height
+	 * @return a boolean (true if an edge is a bottom edge)
+	 */
+	private static boolean isBottomEdge(double line, double column, double width, double height) {
+		return (line == height && column != 0 && column != width);
+	}
+
+	/**
+	 * Method to know if that is centered
+	 * 
+	 * @param line
+	 * @param column
+	 * @param width
+	 * @param height
+	 * @return a boolean (true if is centered)
+	 */
+	private static boolean isCenter(double line, double column, double width, double height) {
+		return (0 < line && line < height && 0 < column && column < width);
+	}
+
+	/**
+	 * Method to convert a parcel to mesh
+	 * 
+	 * @param bufferedImage
+	 * @param max
+	 * @param parameter
+	 * @return a mesh
+	 */
+	public static Mesh parcelToMesh(BufferedImage bufferedImage, double max, Parameter parameter) {
+
+		Mesh mesh = new Mesh();
+		double resolution = max / 256;
+		double height = bufferedImage.getHeight() - 1;
+		double width = bufferedImage.getWidth() - 1;
+		double tickness = 3;
+		double beginWidth = 0.1 * width, endWidth = 0.9 * width, beginHeight = 0.1 * height, endHieght = 0.9 * height;
+
+		for (double line = 0; line < height; line++) {
+			for (double column = 0; column < width; column++) {
+
+				// On créé le point de la surface en coordonnées
+				// ligne;colonne
+				mesh.addVertices(line, column,
+						new Vertices(line, getPixelHeight(line, column, resolution, bufferedImage), column));
+			}
+		}
+
+		for (double line = 0; line < height; line++) {
+			for (double column = 0; column < width; column++) {
+				if (haveToRaised(bufferedImage, line, column, beginWidth, endWidth, beginHeight, endHieght)) {
+					mesh.addVerticesBase(line, column, new Vertices(line, tickness, column));
+				} else {
+					// On créé le point du socle en coordonnées ligne;colonne
+					mesh.addVerticesBase(line, column, new Vertices(line, 0, column));
+				}
+
+			}
+		}
+
+		for (double line = 0; line < height; line++) {
+			for (double column = 0; column < width; column++) {
+				// System.out.println("ligne : " + ligne + " ; colonne : " +
+				// colonne);
+
+				if (isTopEdge(line, column) || isBottomEdge(line, column, width, height - 1)) {
+					/* Création du coté haut ou bas */
+					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
+							mesh.getBasePoint(line, column).getId(), mesh.getBasePoint(line, column - 1).getId()));
+					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
+							mesh.getSurfacePoint(line, column - 1).getId(),
+							mesh.getSurfacePoint(line, column).getId()));
+				}
+
+				if (isLeftEdge(line, column)) {
+					/* Création de la face de la surface collée au bord */
+					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
+							mesh.getSurfacePoint(line - 1, column + 1).getId(),
+							mesh.getSurfacePoint(line - 1, column).getId()));
+					/* Création de la face du socle collée au bord */
+					mesh.addFace(new Face(mesh.getBasePoint(line, column).getId(),
+							mesh.getBasePoint(line - 1, column + 1).getId(),
+							mesh.getBasePoint(line - 1, column).getId()));
+					/* Création du côté gauche */
+					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
+							mesh.getSurfacePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
+					mesh.addFace(new Face(mesh.getSurfacePoint(line - 1, column).getId(),
+							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
+				}
+
+				if (isRightEdge(line, column, width - 1, height)) {
+					/* Création de la face de la surface collée au bord */
+					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
+							mesh.getSurfacePoint(line - 1, column).getId(),
+							mesh.getSurfacePoint(line, column - 1).getId()));
+					/* Création de la face du socle collé au bord */
+					mesh.addFace(new Face(mesh.getBasePoint(line, column).getId(),
+							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column - 1).getId()));
+					/* Création du côté droit */
+					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
+							mesh.getBasePoint(line, column).getId(), mesh.getBasePoint(line - 1, column).getId()));
+					mesh.addFace(new Face(mesh.getBasePoint(line - 1, column).getId(),
+							mesh.getSurfacePoint(line - 1, column).getId(),
+							mesh.getSurfacePoint(line, column).getId()));
+				}
+
+				if (isCenter(line, column, width - 1, height)) {
+					// System.out.println("ligne : " + ligne + " ; colonne : " +
+					// colonne);
+					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
+							mesh.getSurfacePoint(line - 1, column).getId(),
+							mesh.getSurfacePoint(line, column - 1).getId()));
+					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
+							mesh.getSurfacePoint(line - 1, column + 1).getId(),
+							mesh.getSurfacePoint(line - 1, column).getId()));
+
+					mesh.addFace(new Face(mesh.getBasePoint(line, column).getId(),
+							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column - 1).getId()));
+					mesh.addFace(new Face(mesh.getBasePoint(line, column).getId(),
+							mesh.getBasePoint(line - 1, column + 1).getId(),
+							mesh.getBasePoint(line - 1, column).getId()));
+				}
+			}
+		}
+		return mesh;
+	}
+
+	/**
+	 * Method to know if have to raised
+	 * 
+	 * @param bufferedImage
+	 * @param line
+	 * @param column
+	 * @param beginWidth
+	 * @param endWidth
+	 * @param beginHeight
+	 * @param endHeight
+	 * @return a boolean
+	 */
+	public static boolean haveToRaised(BufferedImage bufferedImage, double line, double column, double beginWidth,
+			double endWidth, double beginHeight, double endHeight) {
+		double begin = bufferedImage.getWidth() * 0.1;
+		double end = bufferedImage.getWidth() * 0.9;
+		return (column >= beginWidth && column <= endWidth && line >= beginHeight
+				&& line <= (bufferedImage.getHeight() - 1) - beginWidth // zone  du restangle socle
+
+				|| column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
+						&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2 && line <= beginHeight // slot haut
+																										
+				|| column <= beginWidth && line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
+						&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 // slot gauche																				
+
+				|| column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
+						&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2
+						&& line >= (bufferedImage.getHeight() - 1) - beginHeight // slot																					// bas
+
+				|| line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
+						&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth); // slot droit
+	}
+
+	/**
+	 * Method to get the number of cli^p
+	 * 
+	 * @param cutWidthNumber
+	 * @param cutHeightNumber
+	 * @return an integer
+	 */
+	public static Integer getNumberOfClip(int cutWidthNumber, int cutHeightNumber) {
+		return (cutWidthNumber - 1) + (2 * cutWidthNumber - 1) * (cutHeightNumber - 1);
+	}
+
+
     /**
-     * Permet d'obtenir la hauteur d'un pixel donné de l'image chargée en fonction de ses coordonées
-     * @param ligne Coordonnée y
-     * @param colonne Coordonnée x
-     * @param resolution Résolution de la hauteur en fonction des niveau de gris
-     * @param image Image chargée dans le logiciel
-     * @return La hauteur qu'il faut attribuer au sommet du maillage correspondant au pixel traitée
+     * Method to generate clip
+     * @param bufferedImageParcel
+     * @return
+     * Clip structure
+     * 3___4           11___12
+     * |   |5__________7|   |
+     * |                    |
+     * |    6__________8    |
+     * |___|            |___|
+     * 1   2           9    10
+     * Vertices s0X: vertices at the top of verticeX
      */
-    public static double getHauteurPixel(double ligne, double colonne, double resolution, BufferedImage image){
-        int pixel, rouge, vert, bleu, moyenne;
-        double hauteur;
-        int x = (int) Math.floor(colonne);
-        int y = (int) Math.floor(ligne);
-        pixel = image.getRGB(x,y);
+	public static Mesh clipGenerator(BufferedImage bufferedImageParcel) {
+		Mesh clipMesh = new Mesh();
+		double deb = bufferedImageParcel.getWidth() * 0.1;
+		Vertices vertices1 = new Vertices(0, 0, 0);
+		clipMesh.getSetOfVertices().put(vertices1.getId(), vertices1);
+		Vertices vertices01 = new Vertices(0, 3, 0);
+		clipMesh.getSetOfVertices().put(vertices01.getId(), vertices01);
+		Vertices vertices2 = new Vertices(deb / 2, 0, 0);
+		clipMesh.getSetOfVertices().put(vertices2.getId(), vertices2);
+		Vertices vertices02 = new Vertices(deb / 2, 3, 0);
+		clipMesh.getSetOfVertices().put(vertices02.getId(), vertices02);
+		Vertices vertices3 = new Vertices(0, 0, 2 * deb);
+		clipMesh.getSetOfVertices().put(vertices3.getId(), vertices3);
+		Vertices vertices03 = new Vertices(0, 3, 2 * deb);
+		clipMesh.getSetOfVertices().put(vertices03.getId(), vertices03);
+		Vertices vertices4 = new Vertices(deb / 2, 0, 2 * deb);
+		clipMesh.getSetOfVertices().put(vertices4.getId(), vertices4);
+		Vertices vertices04 = new Vertices(deb / 2, 3, 2 * deb);
+		clipMesh.getSetOfVertices().put(vertices04.getId(), vertices04);
+		Vertices vertices5 = new Vertices(deb / 2, 0, 1.5 * deb);
+		clipMesh.getSetOfVertices().put(vertices5.getId(), vertices5);
+		Vertices vertices05 = new Vertices(deb / 2, 3, 1.5 * deb);
+		clipMesh.getSetOfVertices().put(vertices05.getId(), vertices05);
+		Vertices vertices6 = new Vertices(deb / 2, 0, deb / 2);
+		clipMesh.getSetOfVertices().put(vertices6.getId(), vertices6);
+		Vertices vertices06 = new Vertices(deb / 2, 3, deb / 2);
+		clipMesh.getSetOfVertices().put(vertices06.getId(), vertices06);
+		Vertices vertices7 = new Vertices(2.5 * deb, 0, 1.5 * deb);
+		clipMesh.getSetOfVertices().put(vertices7.getId(), vertices7);
+		Vertices vertices07 = new Vertices(2.5 * deb, 3, 1.5 * deb);
+		clipMesh.getSetOfVertices().put(vertices07.getId(), vertices07);
+		Vertices vertices8 = new Vertices(2.5 * deb, 0, deb / 2);
+		clipMesh.getSetOfVertices().put(vertices8.getId(), vertices8);
+		Vertices vertices08 = new Vertices(2.5 * deb, 3, deb / 2);
+		clipMesh.getSetOfVertices().put(vertices08.getId(), vertices08);
+		Vertices vertices9 = new Vertices(2.5 * deb, 0, 0);
+		clipMesh.getSetOfVertices().put(vertices9.getId(), vertices9);
+		Vertices vertices09 = new Vertices(2.5 * deb, 3, 0);
+		clipMesh.getSetOfVertices().put(vertices09.getId(), vertices09);
+		Vertices vertices10 = new Vertices(3 * deb, 0, 0);
+		clipMesh.getSetOfVertices().put(vertices10.getId(), vertices10);
+		Vertices vertices010 = new Vertices(3 * deb, 3, 0);
+		clipMesh.getSetOfVertices().put(vertices010.getId(), vertices010);
+		Vertices vertices11 = new Vertices(2.5 * deb, 0, 2 * deb);
+		clipMesh.getSetOfVertices().put(vertices11.getId(), vertices11);
+		Vertices vertices011 = new Vertices(2.5 * deb, 3, 2 * deb);
+		clipMesh.getSetOfVertices().put(vertices011.getId(), vertices011);
+		Vertices vertices12 = new Vertices(3 * deb, 0, 2 * deb);
+		clipMesh.getSetOfVertices().put(vertices12.getId(), vertices12);
+		Vertices vertices012 = new Vertices(3 * deb, 3, 2 * deb);
+		clipMesh.getSetOfVertices().put(vertices012.getId(), vertices012);
 
-        rouge = (pixel >> 16) & 0xff;
-        vert = (pixel >> 8) & 0xff;
-        bleu = (pixel) & 0xff;
-        moyenne = 255-(rouge+vert+bleu)/3;
-        hauteur = (resolution*moyenne) + 5;
-        
-        return hauteur;
-    }
+		// faces horizontales
+		clipMesh.getSetOfFaces().add(new Face(vertices1.getId(), vertices2.getId(), vertices3.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices01.getId(), vertices02.getId(), vertices03.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices2.getId(), vertices3.getId(), vertices4.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices02.getId(), vertices03.getId(), vertices04.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices5.getId(), vertices6.getId(), vertices7.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices05.getId(), vertices06.getId(), vertices07.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices6.getId(), vertices7.getId(), vertices8.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices06.getId(), vertices07.getId(), vertices08.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices9.getId(), vertices10.getId(), vertices11.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices09.getId(), vertices010.getId(), vertices011.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices10.getId(), vertices11.getId(), vertices12.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices010.getId(), vertices011.getId(), vertices012.getId()));
 
-    private static boolean isBordHaut(double ligne, double colonne) {
-        return (ligne == 0 && colonne!= 0);
-    }
-    
-    private static boolean isBordGauche(double ligne, double colonne) {
-        return (colonne == 0 && ligne != 0);
-    }
-    
-    private static boolean isBordDroit(double ligne, double colonne, double largeur, double hauteur) {
-        return (colonne == largeur && ligne != 0 && ligne != hauteur);
-    }
-    
-    private static boolean isBordBas(double ligne, double colonne, double largeur, double hauteur) {
-        return (ligne == hauteur && colonne != 0 && colonne != largeur);
-    }
-    
-    private static boolean isCentre(double ligne, double colonne, double largeur, double hauteur) {
-        return (0 < ligne && ligne < hauteur && 0 < colonne && colonne < largeur);
-    }
-    
-    public static Mesh ParcelleToMaillage(BufferedImage image, double max, Parameter para) {
-        
-        Mesh m = new Mesh();
-        double resolution = max/256;
-        double hauteur = image.getHeight()-1;
-        double largeur = image.getWidth()-1;
-        double epaisseur = 3;
-        double debutLargeur = 0.1 * largeur, finLargeur = 0.9 * largeur, debutHauteur = 0.1 * hauteur, finHauteur = 0.9 * hauteur;
-        
-        for (double ligne = 0; ligne < hauteur; ligne++) {
-            for(double colonne = 0; colonne < largeur; colonne++) {
-                
-                /* On créé le point de la surface en coordonnées ligne;colonne */
-                m.ajouterSommet(ligne, colonne, new Vertice(ligne, getHauteurPixel(ligne, colonne, resolution, image), colonne));
-            }
-        }
-        
-        for (double ligne = 0; ligne < hauteur; ligne++) {
-            for(double colonne = 0; colonne < largeur; colonne++) {
-                if(doitEtreRemonte(image, ligne, colonne, debutLargeur, finLargeur, debutHauteur, finHauteur)){
-                    m.ajouterSommetSocle(ligne, colonne, new Vertice(ligne, epaisseur, colonne));
-                }
-                else {
-                  /* On créé le point du socle en coordonnées ligne;colonne */
-                    m.ajouterSommetSocle(ligne, colonne, new Vertice(ligne, 0, colonne));  
-                }
-                
-            }
-        }
-        
-        for (double ligne = 0; ligne < hauteur; ligne++) {
-            for(double colonne = 0; colonne < largeur; colonne++) {
-                //System.out.println("ligne : " + ligne + " ; colonne : " + colonne);
-                
-                if(isBordHaut(ligne, colonne) || isBordBas(ligne, colonne, largeur, hauteur - 1)) {
-                    /* Création du coté haut ou bas */
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne, colonne - 1).getId()));
-                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne - 1).getId(), m.getPointSurface(ligne, colonne - 1).getId(), m.getPointSurface(ligne, colonne).getId()));
-                }
-                
-                if(isBordGauche(ligne, colonne)) {
-                    /* Création de la face de la surface collée au bord */
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne + 1).getId(), m.getPointSurface(ligne - 1, colonne).getId()));
-                    /* Création de la face du socle collée au bord */
-                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne + 1).getId(), m.getPointSocle(ligne - 1, colonne).getId()));
-                    /* Création du côté gauche */
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSocle(ligne, colonne).getId()));
-                    m.ajouterFace(new Face(m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSocle(ligne - 1, colonne).getId(), m.getPointSocle(ligne, colonne).getId()));
-                }
-                
-                if(isBordDroit(ligne, colonne, largeur - 1, hauteur)) {
-                    /*Création de la face de la surface collée au bord */
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSurface(ligne, colonne - 1).getId()));
-                    /* Création de la face du socle collé au bord */
-                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne).getId(), m.getPointSocle(ligne, colonne - 1).getId()));
-                    /* Création du côté droit */
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne).getId()));
-                    m.ajouterFace(new Face(m.getPointSocle(ligne - 1, colonne).getId(), m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSurface(ligne, colonne).getId()));
-                }
-                
-                if(isCentre(ligne, colonne, largeur - 1, hauteur)) {
-                    //System.out.println("ligne : " + ligne + " ; colonne : " + colonne);
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne).getId(), m.getPointSurface(ligne, colonne - 1).getId()));
-                    m.ajouterFace(new Face(m.getPointSurface(ligne, colonne).getId(), m.getPointSurface(ligne - 1, colonne + 1).getId(), m.getPointSurface(ligne - 1, colonne).getId()));
-                    
-                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne).getId(), m.getPointSocle(ligne, colonne - 1).getId()));
-                    m.ajouterFace(new Face(m.getPointSocle(ligne, colonne).getId(), m.getPointSocle(ligne - 1, colonne + 1).getId(), m.getPointSocle(ligne - 1, colonne).getId()));
-                }
-            }
-        }
-        return m;
-    }
-    
-    public static boolean doitEtreRemonte(BufferedImage image, double ligne, double colonne, double debutLargeur, double finLargeur, double debutHauteur, double finHauteur) {
-        double deb = image.getWidth() * 0.1;
-        double fin = image.getWidth() * 0.9;
-        return (colonne >= debutLargeur && colonne<= finLargeur 
-            && ligne >= debutHauteur && ligne <= (image.getHeight()-1) - debutLargeur  //zone du rectangle du socle
-                
-            || colonne >= ((image.getWidth()-1)-debutLargeur)/2 && colonne <= ((image.getWidth()-1)+debutLargeur)/2
-            && ligne <= debutHauteur   //slot haut
-                
-            || colonne <= debutLargeur
-            && ligne >= ((image.getHeight()-1)-debutHauteur)/2 && ligne <= ((image.getHeight()-1)+debutHauteur)/2 //slot gauche
-                
-            || colonne >= ((image.getWidth()-1)-debutLargeur)/2 && colonne <= ((image.getWidth()-1)+debutLargeur)/2
-            && ligne >= (image.getHeight()-1)-debutHauteur     //slot bas
-                
-            || ligne >= ((image.getHeight()-1)-debutHauteur)/2 && ligne <= ((image.getHeight()-1)+debutHauteur)/2
-            && colonne >= finLargeur);       //slot droit
-    }
-    
-    public static Integer getNbAttache(int nbDecoupeL, int nbDecoupeH) {
-        return (nbDecoupeL - 1) + (2*nbDecoupeL - 1) * (nbDecoupeH - 1);
-    }
-    
-    /*
-    Structure de l'attache:
-    3___4           11___12
-    |   |5__________7|   |
-    |                    |
-    |    6__________8    |
-    |___|            |___|
-    1   2           9    10
-    Vertices s0X: sommet au dessus de sX
-    */
-    public static Mesh genererAttache(BufferedImage parcelle) {
-        Mesh attache = new Mesh();
-        double deb = parcelle.getWidth() * 0.1;
-        Vertice s1 = new Vertice(0, 0, 0);
-        attache.getEnsembleSommets().put(s1.getId(), s1);
-        Vertice s01 = new Vertice(0, 3, 0);
-        attache.getEnsembleSommets().put(s01.getId(), s01);
-        Vertice s2 = new Vertice(deb/2, 0, 0);
-        attache.getEnsembleSommets().put(s2.getId(), s2);
-        Vertice s02 = new Vertice(deb/2, 3, 0);
-        attache.getEnsembleSommets().put(s02.getId(), s02);
-        Vertice s3 = new Vertice(0, 0, 2*deb);
-        attache.getEnsembleSommets().put(s3.getId(), s3);
-        Vertice s03 = new Vertice(0, 3, 2*deb);
-        attache.getEnsembleSommets().put(s03.getId(), s03);
-        Vertice s4 = new Vertice(deb/2, 0, 2*deb);
-        attache.getEnsembleSommets().put(s4.getId(), s4);
-        Vertice s04 = new Vertice(deb/2, 3, 2*deb);
-        attache.getEnsembleSommets().put(s04.getId(), s04);
-        Vertice s5 = new Vertice(deb/2, 0, 1.5*deb);
-        attache.getEnsembleSommets().put(s5.getId(), s5);
-        Vertice s05 = new Vertice(deb/2, 3, 1.5*deb);
-        attache.getEnsembleSommets().put(s05.getId(), s05);
-        Vertice s6 = new Vertice(deb/2, 0, deb/2);
-        attache.getEnsembleSommets().put(s6.getId(), s6);
-        Vertice s06 = new Vertice(deb/2, 3, deb/2);
-        attache.getEnsembleSommets().put(s06.getId(), s06);
-        Vertice s7 = new Vertice(2.5*deb, 0, 1.5*deb);
-        attache.getEnsembleSommets().put(s7.getId(), s7);
-        Vertice s07 = new Vertice(2.5*deb, 3, 1.5*deb);
-        attache.getEnsembleSommets().put(s07.getId(), s07);
-        Vertice s8 = new Vertice(2.5*deb, 0, deb/2);
-        attache.getEnsembleSommets().put(s8.getId(), s8);
-        Vertice s08 = new Vertice(2.5*deb, 3, deb/2);
-        attache.getEnsembleSommets().put(s08.getId(), s08);
-        Vertice s9 = new Vertice(2.5*deb, 0, 0);
-        attache.getEnsembleSommets().put(s9.getId(), s9);
-        Vertice s09 = new Vertice(2.5*deb, 3, 0);
-        attache.getEnsembleSommets().put(s09.getId(), s09);
-        Vertice s10 = new Vertice(3*deb, 0, 0);
-        attache.getEnsembleSommets().put(s10.getId(), s10);
-        Vertice s010 = new Vertice(3*deb, 3, 0);
-        attache.getEnsembleSommets().put(s010.getId(), s010);
-        Vertice s11 = new Vertice(2.5*deb, 0, 2*deb);
-        attache.getEnsembleSommets().put(s11.getId(), s11);
-        Vertice s011 = new Vertice(2.5*deb, 3, 2*deb);
-        attache.getEnsembleSommets().put(s011.getId(), s011);
-        Vertice s12 = new Vertice(3*deb, 0, 2*deb);
-        attache.getEnsembleSommets().put(s12.getId(), s12);
-        Vertice s012 = new Vertice(3*deb, 3, 2*deb);
-        attache.getEnsembleSommets().put(s012.getId(), s012);
-        //faces horizontales
-        attache.getEnsembleFaces().add(new Face (s1.getId(), s2.getId(), s3.getId()));
-        attache.getEnsembleFaces().add(new Face (s01.getId(), s02.getId(), s03.getId()));
-        attache.getEnsembleFaces().add(new Face (s2.getId(), s3.getId(), s4.getId()));
-        attache.getEnsembleFaces().add(new Face (s02.getId(), s03.getId(), s04.getId()));
-        attache.getEnsembleFaces().add(new Face (s5.getId(), s6.getId(), s7.getId()));
-        attache.getEnsembleFaces().add(new Face (s05.getId(), s06.getId(), s07.getId()));
-        attache.getEnsembleFaces().add(new Face (s6.getId(), s7.getId(), s8.getId()));
-        attache.getEnsembleFaces().add(new Face (s06.getId(), s07.getId(), s08.getId()));
-        attache.getEnsembleFaces().add(new Face (s9.getId(), s10.getId(), s11.getId()));
-        attache.getEnsembleFaces().add(new Face (s09.getId(), s010.getId(), s011.getId()));
-        attache.getEnsembleFaces().add(new Face (s10.getId(), s11.getId(), s12.getId()));
-        attache.getEnsembleFaces().add(new Face (s010.getId(), s011.getId(), s012.getId()));
-        
-        //faces verticales
-        
-        attache.getEnsembleFaces().add(new Face (s1.getId(), s01.getId(), s3.getId()));
-        attache.getEnsembleFaces().add(new Face(s3.getId(), s03.getId(), s01.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s1.getId(), s01.getId(), s2.getId()));
-        attache.getEnsembleFaces().add(new Face(s01.getId(), s02.getId(), s2.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s3.getId(), s03.getId(), s4.getId()));
-        attache.getEnsembleFaces().add(new Face(s03.getId(), s04.getId(), s4.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s2.getId(), s02.getId(), s6.getId()));
-        attache.getEnsembleFaces().add(new Face(s02.getId(), s06.getId(), s6.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s4.getId(), s04.getId(), s5.getId()));
-        attache.getEnsembleFaces().add(new Face(s04.getId(), s05.getId(), s5.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s6.getId(), s06.getId(), s8.getId()));
-        attache.getEnsembleFaces().add(new Face(s06.getId(), s08.getId(), s8.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s5.getId(), s05.getId(), s7.getId()));
-        attache.getEnsembleFaces().add(new Face(s05.getId(), s07.getId(), s7.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s8.getId(), s9.getId(), s08.getId()));
-        attache.getEnsembleFaces().add(new Face(s08.getId(), s9.getId(), s09.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s7.getId(), s07.getId(), s11.getId()));
-        attache.getEnsembleFaces().add(new Face(s07.getId(), s11.getId(), s011.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s9.getId(), s10.getId(), s09.getId()));
-        attache.getEnsembleFaces().add(new Face(s09.getId(), s10.getId(), s010.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s11.getId(), s12.getId(), s011.getId()));
-        attache.getEnsembleFaces().add(new Face(s011.getId(), s012.getId(), s12.getId()));
-        
-        attache.getEnsembleFaces().add(new Face(s12.getId(), s10.getId(), s012.getId()));
-        attache.getEnsembleFaces().add(new Face(s10.getId(), s012.getId(), s010.getId()));
-        
+		// faces verticales
 
-        return attache;
-    }
-    
-    public static void miseAEchelle(Mesh m, BufferedImage img, Parameter para) {
-        
-        double rapportX = para.getLargeurMaxImpression()/getLargeurParcelle();
-        double rapportZ = para.getHauteurMaxImpression()/getHauteurParcelle();
-        
-        Set<Map.Entry<Double, TreeMap>> setLigne = m.getEnsembleSommets().entrySet();
-            Iterator<Map.Entry<Double, TreeMap>> it = setLigne.iterator();
-            while(it.hasNext()){
-                Map.Entry<Double, TreeMap> e = it.next();
-                TreeMap sommetTreeMap = e.getValue();
-                
-                
-                Set<Map.Entry<Double,Vertice>> setColonne = sommetTreeMap.entrySet();
-                Iterator<Map.Entry<Double,Vertice>> it2 = setColonne.iterator();
-                
-                while(it2.hasNext()){
-                    Map.Entry<Double, Vertice> sommetEntry = it2.next();
-                    sommetEntry.getValue().setX(sommetEntry.getValue().getX()*rapportX);
-                    sommetEntry.getValue().setZ(sommetEntry.getValue().getZ()*rapportZ);
-                }
-                
-            }
-            
-            /**
-             * Ecriture de l'ensemble des points du socle
-             */
-            Set<Map.Entry<Double, TreeMap>> setLigneSocle = m.getEnsembleSommetsSocle().entrySet();
-            Iterator<Map.Entry<Double, TreeMap>> it3 = setLigneSocle.iterator();
-            while(it3.hasNext()){
-                Map.Entry<Double, TreeMap> e2 = it3.next();
-                TreeMap sommetTreeMapSocle = e2.getValue();
-                
-                
-                Set<Map.Entry<Double,Vertice>> setColonneSocle = sommetTreeMapSocle.entrySet();
-                Iterator<Map.Entry<Double,Vertice>> it4 = setColonneSocle.iterator();
-                
-                while(it4.hasNext()){
-                    Map.Entry<Double, Vertice> sommetEntrySocle = it4.next();
-                    sommetEntrySocle.getValue().setX(sommetEntrySocle.getValue().getX()*rapportX);
-                    sommetEntrySocle.getValue().setZ(sommetEntrySocle.getValue().getZ()*rapportZ);
-                }
-                
-            }
-        
-    }
-    
+		clipMesh.getSetOfFaces().add(new Face(vertices1.getId(), vertices01.getId(), vertices3.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices3.getId(), vertices03.getId(), vertices01.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices1.getId(), vertices01.getId(), vertices2.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices01.getId(), vertices02.getId(), vertices2.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices3.getId(), vertices03.getId(), vertices4.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices03.getId(), vertices04.getId(), vertices4.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices2.getId(), vertices02.getId(), vertices6.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices02.getId(), vertices06.getId(), vertices6.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices4.getId(), vertices04.getId(), vertices5.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices04.getId(), vertices05.getId(), vertices5.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices6.getId(), vertices06.getId(), vertices8.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices06.getId(), vertices08.getId(), vertices8.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices5.getId(), vertices05.getId(), vertices7.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices05.getId(), vertices07.getId(), vertices7.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices8.getId(), vertices9.getId(), vertices08.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices08.getId(), vertices9.getId(), vertices09.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices7.getId(), vertices07.getId(), vertices11.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices07.getId(), vertices11.getId(), vertices011.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices9.getId(), vertices10.getId(), vertices09.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices09.getId(), vertices10.getId(), vertices010.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices11.getId(), vertices12.getId(), vertices011.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices011.getId(), vertices012.getId(), vertices12.getId()));
+
+		clipMesh.getSetOfFaces().add(new Face(vertices12.getId(), vertices10.getId(), vertices012.getId()));
+		clipMesh.getSetOfFaces().add(new Face(vertices10.getId(), vertices012.getId(), vertices010.getId()));
+
+		return clipMesh;
+	}
+
+	/**
+	 * Method for scalling
+	 * 
+	 * @param mesh
+	 * @param bufferedImage
+	 * @param parameter
+	 */
+	public static void scalling(Mesh mesh, BufferedImage bufferedImage, Parameter parameter) {
+
+		double ratioX = parameter.getMaxWidthOfPrint() / getWidthOfParcel();
+		double ratioZ = parameter.getMaxHeightOfPrint() / getHeightOfParcel();
+
+		Set<Map.Entry<Double, TreeMap>> setLine = mesh.getSetOfVertices().entrySet();
+		Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();
+		while (iterator.hasNext()) {
+			Map.Entry<Double, TreeMap> entry = iterator.next();
+			TreeMap verticesTreeMap = entry.getValue();
+
+			Set<Map.Entry<Double, Vertices>> setColumn = verticesTreeMap.entrySet();
+			Iterator<Map.Entry<Double, Vertices>> iterator2 = setColumn.iterator();
+
+			while (iterator2.hasNext()) {
+				Map.Entry<Double, Vertices> verticesEntry = iterator2.next();
+				verticesEntry.getValue().setX(verticesEntry.getValue().getX() * ratioX);
+				verticesEntry.getValue().setZ(verticesEntry.getValue().getZ() * ratioZ);
+			}
+		}
+
+		// Ecriture de l'ensemble des points du socle
+		Set<Map.Entry<Double, TreeMap>> setBaseLine = mesh.getSetOfVerticesBase().entrySet();
+		Iterator<Map.Entry<Double, TreeMap>> iterator3 = setBaseLine.iterator();
+		while (iterator3.hasNext()) {
+			Map.Entry<Double, TreeMap> entry2 = iterator3.next();
+			TreeMap verticesTreeMapBase = entry2.getValue();
+
+			Set<Map.Entry<Double, Vertices>> setBaseColum = verticesTreeMapBase.entrySet();
+			Iterator<Map.Entry<Double, Vertices>> iterator4 = setBaseColum.iterator();
+
+			while (iterator4.hasNext()) {
+				Map.Entry<Double, Vertices> verticesEntryBase = iterator4.next();
+				verticesEntryBase.getValue().setX(verticesEntryBase.getValue().getX() * ratioX);
+				verticesEntryBase.getValue().setZ(verticesEntryBase.getValue().getZ() * ratioZ);
+			}
+		}
+	}
+
 }

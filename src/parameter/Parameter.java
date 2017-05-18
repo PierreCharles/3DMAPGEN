@@ -1,57 +1,104 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package parameter;
 
 /**
- *
+ * She allows the user to choose her own parameters as the treatment of the
+ * image according to the size of her printer.
+ * 
  * @author petit
+ *
  */
 public class Parameter {
-    double largeurImage, hauteurImage, hauteurMaillage, largeurMaxImpression, hauteurMaxImpression;
 
-    public void setLargeurImage(double largeurImage) {
-        this.largeurImage = largeurImage;
-    }
+	double imageWidth, imageHeight, meshHeight, maxWidthOfPrint, maxHeightOfPrint;
 
-    public void setHauteurImage(double hauteurImage) {
-        this.hauteurImage = hauteurImage;
-    }
+	/**
+	 * Getter of the with of image
+	 * 
+	 * @return the with of image
+	 */
+	public double getImageWidth() {
+		return imageWidth;
+	}
 
-    public void setHauteurMaillage(double hauteurMaillage) {
-        this.hauteurMaillage = hauteurMaillage;
-    }
+	/**
+	 * Setter of the with of image
+	 * 
+	 * @param imageWidth
+	 */
+	public void setImageWidth(double imageWidth) {
+		this.imageWidth = imageWidth;
+	}
 
-    public void setLargeurMaxImpression(double largeurMaxImpression) {
-        this.largeurMaxImpression = largeurMaxImpression;
-    }
+	/**
+	 * Getter of the height of image
+	 * 
+	 * @return the height of the image
+	 */
+	public double getImageHeight() {
+		return imageHeight;
+	}
 
-    public void setHauteurMaxImpression(double hauteurMaxImpression) {
-        this.hauteurMaxImpression = hauteurMaxImpression;
-    }
+	/**
+	 * Setter of the image height
+	 * 
+	 * @param imageHeight : the height of the image
+	 */
+	public void setImageHeight(double imageHeight) {
+		this.imageHeight = imageHeight;
+	}
 
-    public double getLargeurImage() {
-        return largeurImage;
-    }
+	/**
+	 * Getter of the height of the mesh
+	 * 
+	 * @return the height of the mesh
+	 */
+	public double getMeshHeight() {
+		return meshHeight;
+	}
 
-    public double getHauteurImage() {
-        return hauteurImage;
-    }
+	/**
+	 * Setter of the height of the mesh
+	 * 
+	 * @param meshHeight
+	 */
+	public void setMeshHeight(double meshHeight) {
+		this.meshHeight = meshHeight;
+	}
 
-    public double getHauteurMaillage() {
-        return hauteurMaillage;
-    }
+	/**
+	 * Getter of the max width of the print
+	 * 
+	 * @return the max width of the print
+	 */
+	public double getMaxWidthOfPrint() {
+		return maxWidthOfPrint;
+	}
 
-    public double getLargeurMaxImpression() {
-        return largeurMaxImpression;
-    }
+	/**
+	 * Setter of the max width of the print
+	 * 
+	 * @param maxWidthOfPrint : the max width of the print
+	 */
+	public void setMaxWidthOfPrint(double maxWidthOfPrint) {
+		this.maxWidthOfPrint = maxWidthOfPrint;
+	}
 
-    public double getHauteurMaxImpression() {
-        return hauteurMaxImpression;
-    }
-    
+	/**
+	 * Getter of the max height of the print
+	 * 
+	 * @return the max height of the print
+	 */
+	public double getMaxHeightOfPrint() {
+		return maxHeightOfPrint;
+	}
 
+	/**
+	 * Setter of the max height of the print
+	 * 
+	 * @param maxHeightOfPrint
+	 */
+	public void setMaxHeightOfPrint(double maxHeightOfPrint) {
+		this.maxHeightOfPrint = maxHeightOfPrint;
+	}
 
 }
