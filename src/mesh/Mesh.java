@@ -16,8 +16,7 @@ import java.util.TreeMap;
  */
 public class Mesh {
 
-	private TreeMap<Double, TreeMap<Double, Vertices>> setOfVertices;
-	private TreeMap<Double, TreeMap<Double, Vertices>> setOfVerticesBase;
+	private TreeMap<Double, TreeMap<Double, Vertices>> setOfVertices, setOfVerticesBase;
 	private LinkedList<Face> setOfFaces;
 
 	/**
@@ -116,9 +115,9 @@ public class Mesh {
 	 */
 	public Vertices getSurfacePoint(double line, double column) {
 		if (getSetOfVertices().containsKey(line)) {
-			TreeMap sommetTreeMap = (TreeMap) getSetOfVertices().get(line);
-			if (sommetTreeMap.containsKey(column)) {
-				return (Vertices) sommetTreeMap.get(column);
+			TreeMap verticesTreeMap = (TreeMap) getSetOfVertices().get(line);
+			if (verticesTreeMap.containsKey(column)) {
+				return (Vertices) verticesTreeMap.get(column);
 			}
 		}
 		return null;

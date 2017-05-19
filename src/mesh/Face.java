@@ -9,11 +9,8 @@ package mesh;
  */
 public class Face {
 
-	public static int counter = 1;
-	private int id = 0;
-	private int idVertice1 = 0;
-	private int idVertice2 = 0;
-	private int idVertice3 = 0;
+	public static int Counter = 1;
+	private int id, idVertice1, idVertice2, idVertice3;
 
 	/**
 	 * Constructor of a face
@@ -23,8 +20,8 @@ public class Face {
 	 * @param idVertice3
 	 */
 	public Face(int idVertice1, int idVertice2, int idVertice3) {
-		this.id = counter;
-		counter++;
+		this.id = Counter;
+		Counter++;
 		this.idVertice1 = idVertice1;
 		this.idVertice2 = idVertice2;
 		this.idVertice3 = idVertice3;

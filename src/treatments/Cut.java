@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import config.Config;
+
 /**
  * Class Cut Processing to the calculate of necessary cuts takes care
  * 
@@ -11,10 +13,7 @@ import java.util.List;
  */
 public class Cut {
 
-	private static int heightCutNumber;
-	private static int widthCutNumber;
-	private static int heightOfParcel;
-	private static int widthOfParcel;
+	private static int HeightCutNumber, WidthCutNumber, HeightOfPartel, WidthOfParcel;
 
 	/**
 	 * Getter of the height of the parcel
@@ -22,7 +21,7 @@ public class Cut {
 	 * @return the height of the parcel
 	 */
 	public static int getHeightOfParcel() {
-		return heightOfParcel;
+		return HeightOfPartel;
 	}
 
 	/**
@@ -31,7 +30,7 @@ public class Cut {
 	 * @return the width of the parcel
 	 */
 	public static int getWidthOfParcel() {
-		return widthOfParcel;
+		return WidthOfParcel;
 	}
 
 	/**
@@ -40,7 +39,7 @@ public class Cut {
 	 * @return the height cut number
 	 */
 	public static int getHeightCutNumber() {
-		return heightCutNumber;
+		return HeightCutNumber;
 	}
 
 	/**
@@ -49,7 +48,7 @@ public class Cut {
 	 * @return the width cut number
 	 */
 	public static int getWidthCutNumber() {
-		return widthCutNumber;
+		return WidthCutNumber;
 	}
 
 	/**
@@ -66,12 +65,15 @@ public class Cut {
 			double maxWidthOfPrint, double maxHeightOfPrint) {
 		List<BufferedImage> imageList = new ArrayList<>();
 		BufferedImage imageBase = load.getBufferedImage();
-		Cut.heightCutNumber = (int) Math.ceil(expectedHeight / (maxHeightOfPrint / 10));
-		Cut.widthCutNumber = (int) Math.ceil(expectedWidth / (maxWidthOfPrint / 10));
-		Cut.heightOfParcel = (int) Math.floor(imageBase.getHeight() / getHeightCutNumber());
-		Cut.widthOfParcel = (int) Math.floor(imageBase.getWidth() / getWidthCutNumber());
-		System.out.println("Height of parcel : " + getHeightOfParcel());
-		System.out.println("Width of parcel : " + getWidthOfParcel());
+		Cut.HeightCutNumber = (int) Math.ceil(expectedHeight / (maxHeightOfPrint / 10));
+		Cut.WidthCutNumber = (int) Math.ceil(expectedWidth / (maxWidthOfPrint / 10));
+		Cut.HeightOfPartel = (int) Math.floor(imageBase.getHeight() / getHeightCutNumber());
+		Cut.WidthOfParcel = (int) Math.floor(imageBase.getWidth() / getWidthCutNumber());
+
+		if (Config.DEBUG) {
+			System.out.println("Hauteur de la partelle : " + getHeightOfParcel());
+			System.out.println("Largeur de la partelle : " + getWidthOfParcel());
+		}
 
 		for (int x = 0; x < getWidthCutNumber(); x++) {
 			for (int y = 0; y < getHeightCutNumber(); y++) {

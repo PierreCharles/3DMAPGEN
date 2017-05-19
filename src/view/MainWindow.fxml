@@ -16,19 +16,25 @@
   <children>
     <MenuBar prefHeight="1.0" prefWidth="599.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
       <menus>
-        <Menu mnemonicParsing="false" text="Fichier">
+        <Menu mnemonicParsing="false" text="%file" fx:id="file">
           <items>
             
-            <MenuItem fx:id="close" mnemonicParsing="false" onAction="#close" text="Quitter" />
+            <MenuItem fx:id="close" mnemonicParsing="false" onAction="#close" text="%close" />
 
           </items>
         </Menu>
-        <Menu mnemonicParsing="false" text="Edition">
+        <Menu mnemonicParsing="false" fx:id="edit" text="%edit">
           <items>
-            <MenuItem fx:id="preferences1" mnemonicParsing="false" onAction="#changeTheme1" text="Thème 1" />
-                  <MenuItem fx:id="preferences2" mnemonicParsing="false" onAction="#changeTheme2" text="Thème 2" />
+            <MenuItem id="themePreference1" fx:id="themePreference1" mnemonicParsing="false" onAction="#changeThemePreference1" text="%themePreference1" />
+                  <MenuItem id="themePreference2" fx:id="themePreference2" mnemonicParsing="false" onAction="#changeThemePreference2" text="%themePreference2" />
           </items>
         </Menu>
+            <Menu mnemonicParsing="false" fx:id="language" text="%language">
+               <items>
+                  <MenuItem id="englishLanguagePreference" fx:id="englishLanguagePreference" mnemonicParsing="false" onAction="#changeLanguageEnglish" text="%englishLanguagePreference" />
+                  <MenuItem id="frenchLanguagePreference" fx:id="frenchLanguagePreference" mnemonicParsing="false" onAction="#changeLanguageFrench" text="%frenchLanguagePreference" />
+               </items>
+            </Menu>
       </menus>
     </MenuBar>
     <ImageView fx:id="viewImage" fitHeight="225.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="3" GridPane.rowSpan="2">
@@ -36,15 +42,15 @@
             <Insets left="15.0" />
          </GridPane.margin></ImageView>
     <Label fx:id="traitementLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-      <Button id="openFileChooserButton" fx:id="openFileChooserButton" mnemonicParsing="false" onAction="#openFileChooser" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@../stylesheet/style.css" text="ETAPE 1 :&#10;Ouvrir image" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+      <Button id="openFileChooserButton" fx:id="openFileChooserButton" mnemonicParsing="false" onAction="#openFileChooser" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@../stylesheet/style.css" text="%openFileChooserButton" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets right="10.0" />
          </GridPane.margin></Button>
-      <Button fx:id="onTreatmentButton" mnemonicParsing="false" onAction="#onTreatement" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@../stylesheet/style.css" text="ETAPE 2: &#10;Traitement &#10;" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
+      <Button fx:id="onTreatmentButton" mnemonicParsing="false" onAction="#onTreatement" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@../stylesheet/style.css" text="%onTreatmentButton" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets right="10.0" />
          </GridPane.margin></Button>
-      <Button fx:id="saveButton" mnemonicParsing="false" onAction="#save" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@../stylesheet/style.css" text="ETAPE 3:&#10;Enregistrer" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
+      <Button fx:id="saveButton" mnemonicParsing="false" onAction="#save" prefHeight="150.0" prefWidth="300.0" styleClass="record-sales" stylesheets="@../stylesheet/style.css" text="%saveButton" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
          <GridPane.margin>
             <Insets right="10.0" />
          </GridPane.margin></Button>

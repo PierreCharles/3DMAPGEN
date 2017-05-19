@@ -1,17 +1,23 @@
 package treatments;
 
+import static treatments.Cut.cutImage;
 import static treatments.Cut.getHeightOfParcel;
 import static treatments.Cut.getWidthOfParcel;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URI;
 import java.util.TreeMap;
 
+import config.Config;
 import mesh.Face;
 import mesh.Mesh;
 import mesh.Vertices;
 import parameter.Parameter;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +28,36 @@ import java.util.Set;
  *
  */
 public class Treatment {
+		
+	/**
+	 * Method to execute treatment 
+	 * 
+	 * @param selectedFileURI
+	 * @param parameter
+	 * @return
+	 */
+	public List<Mesh> executeTreatment(URI selectedFileURI, Parameter parameter)
+	{
+		List<Mesh> parcelsList = new ArrayList<>();
+		Load load = new Load(new File(selectedFileURI));
+		load.addImage();
+
+		List<BufferedImage> imagesList = cutImage(load, parameter.getImageWidth(), parameter.getImageHeight(),
+				parameter.getMaxWidthOfPrint(), parameter.getMaxHeightOfPrint());
+
+		imagesList.forEach((image) -> {
+			parcelsList.add(parcelToMesh(image, parameter.getMeshHeight(), parameter));
+		});
+		
+		parcelsList.forEach((parcelle) -> {
+			if(Config.DEBUG){
+				System.out.println("Mise � l'�chelle parcelle");
+			}
+			scalling(parcelle, imagesList.get(0), parameter);
+		});
+		return parcelsList;
+	}
+	
 
 	/**
 	 * Allow to obtain the height of a pixel of the loaded image in function of
@@ -33,19 +69,17 @@ public class Treatment {
 	 * @param bufferedImage loaded image into application
 	 * @return the attempt height for the vertices of the mesh associated at the attempt pixel
 	 */
-	public static double getPixelHeight(double line, double column, double resolution, BufferedImage bufferedImage) {
-		int pixel, red, green, blue, medium;
+	public double getPixelHeight(double line, double column, double resolution, BufferedImage bufferedImage) {
 		double height;
+		int red, green, blue, medium;
 		int x = (int) Math.floor(column);
 		int y = (int) Math.floor(line);
-		pixel = bufferedImage.getRGB(x, y);
-
+		int pixel = bufferedImage.getRGB(x, y);
 		red = (pixel >> 16) & 0xff;
 		green = (pixel >> 8) & 0xff;
 		blue = (pixel) & 0xff;
 		medium = 255 - (red + green + blue) / 3;
 		height = (resolution * medium) + 5;
-
 		return height;
 	}
 
@@ -56,7 +90,7 @@ public class Treatment {
 	 * @param column
 	 * @return a boolean (true if an edge is a top edge)
 	 */
-	private static boolean isTopEdge(double line, double column) {
+	private boolean isTopEdge(double line, double column) {
 		return (line == 0 && column != 0);
 	}
 
@@ -67,7 +101,7 @@ public class Treatment {
 	 * @param column
 	 * @return a boolean (true if an edge is a left edge)
 	 */
-	private static boolean isLeftEdge(double ligne, double column) {
+	private boolean isLeftEdge(double ligne, double column) {
 		return (column == 0 && ligne != 0);
 	}
 
@@ -80,7 +114,7 @@ public class Treatment {
 	 * @param height
 	 * @return a boolean (true if an edge is a right edge)
 	 */
-	private static boolean isRightEdge(double line, double column, double width, double height) {
+	private boolean isRightEdge(double line, double column, double width, double height) {
 		return (column == width && line != 0 && line != height);
 	}
 
@@ -93,7 +127,7 @@ public class Treatment {
 	 * @param height
 	 * @return a boolean (true if an edge is a bottom edge)
 	 */
-	private static boolean isBottomEdge(double line, double column, double width, double height) {
+	private boolean isBottomEdge(double line, double column, double width, double height) {
 		return (line == height && column != 0 && column != width);
 	}
 
@@ -106,7 +140,7 @@ public class Treatment {
 	 * @param height
 	 * @return a boolean (true if is centered)
 	 */
-	private static boolean isCenter(double line, double column, double width, double height) {
+	private boolean isCenter(double line, double column, double width, double height) {
 		return (0 < line && line < height && 0 < column && column < width);
 	}
 
@@ -118,7 +152,7 @@ public class Treatment {
 	 * @param parameter
 	 * @return a mesh
 	 */
-	public static Mesh parcelToMesh(BufferedImage bufferedImage, double max, Parameter parameter) {
+	public Mesh parcelToMesh(BufferedImage bufferedImage, double max, Parameter parameter) {
 
 		Mesh mesh = new Mesh();
 		double resolution = max / 256;
@@ -129,9 +163,7 @@ public class Treatment {
 
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
-
-				// On créé le point de la surface en coordonnées
-				// ligne;colonne
+				// Create a surface coordonates points  : line;column
 				mesh.addVertices(line, column,
 						new Vertices(line, getPixelHeight(line, column, resolution, bufferedImage), column));
 			}
@@ -142,7 +174,7 @@ public class Treatment {
 				if (haveToRaised(bufferedImage, line, column, beginWidth, endWidth, beginHeight, endHieght)) {
 					mesh.addVerticesBase(line, column, new Vertices(line, tickness, column));
 				} else {
-					// On créé le point du socle en coordonnées ligne;colonne
+					// Create a point coordonate base : ligne;colonne
 					mesh.addVerticesBase(line, column, new Vertices(line, 0, column));
 				}
 
@@ -151,9 +183,7 @@ public class Treatment {
 
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
-				// System.out.println("ligne : " + ligne + " ; colonne : " +
-				// colonne);
-
+				
 				if (isTopEdge(line, column) || isBottomEdge(line, column, width, height - 1)) {
 					/* Création du coté haut ou bas */
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
@@ -196,8 +226,6 @@ public class Treatment {
 				}
 
 				if (isCenter(line, column, width - 1, height)) {
-					// System.out.println("ligne : " + ligne + " ; colonne : " +
-					// colonne);
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId(),
 							mesh.getSurfacePoint(line, column - 1).getId()));
@@ -228,35 +256,40 @@ public class Treatment {
 	 * @param endHeight
 	 * @return a boolean
 	 */
-	public static boolean haveToRaised(BufferedImage bufferedImage, double line, double column, double beginWidth,
+	public boolean haveToRaised(BufferedImage bufferedImage, double line, double column, double beginWidth,
 			double endWidth, double beginHeight, double endHeight) {
 		double begin = bufferedImage.getWidth() * 0.1;
 		double end = bufferedImage.getWidth() * 0.9;
-		return (column >= beginWidth && column <= endWidth && line >= beginHeight
-				&& line <= (bufferedImage.getHeight() - 1) - beginWidth // zone  du restangle socle
-
-				|| column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
-						&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2 && line <= beginHeight // slot haut
-																										
-				|| column <= beginWidth && line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
-						&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 // slot gauche																				
-
-				|| column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
-						&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2
-						&& line >= (bufferedImage.getHeight() - 1) - beginHeight // slot																					// bas
-
-				|| line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
-						&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth); // slot droit
+		boolean condition1, condition2, condition3, condition4, condition5;
+		
+		condition1 = column >= beginWidth && column <= endWidth && line >= beginHeight
+				&& line <= (bufferedImage.getHeight() - 1) - beginWidth; // zone  du restangle socle
+		
+		condition2 = column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
+				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2 && line <= beginHeight; // slot haut
+		
+		condition3 = column <= beginWidth && line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
+				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2; // slot gauche		
+				
+		condition4 = column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
+				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2
+				&& line >= (bufferedImage.getHeight() - 1) - beginHeight; // slot bas
+		
+		
+		condition5 = line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
+				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth ; // slot droit
+		
+		return condition1 || condition2 || condition3 || condition4 || condition5;
 	}
 
 	/**
-	 * Method to get the number of cli^p
+	 * Method to get the number of clip
 	 * 
 	 * @param cutWidthNumber
 	 * @param cutHeightNumber
 	 * @return an integer
 	 */
-	public static Integer getNumberOfClip(int cutWidthNumber, int cutHeightNumber) {
+	public static Integer calculateNumberOfClip(int cutWidthNumber, int cutHeightNumber) {
 		return (cutWidthNumber - 1) + (2 * cutWidthNumber - 1) * (cutHeightNumber - 1);
 	}
 
@@ -274,7 +307,7 @@ public class Treatment {
      * 1   2           9    10
      * Vertices s0X: vertices at the top of verticeX
      */
-	public static Mesh clipGenerator(BufferedImage bufferedImageParcel) {
+	public Mesh clipGenerator(BufferedImage bufferedImageParcel) {
 		Mesh clipMesh = new Mesh();
 		double deb = bufferedImageParcel.getWidth() * 0.1;
 		Vertices vertices1 = new Vertices(0, 0, 0);
@@ -388,7 +421,7 @@ public class Treatment {
 	 * @param bufferedImage
 	 * @param parameter
 	 */
-	public static void scalling(Mesh mesh, BufferedImage bufferedImage, Parameter parameter) {
+	public void scalling(Mesh mesh, BufferedImage bufferedImage, Parameter parameter) {
 
 		double ratioX = parameter.getMaxWidthOfPrint() / getWidthOfParcel();
 		double ratioZ = parameter.getMaxHeightOfPrint() / getHeightOfParcel();

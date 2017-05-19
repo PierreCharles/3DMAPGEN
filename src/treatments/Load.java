@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+import config.Config;
+import javafx.stage.FileChooser;
+
 /**
  * class Load Class use for load an image into the application
  * 
@@ -72,8 +75,10 @@ public class Load {
 			bufferedImage = ImageIO.read(file);
 			this.height = bufferedImage.getHeight();
 			this.width = bufferedImage.getWidth();
-			System.out.println("hauteur : " + height + " largeur : " + width);
-			System.out.println("image chargÃ©e");
+
+			if(Config.DEBUG){
+				System.out.println("image chargée : hauteur : " + height + " largeur : " + width);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

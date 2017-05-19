@@ -1,7 +1,5 @@
 package treatments;
 
-import static treatments.Treatment.getNumberOfClip;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import config.Config;
 import mesh.Face;
 import mesh.Mesh;
 import mesh.Vertices;
@@ -34,15 +33,10 @@ public class Export {
 	static public void exportToObj(Mesh mesh, String destinationFile, String directoryName, int numberOfPart)
 			throws IOException {
 		File file = new File(
-				destinationFile + "\\" + directoryName + "\\" + directoryName + "Partie" + numberOfPart + ".obj");
+				destinationFile + "\\" + directoryName + "\\" + directoryName + "Part" + numberOfPart + ".obj");
 		try (FileWriter fileWriter = new FileWriter(file)) {
-			fileWriter.write("# Fichier réalisé par\r\n");
-			fileWriter.write("# Alexis Dardinier\r\n");
-			fileWriter.write("# Thomas Klein\r\n");
-			fileWriter.write("# Pierre Petit\r\n");
-			fileWriter.write("# Timothé Rouzé\r\n");
-			fileWriter.write("# Mathieu Vincent\r\n");
-			fileWriter.write("o maillage\r\n");
+			
+			fileWriter.write("# 3DGenMap - File generator\r\n");
 
 			// Ecriture de l'ensemble des points de la surface
 			Set<Map.Entry<Double, TreeMap>> setLine = mesh.getSetOfVertices().entrySet();
@@ -83,8 +77,10 @@ public class Export {
 			}
 
 			fileWriter.close();
-			System.out.println("Fichier exporté dans");
-			System.out.println(file.getAbsolutePath());
+			if(Config.DEBUG){
+				System.out.println("Fichier exporté dans");
+				System.out.println(file.getAbsolutePath());
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -98,8 +94,8 @@ public class Export {
 	 */
 	static public void createDirectory(String destFile, String dirName) {
 		String path = destFile + "\\" + dirName;
-		File dir = new File(path);
-		dir.mkdir();
+		File file = new File(path);
+		file.mkdir();
 	}
 
 	/**
@@ -112,14 +108,9 @@ public class Export {
 	static public void exportAttacheMeshToObject(String destinationFile, String directoryName, Mesh attacheMesh) {
 		File file = new File(destinationFile + "\\" + directoryName + "\\" + "Attache.obj");
 		try (FileWriter fileWriter = new FileWriter(file)) {
-			fileWriter.write("# Fichier réalisé par\n");
-			fileWriter.write("# Alexis Dardinier\n");
-			fileWriter.write("# Thomas Klein\n");
-			fileWriter.write("# Pierre Petit\n");
-			fileWriter.write("# Timothé Rouzé\n");
-			fileWriter.write("# Mathieu Vincent\n\n");
-			fileWriter.write("#Pièce à imprimer "
-					+ getNumberOfClip(Cut.getWidthCutNumber(), Cut.getHeightCutNumber()).toString() + " fois\n");
+			fileWriter.write("# 3DGenMap - File generator\r\n");
+			fileWriter.write("# Pi�ce � imprimer "
+					+ Treatment.calculateNumberOfClip(Cut.getWidthCutNumber(), Cut.getHeightCutNumber()).toString() + " fois\n");
 			fileWriter.write("o attache\n\n");
 			Set set = attacheMesh.getSetOfVertices().entrySet();
 			Iterator iterator = set.iterator();
@@ -130,8 +121,9 @@ public class Export {
 			for (Face face : attacheMesh.getSetOfFaces()) {
 				fileWriter.write(face.toString());
 			}
-			System.out.println("attache exporté dans");
-			System.out.println(file.getAbsolutePath());
+			if(Config.DEBUG){
+				System.out.println("attache export�e dans : "+file.getAbsolutePath());
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

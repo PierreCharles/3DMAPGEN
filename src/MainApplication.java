@@ -1,3 +1,6 @@
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -19,9 +22,10 @@ public class MainApplication extends Application {
 	 * @throws IOException : when FXML not found
 	 */
 	@Override
-	public void start(Stage primaryStage) throws Exception {
-		Parent root = FXMLLoader.load(getClass().getResource("view/MainWindow.fxml"));
-		Scene scene = new Scene(root);
+	public void start(Stage primaryStage) throws Exception{
+		ResourceBundle bundle = ResourceBundle.getBundle("properties.lang_fr");
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("view/MainWindow.fxml"), bundle);
+		Scene scene = new Scene(loader.load());
 		primaryStage.setScene(scene);
 		Image icon = new Image(getClass().getResourceAsStream("icone.png"));
 		primaryStage.getIcons().add(icon);

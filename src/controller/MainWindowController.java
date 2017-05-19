@@ -2,6 +2,8 @@ package controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,25 +11,26 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import mesh.Mesh;
 import parameter.Parameter;
-import treatments.Load;
+import treatments.Treatment;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 
-import static treatments.Cut.cutImage;
 import static treatments.Export.createDirectory;
 import static treatments.Export.exportToObj;
-import static treatments.Treatment.parcelToMesh;
-import static treatments.Treatment.scalling;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import config.Config;
 import javafx.scene.layout.GridPane;
 
 /**
@@ -45,20 +48,74 @@ public class MainWindowController extends Stage {
 	@FXML
 	private Button saveButton, onTreatmentButton, openFileChooserButton;
 	@FXML
-	private MenuItem preferences1, preferences2;
+	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close;
+	@FXML
+	private Menu file, edit, language;
+	@FXML
+    private ResourceBundle ressources;
 
 	Image image;
 	private Parameter parameter;
 	public List<Mesh> parcelsList = new ArrayList<>();
 	public Mesh clipMesh = new Mesh();
+	private File selectedFile;
+	private Locale locale;
 
 	/**
 	 * Initialize method
 	 */
-	public void initialize() {
+	public void initialize(URL location, ResourceBundle bundle) {	
 		saveButton.setDisable(true);
 		onTreatmentButton.setDisable(true);
 		parameter = new Parameter();
+	}
+	
+	/**
+	 * Method to change propertie file language
+	 * 
+	 * @param lang : string language shortcut
+	 */
+	private void loadLang(String lang){
+		locale = new Locale(lang);
+		ressources = ResourceBundle.getBundle("properties.lang_"+locale);
+		loadTextApplication();
+	}
+	
+	/**
+	 * Method luanch when user change language to french
+	 * 
+	 * @param event
+	 */
+	@FXML
+	private void changeLanguageFrench(ActionEvent event){
+		loadLang("fr");
+	}
+	
+	/**
+	 * Method luanch when user change language to english
+	 * 
+	 * @param event
+	 */
+	@FXML
+	private void changeLanguageEnglish(ActionEvent event){
+		loadLang("en");
+	}
+	
+	/**
+	 * Method to set all text in current selected language
+	 */
+	private void loadTextApplication(){
+		openFileChooserButton.setText(ressources.getString("openFileChooserButton"));
+		saveButton.setText(ressources.getString("saveButton"));
+		onTreatmentButton.setText(ressources.getString("onTreatmentButton"));
+		englishLanguagePreference.setText(ressources.getString("englishLanguagePreference"));
+		frenchLanguagePreference.setText(ressources.getString("frenchLanguagePreference"));
+		themePreference1.setText(ressources.getString("themePreference1"));
+		themePreference2.setText(ressources.getString("themePreference2"));		
+		close.setText(ressources.getString("close"));
+		file.setText(ressources.getString("file"));
+		edit.setText(ressources.getString("edit"));
+		language.setText(ressources.getString("language"));
 	}
 
 	/**
@@ -70,8 +127,6 @@ public class MainWindowController extends Stage {
 		openFileChooserButton.setDisable(false);
 	}
 
-	private File selectedFile;
-
 	/**
 	 * Method execute when user click on oppen button
 	 * 
@@ -79,10 +134,10 @@ public class MainWindowController extends Stage {
 	 * @throws IOException
 	 */
 	@FXML
-	public void openFileChooser(ActionEvent event) throws IOException {
+	public void openFileChooser(ActionEvent event) throws IOException 
+	{
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("ouvrir");
-
+		fileChooser.setTitle("Ouvrir");
 		fileChooser.getExtensionFilters().addAll(
 				new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"),
 				new FileChooser.ExtensionFilter("All Files", "*.*"));
@@ -115,21 +170,11 @@ public class MainWindowController extends Stage {
 	 */
 	@FXML
 	public void onTreatement(ActionEvent envent) throws IOException {
-		openProgressWindow();
-		Load ch = new Load(new File(selectedFile.toURI()));
-		ch.addImage();
-
-		List<BufferedImage> listeImages = cutImage(ch, parameter.getImageWidth(), parameter.getImageHeight(),
-				parameter.getMaxWidthOfPrint(), parameter.getMaxHeightOfPrint());
-
-		listeImages.forEach((image) -> {
-			parcelsList.add(parcelToMesh(image, parameter.getMeshHeight(), parameter));
-		});
-
-		parcelsList.forEach((parcelle) -> {
-			System.out.println("Mise à l'échelle parcelle");
-			scalling(parcelle, listeImages.get(0), parameter);
-		});
+		
+		// TO DO -> Corrected progress bar window openProgressWindow();
+		
+		Treatment treatment = new Treatment();
+		parcelsList = treatment.executeTreatment(selectedFile.toURI(), parameter);
 
 		saveButton.setDisable(false);
 		onTreatmentButton.setDisable(true);
@@ -142,21 +187,26 @@ public class MainWindowController extends Stage {
 	 * @throws IOException
 	 */
 	@FXML
-	public void save(ActionEvent envent) throws IOException {
+	public void save(ActionEvent envent) throws IOException 
+	{	
 		int i = 1;
-		DirectoryChooser dir = new DirectoryChooser();
-		dir.setTitle("Enregistrer");
-		dir.setInitialDirectory(new File("C://"));
+		DirectoryChooser directoryChooser = new DirectoryChooser();
+		directoryChooser.setTitle("Enregistrer");
+		directoryChooser.setInitialDirectory(new File("C://"));
 
-		File selectedSaveFile = dir.showDialog(this);
-		System.out.println(selectedSaveFile.toString());
+		File selectedSaveFile = directoryChooser.showDialog(this);
+		if(Config.DEBUG){
+			System.out.println(selectedSaveFile.toString());
+		}
 		if (selectedSaveFile != null) {
 			createDirectory(selectedSaveFile.toString(), "Mesh");
 			for (Mesh mesh : parcelsList) {
 				exportToObj(mesh, selectedSaveFile.toString(), "Mesh", i);
 				i++;
 			}
-			System.out.println("Exportation terminée");
+			if(Config.DEBUG){
+				System.out.println("Exportation terminée");
+			}
 		}
 		this.setButtonTrue();
 	}
@@ -193,7 +243,7 @@ public class MainWindowController extends Stage {
 	 * Method using for select the theme 1
 	 */
 	@FXML
-	public void changeTheme1() {
+	public void changeThemePreference1() {
 		gridPane.setStyle("-fx-background-color:white");
 		saveButton.getStyleClass().remove("record-sales");
 		saveButton.getStyleClass().add("basic");
@@ -207,7 +257,7 @@ public class MainWindowController extends Stage {
 	 * Method using for select the theme 2
 	 */
 	@FXML
-	public void changeTheme2() {
+	public void changeThemePreference2() {
 		gridPane.setStyle("-fx-background-color:#2c3e50");
 		saveButton.getStyleClass().remove("basic");
 		saveButton.getStyleClass().add("record-sales");

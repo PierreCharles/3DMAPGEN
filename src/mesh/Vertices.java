@@ -7,11 +7,8 @@ package mesh;
  */
 public class Vertices {
 
-	private static int counter = 1;
-
-	private double x;
-	private double y;
-	private double z;
+	private static int Counter = 1;
+	private double x, y, z;
 	private int id;
 
 	/**
@@ -25,8 +22,8 @@ public class Vertices {
 		x = column;
 		y = hieght;
 		z = line;
-		id = counter;
-		counter++;
+		id = Counter;
+		Counter++;
 	}
 
 	/**
@@ -59,8 +56,7 @@ public class Vertices {
 	/**
 	 * Setter of y value
 	 * 
-	 * @param new
-	 *            y value
+	 * @param new y value
 	 */
 	public void setY(double y) {
 		this.y = y;
@@ -78,8 +74,7 @@ public class Vertices {
 	/**
 	 * Setter of z value
 	 * 
-	 * @param new
-	 *            z value
+	 * @param new z value
 	 */
 	public void setZ(double z) {
 		this.z = z;
@@ -107,7 +102,7 @@ public class Vertices {
 	 * Method for reset the counter
 	 */
 	public static void resetCounter() {
-		counter = 1;
+		Counter = 1;
 	}
 
 	/**
