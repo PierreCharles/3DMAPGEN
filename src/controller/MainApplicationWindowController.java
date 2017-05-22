@@ -38,7 +38,7 @@ import javafx.scene.layout.GridPane;
  * 
  * @author picharles
  */
-public class MainWindowController extends Stage {
+public class MainApplicationWindowController extends Stage {
 
 	@FXML
 	GridPane gridPane;

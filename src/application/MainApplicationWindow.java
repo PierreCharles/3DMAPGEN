@@ -1,3 +1,5 @@
+package application;
+import java.io.IOException;
 import java.util.ResourceBundle;
 
 import config.Config;
@@ -12,7 +14,7 @@ import javafx.stage.Stage;
  * 
  * @author
  */
-public class MainApplication extends Application {
+public class MainApplicationWindow extends Application {
 
 	/**
 	 * Entry point of the application : Start method for create and open a main window application.
@@ -21,23 +23,17 @@ public class MainApplication extends Application {
 	 * @throws IOException : when FXML not found
 	 */
 	@Override
-	public void start(Stage primaryStage) throws Exception{
+	public void start(Stage primaryStage) throws IOException {
 		ResourceBundle bundle = ResourceBundle.getBundle("properties.lang_" + Config.DEFAULT_LANG);
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("view/MainWindow.fxml"), bundle);
+		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/fxml/MainApplicationWindow.fxml"), bundle);
 		Scene scene = new Scene(loader.load());
 		primaryStage.setScene(scene);
-		Image icon = new Image(getClass().getResourceAsStream("icone.png"));
+		Image icon = new Image(getClass().getResourceAsStream("/image/icone.png"));
 		primaryStage.getIcons().add(icon);
 		primaryStage.setTitle("3DMapGen");
 		primaryStage.show();
+
 	}
 
-	/**
-	 * main method
-	 * 
-	 * @param args the command line arguments
-	 */
-	public static void main(String[] args) {
-		launch(args);
-	}
+
 }
