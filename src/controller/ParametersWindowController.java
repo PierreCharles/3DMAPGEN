@@ -1,12 +1,16 @@
 package controller;
 
 import java.net.URL;
+import java.util.Locale;
 import java.util.ResourceBundle;
+
+import config.Config;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -33,10 +37,13 @@ public class ParametersWindowController implements Initializable {
 	private double heightMesh, maxWidthPrint, maxHeightPrint, height, width;
 	private Image image;
 	private Stage stage;
-	static Parameter parameters = new Parameter();
+	private Parameter parameters;
 	private StringProperty heightProperty = new SimpleStringProperty();
-	private StringProperty widthProperty = new SimpleStringProperty();
+	//private StringProperty widthProperty = new SimpleStringProperty();
 	private Double ratioHeight, ratioWidth;
+	
+	@FXML
+    private ResourceBundle ressources;
 
 	/**
 	 * Constructor of the window
@@ -47,6 +54,45 @@ public class ParametersWindowController implements Initializable {
 	ParametersWindowController(Image image, Parameter parameters) {
 		this.image = image;
 		this.parameters = parameters;
+	}
+	
+	/**
+	 * Initializes the controller class.
+	 */
+	@Override
+	public void initialize(URL url, ResourceBundle ressourceBundle) {
+		loadLang();
+		ratioWidth = image.getWidth() / image.getHeight();
+		ratioHeight = image.getHeight() / image.getWidth();
+	}
+	
+	/**
+	 * Method to change propertie file language
+	 * 
+	 * @param lang : string language shortcut
+	 */
+	private void loadLang(){
+		ressources = ResourceBundle.getBundle("properties.lang_" + Config.Current_Language);
+		refreshTextApplication();
+	}
+	
+	/**
+	 * Method to set and refresh all text in current selected language
+	 */
+	private void refreshTextApplication(){
+		/*
+		openFileChooserButton.setText(ressources.getString("openFileChooserButton"));
+		saveButton.setText(ressources.getString("saveButton"));
+		onTreatmentButton.setText(ressources.getString("onTreatmentButton"));
+		englishLanguagePreference.setText(ressources.getString("englishLanguagePreference"));
+		frenchLanguagePreference.setText(ressources.getString("frenchLanguagePreference"));
+		themePreference1.setText(ressources.getString("themePreference1"));
+		themePreference2.setText(ressources.getString("themePreference2"));		
+		close.setText(ressources.getString("close"));
+		file.setText(ressources.getString("file"));
+		edit.setText(ressources.getString("edit"));
+		language.setText(ressources.getString("language"));
+		*/
 	}
 
 	/**
@@ -80,14 +126,6 @@ public class ParametersWindowController implements Initializable {
 		this.stage = stage;
 	}
 
-	/**
-	 * Initializes the controller class.
-	 */
-	@Override
-	public void initialize(URL url, ResourceBundle ressourceBundle) {
-		ratioWidth = image.getWidth() / image.getHeight();
-		ratioHeight = image.getHeight() / image.getWidth();
-	}
 
 	/**
 	 * Method launch when close button is pressed

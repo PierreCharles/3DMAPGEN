@@ -1,8 +1,8 @@
-package treatments;
+package treatment;
 
-import static treatments.Cut.cutImage;
-import static treatments.Cut.getHeightOfParcel;
-import static treatments.Cut.getWidthOfParcel;
+import static treatment.Cut.cutImage;
+import static treatment.Cut.getHeightOfParcel;
+import static treatment.Cut.getWidthOfParcel;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

@@ -9,8 +9,15 @@ package parameter;
  */
 public class Parameter {
 
-	double imageWidth, imageHeight, meshHeight, maxWidthOfPrint, maxHeightOfPrint;
+	private double imageWidth, imageHeight, meshHeight, maxWidthOfPrint, maxHeightOfPrint;
 
+	/**
+	 * Empty Parameter construtor
+	 */
+	public Parameter(){
+
+	}
+	
 	/**
 	 * Getter of the with of image
 	 * 
@@ -100,5 +107,14 @@ public class Parameter {
 	public void setMaxHeightOfPrint(double maxHeightOfPrint) {
 		this.maxHeightOfPrint = maxHeightOfPrint;
 	}
+
+	@Override
+	public String toString() {
+		return "Parameter [imageWidth=" + imageWidth + ", imageHeight=" + imageHeight + ", meshHeight=" + meshHeight
+				+ ", maxWidthOfPrint=" + maxWidthOfPrint + ", maxHeightOfPrint=" + maxHeightOfPrint + "]";
+	}
+	
+
+	
 
 }

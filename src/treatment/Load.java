@@ -1,4 +1,4 @@
-package treatments;
+package treatment;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

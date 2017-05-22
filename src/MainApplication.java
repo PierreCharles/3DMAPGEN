@@ -1,9 +1,8 @@
-import java.util.Locale;
 import java.util.ResourceBundle;
 
+import config.Config;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -23,7 +22,7 @@ public class MainApplication extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception{
-		ResourceBundle bundle = ResourceBundle.getBundle("properties.lang_fr");
+		ResourceBundle bundle = ResourceBundle.getBundle("properties.lang_" + Config.DEFAULT_LANG);
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("view/MainWindow.fxml"), bundle);
 		Scene scene = new Scene(loader.load());
 		primaryStage.setScene(scene);

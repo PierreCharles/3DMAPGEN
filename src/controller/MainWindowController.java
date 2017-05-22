@@ -1,5 +1,8 @@
 package controller;
 
+import static treatment.Export.createDirectory;
+import static treatment.Export.exportToObj;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -18,12 +21,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import mesh.Mesh;
 import parameter.Parameter;
-import treatments.Treatment;
+import treatment.Treatment;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
-
-import static treatments.Export.createDirectory;
-import static treatments.Export.exportToObj;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,6 @@ public class MainWindowController extends Stage {
 
 	@FXML
 	GridPane gridPane;
-	private String imagePath;
 	@FXML
 	private ImageView viewImage;
 	@FXML
@@ -55,11 +54,11 @@ public class MainWindowController extends Stage {
     private ResourceBundle ressources;
 
 	Image image;
-	private Parameter parameter;
+	private String imagePath;
+	private Parameter parameters = new Parameter();
 	public List<Mesh> parcelsList = new ArrayList<>();
 	public Mesh clipMesh = new Mesh();
 	private File selectedFile;
-	private Locale locale;
 
 	/**
 	 * Initialize method
@@ -67,7 +66,6 @@ public class MainWindowController extends Stage {
 	public void initialize(URL location, ResourceBundle bundle) {	
 		saveButton.setDisable(true);
 		onTreatmentButton.setDisable(true);
-		parameter = new Parameter();
 	}
 	
 	/**
@@ -76,9 +74,9 @@ public class MainWindowController extends Stage {
 	 * @param lang : string language shortcut
 	 */
 	private void loadLang(String lang){
-		locale = new Locale(lang);
-		ressources = ResourceBundle.getBundle("properties.lang_"+locale);
-		loadTextApplication();
+		Config.Current_Language = new Locale(lang);
+		ressources = ResourceBundle.getBundle("properties.lang_" + Config.Current_Language);
+		refreshTextApplication();
 	}
 	
 	/**
@@ -104,7 +102,7 @@ public class MainWindowController extends Stage {
 	/**
 	 * Method to set all text in current selected language
 	 */
-	private void loadTextApplication(){
+	private void refreshTextApplication(){
 		openFileChooserButton.setText(ressources.getString("openFileChooserButton"));
 		saveButton.setText(ressources.getString("saveButton"));
 		onTreatmentButton.setText(ressources.getString("onTreatmentButton"));
@@ -174,7 +172,7 @@ public class MainWindowController extends Stage {
 		// TO DO -> Corrected progress bar window openProgressWindow();
 		
 		Treatment treatment = new Treatment();
-		parcelsList = treatment.executeTreatment(selectedFile.toURI(), parameter);
+		parcelsList = treatment.executeTreatment(selectedFile.toURI(), this.parameters);
 
 		saveButton.setDisable(false);
 		onTreatmentButton.setDisable(true);
@@ -218,7 +216,7 @@ public class MainWindowController extends Stage {
 	 */
 	public void openParametersWindow() throws IOException {
 		Stage parametersStage = new Stage();
-		ParametersWindowController parametersWindowController = new ParametersWindowController(image, parameter);
+		ParametersWindowController parametersWindowController = new ParametersWindowController(image, this.parameters);
 		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/view/ParametersWindow.fxml"));
 		loader.setController(parametersWindowController);
 		parametersWindowController.setStage(parametersStage);
@@ -230,6 +228,7 @@ public class MainWindowController extends Stage {
 		parametersStage.showAndWait();
 	}
 
+	/*
 	public void openProgressWindow() throws IOException {
 		Stage progressStage = new Stage();
 
@@ -238,6 +237,7 @@ public class MainWindowController extends Stage {
 		progressStage.setTitle("Traitement ...");
 		progressStage.setResizable(false);
 	}
+	*/
 
 	/**
 	 * Method using for select the theme 1

@@ -1,4 +1,4 @@
-package treatments;
+package treatment;
 
 import java.io.File;
 import java.io.FileWriter;
