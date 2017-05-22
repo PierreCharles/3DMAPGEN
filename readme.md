@@ -1,4 +1,4 @@
-# Projet 3d touch map generator - 3DMapGen
+# Project 3D touch map generator - 3DMapGen
 
 ## Installation and launch
 
@@ -8,7 +8,7 @@ To launch this project, clone or download into your workspace.
 Choose File -> Import -> Existing project into workspace -> Browse ("Select root directory") -> Select 3DMapGen -> Finish
 
 For the first launch, you can clean the project : Project -> Clean ...
-Now you can execute the MainApplication.
+Now you can execute the Main.
 
 - Using Netbeans : To be completed
 	
