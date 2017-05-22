@@ -14,9 +14,9 @@ Now you can execute the MainApplication.
  
 ## Used technologies
 
-	- Java 8
-	- JavaFX
-	- CSS
+- Java 8
+- JavaFX
+- CSS
 	
 ## Anatomy of the application
 
@@ -25,41 +25,39 @@ The directory layout looks like this:
 ├ 3DMapGen 	# The main floder of the application
     ├ src/          # The application sources (codes)
     ├ ressources/   # The application ressourves    
-	├ .classpath    # Specifies the location of user-defined classes and packages
-    ├ .project		# The project description file that describes the project.
-	├ .gitignore    # File specifies intentionally untracked files that Git should ignore.    
+    ├ .classpath    # Specifies the location of user-defined classes and packages
+    ├ .project	    # The project description file that describes the project.
+    ├ .gitignore    # File specifies intentionally untracked files that Git should ignore.    
     ├ readme.md     # The information about this project.
 
-
 ### src directory
-	This folder contains all source code of this application. It organized with some packages :
+This folder contains all source code of this application. It organized with some packages :
 	
-	├ application    # Entry point classe for launching application
-    ├ model   		 # Entities or treatment classes   
-	├ properties     # The properties files
-    ├ config		 # Contains constant static variables to configure application
-
+   ├ application    # Entry point classe for launching application
+   ├ model   	    # Entities or treatment classes   
+   ├ properties     # The properties files
+   ├ config	    # Contains constant static variables to configure application
 
 ### ressources directory
 	
-	├ fxml         # Contains all application views
-    ├ image   	   # Contains all images used into application
-	├ stylesheet   # Contains all stylesheet ressources
-    ├ other		   # Contains some image file for the development
+   ├ fxml         # Contains all application views
+   ├ image   	   # Contains all images used into application
+   ├ stylesheet   # Contains all stylesheet ressources
+   ├ other		   # Contains some image file for the development
 
 ---------------
 ## Team members
 
 #### Manager: 
-	- Jean-Marie Favreau
+- Jean-Marie Favreau
 
 #### Developer: 
-	- Alexis Dardinier
-	- Mathieu Vincent
-	- Pierre Petit
-	- Thomas Klein
-	- Timothe Rouze
-	- Pierre Charles
+- Alexis Dardinier
+- Mathieu Vincent
+- Pierre Petit
+- Thomas Klein
+- Timothe Rouze
+- Pierre Charles
 
 #### End User: 
-	- Guillaume Touya
+- Guillaume Touya
