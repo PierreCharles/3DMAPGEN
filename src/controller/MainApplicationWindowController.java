@@ -1,7 +1,7 @@
 package controller;
 
-import static treatment.Export.createDirectory;
-import static treatment.Export.exportToObj;
+import static model.treatment.Export.createDirectory;
+import static model.treatment.Export.exportToObj;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,9 +19,9 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import mesh.Mesh;
-import parameter.Parameter;
-import treatment.Treatment;
+import model.Parameter;
+import model.mesh.Mesh;
+import model.treatment.Treatment;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 

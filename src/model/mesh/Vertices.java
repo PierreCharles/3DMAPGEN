@@ -1,4 +1,4 @@
-package mesh;
+package model.mesh;
 
 /**
  * Vertices class A vertices is defined as : v X Y Z // Pour un point de coordonnées (X;Y;Z)

@@ -1,4 +1,4 @@
-package mesh;
+package model.mesh;
 
 /**
  * Class Face The face that will be composed of three points will be written

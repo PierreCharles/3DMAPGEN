@@ -1,4 +1,4 @@
-package treatment;
+package model.treatment;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import config.Config;
-import mesh.Face;
-import mesh.Mesh;
-import mesh.Vertices;
+import model.mesh.Face;
+import model.mesh.Mesh;
+import model.mesh.Vertices;
 
 /**
  * Class Export Export a mesh into a folder

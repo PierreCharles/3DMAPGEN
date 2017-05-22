@@ -18,7 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import parameter.Parameter;
+import model.Parameter;
 
 /**
  * FXML Controller class of paramaters window

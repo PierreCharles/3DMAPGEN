@@ -1,8 +1,8 @@
-package treatment;
+package model.treatment;
 
-import static treatment.Cut.cutImage;
-import static treatment.Cut.getHeightOfParcel;
-import static treatment.Cut.getWidthOfParcel;
+import static model.treatment.Cut.cutImage;
+import static model.treatment.Cut.getHeightOfParcel;
+import static model.treatment.Cut.getWidthOfParcel;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -10,10 +10,10 @@ import java.net.URI;
 import java.util.TreeMap;
 
 import config.Config;
-import mesh.Face;
-import mesh.Mesh;
-import mesh.Vertices;
-import parameter.Parameter;
+import model.Parameter;
+import model.mesh.Face;
+import model.mesh.Mesh;
+import model.mesh.Vertices;
 
 import java.util.ArrayList;
 import java.util.Iterator;

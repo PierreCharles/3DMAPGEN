@@ -10,23 +10,56 @@ Choose File -> Import -> Existing project into workspace -> Browse ("Select root
 For the first launch, you can clean the project : Project -> Clean ...
 Now you can execute the MainApplication.
 
+ - Using Netbeans :
+ 
+## Used technologies
+
+	- Java 8
+	- JavaFX
+	- CSS
+	
 ## Anatomy of the application
 
 The directory layout looks like this:
 
-    ├ src/          # the application sources (codes)
-    ├ ressources/   # the application ressourves    
+├ 3DMapGen 	# The main floder of the application
+    ├ src/          # The application sources (codes)
+    ├ ressources/   # The application ressourves    
+	├ .classpath    # Specifies the location of user-defined classes and packages
+    ├ .project		# The project description file that describes the project.
+	├ .gitignore    # File specifies intentionally untracked files that Git should ignore.    
+    ├ readme.md     # The information about this project.
 
-	...
 
 ### src directory
+	This folder contains all source code of this application. It organized with some packages :
+	
+	├ application    # Entry point classe for launching application
+    ├ model   		 # Entities or treatment classes   
+	├ properties     # The properties files
+    ├ config		 # Contains constant static variables to configure application
 
-To be completed
 
 ### ressources directory
+	
+	├ fxml         # Contains all application views
+    ├ image   	   # Contains all images used into application
+	├ stylesheet   # Contains all stylesheet ressources
+    ├ other		   # Contains some image file for the development
 
-To be completed
-
+---------------
 ## Team members
 
-To be completed
+#### Manager: 
+	- Jean-Marie Favreau
+
+#### Developer: 
+	- Alexis Dardinier
+	- Mathieu Vincent
+	- Pierre Petit
+	- Thomas Klein
+	- Timothe Rouze
+	- Pierre Charles
+
+#### End User: 
+	- Guillaume Touya

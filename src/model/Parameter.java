@@ -1,4 +1,4 @@
-package parameter;
+package model;
 
 /**
  * She allows the user to choose her own parameters as the treatment of the

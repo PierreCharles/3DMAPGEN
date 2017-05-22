@@ -1,6 +1,6 @@
-package mesh;
+package model.mesh;
 
-import static mesh.Vertices.resetCounter;
+import static model.mesh.Vertices.resetCounter;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
