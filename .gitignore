@@ -1,3 +1,6 @@
-/ProjetTuteuré/nbproject/private/
-/ProjetTuteuré/build/
-/ProjetTuteuré/dist/
+/dist/
+/bin/
+/build/
+/nbproject/
+/.settings/
+build.xml
