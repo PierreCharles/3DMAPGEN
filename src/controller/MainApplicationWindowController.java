@@ -217,7 +217,7 @@ public class MainApplicationWindowController extends Stage {
 	public void openParametersWindow() throws IOException {
 		Stage parametersStage = new Stage();
 		ParametersWindowController parametersWindowController = new ParametersWindowController(image, this.parameters);
-		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/view/ParametersWindow.fxml"));
+		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/fxml/ParametersWindow.fxml"));
 		loader.setController(parametersWindowController);
 		parametersWindowController.setStage(parametersStage);
 		Parent root = loader.load();
