@@ -1,2 +1,6 @@
 /dist/
 /bin/
+/build/
+/nbproject/
+/.settings/
+build.xml
