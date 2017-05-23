@@ -2,7 +2,6 @@ package model.mesh;
 
 import static model.mesh.Vertices.resetCounter;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
