@@ -24,7 +24,8 @@ public class MainApplicationWindow extends Application {
 	 * @throws IOException : when FXML not found
 	 */
 	@Override
-	public void start(Stage primaryStage) throws IOException {
+	public void start(Stage primaryStage) throws IOException {	
+		
 		ResourceBundle bundle = ResourceBundle.getBundle("properties.lang_" + Config.DEFAULT_LANG);
 		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/fxml/MainApplicationWindow.fxml"), bundle);
 		Scene scene = new Scene(loader.load());
@@ -35,5 +36,10 @@ public class MainApplicationWindow extends Application {
 		primaryStage.getIcons().add(icon);
 		primaryStage.setTitle("3DMapGen");
 		primaryStage.show();
+		
 	}
+	
+
+	
+	
 }

@@ -263,7 +263,7 @@
    <center>
       <Pane fx:id="paneViewer3D" prefHeight="610.0" prefWidth="223.0" style="-fx-background-color: white;">
          <children>
-            <SubScene id="subSceneViewer3D" fx:id="subSceneViewer3D" fill="#00c5ff" opacity="0.83">
+            <SubScene id="subSceneViewer3D" fx:id="subSceneViewer3D" fill="#ff1600" opacity="0.83">
               <root>
                 <Region />
               </root>

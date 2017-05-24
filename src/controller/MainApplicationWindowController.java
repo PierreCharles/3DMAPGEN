@@ -28,7 +28,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -39,7 +38,7 @@ import static model.treatment.Export.exportToObj;
 import model.Parameter;
 import model.mesh.Mesh;
 import model.treatment.Treatment;
-
+import model.viewer.Viewer3D;
 import config.Config;
 
 /**
@@ -54,8 +53,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	private ImageView viewImage;
 	@FXML
-	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton,
-			resetButton;
+	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton, resetButton;
 	@FXML
 	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close;
 	@FXML
@@ -68,14 +66,13 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	private GridPane gridPaneParameters, gridPaneTreatment, gridPaneExport;
 	@FXML
-	private SubScene subSceneViewer3D;
-	@FXML
 	private ResourceBundle ressources;
 	@FXML
 	private ListView ListView3D;
 	@FXML
 	private Pane paneViewer3D;
 
+	private SubScene subSceneViewer3D;
 	private String imagePath;
 	private Parameter parameters = new Parameter();
 	public List<Mesh> parcelsList = new ArrayList<>();
@@ -85,17 +82,32 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private Image image;
 	private StringProperty heightProperty = new SimpleStringProperty();
 	private Double ratioHeight, ratioWidth;
+	private Viewer3D viewer;
+
 
 	/**
 	 * Initialize method
 	 */
-	public void initialize(URL location, ResourceBundle bundle) {
+	public void initialize(URL location, ResourceBundle bundle) {        
 		ressources = bundle;
+		initialize3dViewer();
 		initializeFirstLaunch();
 	}
+	
+	/**
+	 * Method to initialize the 3D viewer : Use Viewer3D model class
+	 * first launch
+	 */
+	private void initialize3dViewer() {
+		viewer = new Viewer3D();        
+        subSceneViewer3D = viewer.initializeViewer3D(paneViewer3D);
+        paneViewer3D.getChildren().add(subSceneViewer3D);
+        viewer.configure(subSceneViewer3D);
+	}
+
 
 	/**
-	 * Method to set disabled any no used section of the interface during the
+	 * Method to initialize somes Nodes for the first luanch
 	 * first launch
 	 */
 	private void initializeFirstLaunch() {
@@ -104,7 +116,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		gridPaneExport.setDisable(true);
 		subSceneViewer3D.heightProperty().bind(paneViewer3D.heightProperty());
 		subSceneViewer3D.widthProperty().bind(paneViewer3D.widthProperty());
-		subSceneViewer3D.setOpacity(0.8);
 	}
 
 	/**
