@@ -30,9 +30,10 @@ public class MainApplicationWindow extends Application {
 		Scene scene = new Scene(loader.load());
 		primaryStage.setScene(scene);
 		Image icon = new Image(getClass().getResourceAsStream("/image/icone.png"));
+		primaryStage.setMinHeight(700);
+		primaryStage.setMinWidth(1000);
 		primaryStage.getIcons().add(icon);
 		primaryStage.setTitle("3DMapGen");
 		primaryStage.show();
 	}
-
 }

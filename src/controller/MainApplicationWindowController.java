@@ -19,6 +19,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
@@ -27,7 +28,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 
 import static model.treatment.Export.createDirectory;
 import static model.treatment.Export.exportToObj;
@@ -43,14 +47,15 @@ import config.Config;
  * 
  * @author picharles
  */
-public class MainApplicationWindowController extends Stage implements Initializable{
+public class MainApplicationWindowController extends Stage implements Initializable {
 
 	@FXML
-	GridPane gridPane;
+	private BorderPane borderPane;
 	@FXML
 	private ImageView viewImage;
 	@FXML
-	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton, resetButton;
+	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton,
+			resetButton;
 	@FXML
 	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close;
 	@FXML
@@ -58,14 +63,19 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	private TextField heightField, widthField, heightMeshField, maxWidthPrintField, maxHeightPrintField;
 	@FXML
-	private Label labelStep1, labelStep2, labelStep3, labelStep4, heightLabel, widthLabel, meshHeightLabel, maxWidthOfPrintLabel, maxHeightOfPrintLabel;
+	private Label labelStep1, labelStep2, labelStep3, labelStep4, heightLabel, widthLabel, meshHeightLabel,
+			maxWidthOfPrintLabel, maxHeightOfPrintLabel;
 	@FXML
-	private GridPane gridPaneParameters, gridPaneTreatment, gridPaneExport, gridPaneViewer;
+	private GridPane gridPaneParameters, gridPaneTreatment, gridPaneExport;
 	@FXML
 	private SubScene subSceneViewer3D;
 	@FXML
 	private ResourceBundle ressources;
-	
+	@FXML
+	private ListView ListView3D;
+	@FXML
+	private Pane paneViewer3D;
+
 	private String imagePath;
 	private Parameter parameters = new Parameter();
 	public List<Mesh> parcelsList = new ArrayList<>();
@@ -83,22 +93,25 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		ressources = bundle;
 		initializeFirstLaunch();
 	}
-	
+
 	/**
-	 * Method to set disabled any no used section of the interface during the first launch
+	 * Method to set disabled any no used section of the interface during the
+	 * first launch
 	 */
-	private void initializeFirstLaunch(){
+	private void initializeFirstLaunch() {
 		gridPaneParameters.setDisable(true);
 		gridPaneTreatment.setDisable(true);
 		gridPaneExport.setDisable(true);
-		gridPaneViewer.setDisable(true);
-		subSceneViewer3D.setOpacity(0.40);
+		subSceneViewer3D.heightProperty().bind(paneViewer3D.heightProperty());
+		subSceneViewer3D.widthProperty().bind(paneViewer3D.widthProperty());
+		subSceneViewer3D.setOpacity(0.8);
 	}
 
 	/**
 	 * Method to change propertie file language
 	 * 
-	 * @param lang : string language shortcut
+	 * @param lang
+	 *            : string language shortcut
 	 */
 	private void loadLang(String lang) {
 		Config.Current_Language = new Locale(lang);
@@ -155,7 +168,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 * 
 	 * @param event
 	 */
-	@FXML 
+	@FXML
 	public void close(ActionEvent event) {
 		Platform.exit();
 	}
@@ -168,7 +181,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	@FXML
 	public void onTreatement(ActionEvent envent) throws IOException {
-		if(ValidateAction()){
+		if (ValidateAction()) {
 			Treatment treatment = new Treatment();
 			parcelsList = treatment.executeTreatment(selectedFile.toURI(), this.parameters);
 			gridPaneExport.setDisable(false);
@@ -203,19 +216,13 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		}
 	}
 
-
 	/**
 	 * Method using for select the theme 1
 	 */
 	@FXML
 	public void changeThemePreference1() {
-		gridPane.setStyle("-fx-background-color:white");
-		saveButton.getStyleClass().remove("record-sales");
-		saveButton.getStyleClass().add("basic");
-		onTreatmentButton.getStyleClass().remove("record-sales");
-		onTreatmentButton.getStyleClass().add("basic");
-		openFileChooserButton.getStyleClass().remove("record-sales");
-		openFileChooserButton.getStyleClass().add("basic");
+		borderPane.getStylesheets().clear();
+		borderPane.getStylesheets().add(getClass().getResource("/stylesheet/theme1.css").toExternalForm());
 	}
 
 	/**
@@ -223,13 +230,8 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	@FXML
 	public void changeThemePreference2() {
-		gridPane.setStyle("-fx-background-color:#2c3e50");
-		saveButton.getStyleClass().remove("basic");
-		saveButton.getStyleClass().add("record-sales");
-		onTreatmentButton.getStyleClass().remove("basic");
-		onTreatmentButton.getStyleClass().add("record-sales");
-		openFileChooserButton.getStyleClass().remove("basic");
-		openFileChooserButton.getStyleClass().add("record-sales");
+		borderPane.getStylesheets().clear();
+		borderPane.getStylesheets().add(getClass().getResource("/stylesheet/theme2.css").toExternalForm());
 	}
 
 	/**
@@ -249,7 +251,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	public StringProperty getHeightProperty() {
 		return heightProperty;
 	}
-
 
 	/**
 	 * Method to adjust the height entered by users
@@ -294,12 +295,14 @@ public class MainApplicationWindowController extends Stage implements Initializa
 
 	/**
 	 * Method to validate parameters fields
-	 * @return 
+	 * 
+	 * @return
 	 */
 	private boolean ValidateAction() {
 		if (heightField.getText().isEmpty() || widthField.getText().isEmpty() || maxWidthPrintField.getText().isEmpty()
 				|| maxHeightPrintField.getText().isEmpty()) {
-			showErrorPopUp(ressources.getString("error"), ressources.getString("errorParameterLabel"),ressources.getString("errorParameterLabelMessage"));
+			showErrorPopUp(ressources.getString("error"), ressources.getString("errorParameterLabel"),
+					ressources.getString("errorParameterLabelMessage"));
 		} else {
 			height = Double.parseDouble(heightField.getText());
 			width = Double.parseDouble(widthField.getText());
@@ -307,8 +310,9 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			maxWidthPrint = Double.parseDouble(maxWidthPrintField.getText());
 			maxHeightPrint = Double.parseDouble(maxHeightPrintField.getText());
 			if (height / width != ratioHeight) {
-				showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),ressources.getString("errorAdjustLabelMessage"));
-				
+				showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
+						ressources.getString("errorAdjustLabelMessage"));
+
 			} else {
 				parameters.setElements(height, heightMesh, width, maxHeightPrint, maxWidthPrint);
 				return true;
@@ -316,22 +320,22 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Method to display an error pop up when error occured
+	 * 
 	 * @param title
 	 * @param errorName
 	 * @param errorMessage
 	 */
-	private void showErrorPopUp(String title, String errorName, String errorMessage){
+	private void showErrorPopUp(String title, String errorName, String errorMessage) {
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setTitle(title);
 		alert.setHeaderText(errorName);
 		alert.setContentText(errorMessage);
 		alert.showAndWait();
 	}
-	
-	
+
 	/**
 	 * Method to set all text in current selected language
 	 */
@@ -340,11 +344,11 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		refreshButtonText();
 		refreshMenuItemText();
 	}
-	
+
 	/**
 	 * Method to refresh label text
 	 */
-	private void refreshLabelText(){
+	private void refreshLabelText() {
 		labelStep1.setText(ressources.getString("labelStep1"));
 		labelStep2.setText(ressources.getString("labelStep2"));
 		labelStep3.setText(ressources.getString("labelStep3"));
@@ -355,10 +359,11 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		maxWidthOfPrintLabel.setText(ressources.getString("maxWidthOfPrintLabel"));
 		maxHeightOfPrintLabel.setText(ressources.getString("maxHeightOfPrintLabel"));
 	}
+
 	/**
 	 * Methof to refresh button text
 	 */
-	private void refreshButtonText(){
+	private void refreshButtonText() {
 		adjustHeightButton.setText(ressources.getString("adjustButton"));
 		adjustWidthButton.setText(ressources.getString("adjustButton"));
 		resetButton.setText(ressources.getString("resetButton"));
@@ -366,11 +371,11 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		saveButton.setText(ressources.getString("saveButton"));
 		onTreatmentButton.setText(ressources.getString("onTreatmentButton"));
 	}
-	
+
 	/**
 	 * Methof to refresh menu item text
 	 */
-	private void refreshMenuItemText(){
+	private void refreshMenuItemText() {
 		englishLanguagePreference.setText(ressources.getString("englishLanguagePreference"));
 		frenchLanguagePreference.setText(ressources.getString("frenchLanguagePreference"));
 		themePreference1.setText(ressources.getString("themePreference1"));

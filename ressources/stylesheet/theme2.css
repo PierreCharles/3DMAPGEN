@@ -1,0 +1,31 @@
+.theme{
+	-fx-background-color: white;
+}
+
+.theme_button {
+    -fx-background-radius: 8;
+    -fx-background-color: grey;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.75) , 4,0,0,1 );
+    -fx-font-weight: bold;
+    
+}
+.theme_button:hover {
+    -fx-background-color: 
+        linear-gradient(from 0% 93% to 0% 100%, #a34313 0%, #903b12 100%),
+        #9d4024,
+        #d86e3a,
+        radial-gradient(center 50% 50%, radius 100%, #ea7f4b, #c54e2c);
+}
+.theme_button:pressed {
+    -fx-padding: 10 15 13 15;
+    -fx-background-insets: 2 0 0 0,2 0 3 0, 2 0 4 0, 2 0 5 0;
+}
+.theme_text {
+	-fx-text-fill: black;
+	-fx-font-size: 18px;
+}
+
+.theme_button_text {
+	-fx-text-fill: black;
+	-fx-font-size: 14px;
+}
