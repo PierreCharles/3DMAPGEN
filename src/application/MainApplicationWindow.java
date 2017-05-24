@@ -27,19 +27,17 @@ public class MainApplicationWindow extends Application {
 	public void start(Stage primaryStage) throws IOException {	
 		
 		ResourceBundle bundle = ResourceBundle.getBundle("properties.lang_" + Config.DEFAULT_LANG);
-		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/fxml/MainApplicationWindow.fxml"), bundle);
-		Scene scene = new Scene(loader.load());
-		primaryStage.setScene(scene);
 		Image icon = new Image(getClass().getResourceAsStream("/image/icone.png"));
+		
+		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/fxml/MainApplicationWindow.fxml"), bundle);
+
+		Scene scene = new Scene(loader.load());
+		
+		primaryStage.setScene(scene);
 		primaryStage.setMinHeight(700);
-		primaryStage.setMinWidth(1000);
+		primaryStage.setMinWidth(1100);
 		primaryStage.getIcons().add(icon);
 		primaryStage.setTitle("3DMapGen");
 		primaryStage.show();
-		
 	}
-	
-
-	
-	
 }

@@ -54,17 +54,17 @@ public class Cut {
 	/**
 	 * Method for cut the image with some parameters
 	 * 
-	 * @param load
+	 * @param imageLoaded
 	 * @param expectedWidth
 	 * @param expectedHeight
 	 * @param maxWidthOfPrint
 	 * @param maxHeightOfPrint
 	 * @return a list of cut images
 	 */
-	public static List<BufferedImage> cutImage(Load load, double expectedWidth, double expectedHeight,
+	public static List<BufferedImage> cutImage(Load imageLoaded, double expectedWidth, double expectedHeight,
 			double maxWidthOfPrint, double maxHeightOfPrint) {
 		List<BufferedImage> imageList = new ArrayList<>();
-		BufferedImage imageBase = load.getBufferedImage();
+		BufferedImage imageBase = imageLoaded.getBufferedImage();
 		Cut.HeightCutNumber = (int) Math.ceil(expectedHeight / (maxHeightOfPrint / 10));
 		Cut.WidthCutNumber = (int) Math.ceil(expectedWidth / (maxWidthOfPrint / 10));
 		Cut.HeightOfPartel = (int) Math.floor(imageBase.getHeight() / getHeightCutNumber());

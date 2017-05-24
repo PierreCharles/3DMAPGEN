@@ -101,7 +101,7 @@ public class Viewer3D {
         final Box xAxis = new Box(250.0, 0.5, 0.5);
         final Box yAxis = new Box(0.5, 250.0, 0.5);
         final Box zAxis = new Box(0.5, 0.5, 250.0);
-
+        
         xAxis.setMaterial(redMaterial);
         yAxis.setMaterial(greenMaterial);
         zAxis.setMaterial(blueMaterial);
