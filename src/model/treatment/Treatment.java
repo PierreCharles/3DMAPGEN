@@ -36,14 +36,10 @@ public class Treatment {
 	 * @param parameter
 	 * @return
 	 */
-	public List<Mesh> executeTreatment(URI selectedFileURI, Parameter parameter)
+	public List<Mesh> executeTreatment(Parameter parameter, ImageLoader imageLoaded)
 	{
 		List<Mesh> parcelsList = new ArrayList<>();
-		Load load = new Load(new File(selectedFileURI));
-		load.addImage();
-
-		List<BufferedImage> imagesList = cutImage(load, parameter.getImageWidth(), parameter.getImageHeight(),
-				parameter.getMaxWidthOfPrint(), parameter.getMaxHeightOfPrint());
+		List<BufferedImage> imagesList = cutImage(imageLoaded, parameter);
 
 		imagesList.forEach((image) -> {
 			parcelsList.add(parcelToMesh(image, parameter.getMeshHeight(), parameter));

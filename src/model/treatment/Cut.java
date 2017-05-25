@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import config.Config;
+import model.Parameter;
 
 /**
  * Class Cut Processing to the calculate of necessary cuts takes care
@@ -61,12 +62,12 @@ public class Cut {
 	 * @param maxHeightOfPrint
 	 * @return a list of cut images
 	 */
-	public static List<BufferedImage> cutImage(Load imageLoaded, double expectedWidth, double expectedHeight,
-			double maxWidthOfPrint, double maxHeightOfPrint) {
+	public static List<BufferedImage> cutImage(ImageLoader imageLoaded, Parameter parameters) {
+	
 		List<BufferedImage> imageList = new ArrayList<>();
 		BufferedImage imageBase = imageLoaded.getBufferedImage();
-		Cut.HeightCutNumber = (int) Math.ceil(expectedHeight / (maxHeightOfPrint / 10));
-		Cut.WidthCutNumber = (int) Math.ceil(expectedWidth / (maxWidthOfPrint / 10));
+		Cut.HeightCutNumber = (int) Math.ceil(parameters.getImageHeight() / (parameters.getMaxHeightOfPrint()) / 10);
+		Cut.WidthCutNumber = (int) Math.ceil(parameters.getImageWidth() / (parameters.getMaxWidthOfPrint() / 10));
 		Cut.HeightOfPartel = (int) Math.floor(imageBase.getHeight() / getHeightCutNumber());
 		Cut.WidthOfParcel = (int) Math.floor(imageBase.getWidth() / getWidthCutNumber());
 

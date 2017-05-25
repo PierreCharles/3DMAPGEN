@@ -12,11 +12,22 @@ public class Parameter {
 	private double imageWidth, imageHeight, meshHeight, maxWidthOfPrint, maxHeightOfPrint;
 
 	/**
-	 * Empty Parameter construtor
+	 * Parameter construtor
+	 * @param height
+	 * @param width
+	 * @param meshHeight
+	 * @param maxHeightOfPrint
+	 * @param maxWidthOfPrint
 	 */
-	public Parameter(){
-
+	public Parameter(double height, double width,double meshHeight, double maxHeightOfPrint,
+			double maxWidthOfPrint) {
+		this.imageHeight = height;
+		this.imageWidth = width;
+		this.meshHeight = meshHeight;
+		this.maxHeightOfPrint = maxHeightOfPrint;
+		this.maxWidthOfPrint = maxWidthOfPrint;
 	}
+	
 	
 	/**
 	 * Getter of the with of image
@@ -115,22 +126,7 @@ public class Parameter {
 	}
 	
 
-	/**
-	 * Methof to add all parameters elements with unique action
-	 * @param height
-	 * @param width
-	 * @param meshHeight
-	 * @param maxHeightOfPrint
-	 * @param maxWidthOfPrint
-	 */
-	public void setElements(double height, double width,double meshHeight, double maxHeightOfPrint,
-			double maxWidthOfPrint) {
-		this.imageHeight = height;
-		this.imageWidth = width;
-		this.meshHeight = meshHeight;
-		this.maxHeightOfPrint = maxHeightOfPrint;
-		this.maxWidthOfPrint = maxWidthOfPrint;
-	}
+
 	
 
 	

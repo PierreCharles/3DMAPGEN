@@ -39,11 +39,11 @@ public class Viewer3D {
     double ALT_MULTIPLIER = 0.5;
     double mousePosX, mousePosY, mouseOldX, mouseOldY, mouseDeltaX, mouseDeltaY;
     
-    final Interaction3D moleculeGroup = new Interaction3D();
-    final Interaction3D world = new Interaction3D();
-    final Interaction3D cameraXform = new Interaction3D();
-    final Interaction3D cameraXform2 = new Interaction3D();
-    final Interaction3D cameraXform3 = new Interaction3D();
+    final Interactor3D moleculeGroup = new Interactor3D();
+    final Interactor3D world = new Interactor3D();
+    final Interactor3D cameraXform = new Interactor3D();
+    final Interactor3D cameraXform2 = new Interactor3D();
+    final Interactor3D cameraXform3 = new Interactor3D();
     
     /**
      * Initialize methof for add a new world, build a camera and build the axes

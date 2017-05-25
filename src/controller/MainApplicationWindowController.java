@@ -26,7 +26,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -37,6 +36,7 @@ import static model.treatment.Export.exportToObj;
 
 import model.Parameter;
 import model.mesh.Mesh;
+import model.treatment.ImageLoader;
 import model.treatment.Treatment;
 import model.viewer.Viewer3D;
 import config.Config;
@@ -53,7 +53,8 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	private ImageView viewImage;
 	@FXML
-	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton, resetButton;
+	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton,
+			resetButton;
 	@FXML
 	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close;
 	@FXML
@@ -73,42 +74,36 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private Pane paneViewer3D;
 
 	private SubScene subSceneViewer3D;
-	private String imagePath;
-	private Parameter parameters = new Parameter();
 	public List<Mesh> parcelsList = new ArrayList<>();
 	public Mesh clipMesh = new Mesh();
 	private File selectedFile;
 	private double heightMesh, maxWidthPrint, maxHeightPrint, height, width;
-	private Image image;
+	private ImageLoader imageLoader;
 	private StringProperty heightProperty = new SimpleStringProperty();
-	private Double ratioHeight, ratioWidth;
 	private Viewer3D viewer;
-
 
 	/**
 	 * Initialize method
 	 */
-	public void initialize(URL location, ResourceBundle bundle) {        
+	public void initialize(URL location, ResourceBundle bundle) {
 		ressources = bundle;
 		initialize3dViewer();
 		initializeFirstLaunch();
 	}
-	
+
 	/**
-	 * Method to initialize the 3D viewer : Use Viewer3D model class
-	 * first launch
+	 * Method to initialize the 3D viewer : Use Viewer3D model class first
+	 * launch
 	 */
 	private void initialize3dViewer() {
-		viewer = new Viewer3D();        
-        subSceneViewer3D = viewer.initializeViewer3D(paneViewer3D);
-        paneViewer3D.getChildren().add(subSceneViewer3D);
-        viewer.configure(subSceneViewer3D);
+		viewer = new Viewer3D();
+		subSceneViewer3D = viewer.initializeViewer3D(paneViewer3D);
+		paneViewer3D.getChildren().add(subSceneViewer3D);
+		viewer.configure(subSceneViewer3D);
 	}
 
-
 	/**
-	 * Method to initialize somes Nodes for the first luanch
-	 * first launch
+	 * Method to initialize somes Nodes for the first luanch first launch
 	 */
 	private void initializeFirstLaunch() {
 		gridPaneParameters.setDisable(true);
@@ -151,7 +146,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Method execute when user click on oppen button
+	 * Method execute when user click on open button
 	 * 
 	 * @param event
 	 * @throws IOException
@@ -164,11 +159,8 @@ public class MainApplicationWindowController extends Stage implements Initializa
 				new FileChooser.ExtensionFilter("All Files", "*.*"));
 		selectedFile = fileChooser.showOpenDialog(this);
 		if (selectedFile != null) {
-			imagePath = selectedFile.toURI().toString();
-			image = new Image(imagePath);
-			viewImage.setImage(image);
-			ratioWidth = image.getWidth() / image.getHeight();
-			ratioHeight = image.getHeight() / image.getWidth();
+			this.imageLoader = new ImageLoader(selectedFile);
+			viewImage.setImage(this.imageLoader.getImage());
 			gridPaneParameters.setDisable(false);
 			gridPaneTreatment.setDisable(false);
 		}
@@ -192,10 +184,25 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	@FXML
 	public void onTreatement(ActionEvent envent) throws IOException {
-		if (ValidateAction()) {
-			Treatment treatment = new Treatment();
-			parcelsList = treatment.executeTreatment(selectedFile.toURI(), this.parameters);
-			gridPaneExport.setDisable(false);
+		if (heightField.getText().isEmpty() || widthField.getText().isEmpty() || maxWidthPrintField.getText().isEmpty()
+				|| maxHeightPrintField.getText().isEmpty()) {
+			showErrorPopUp(ressources.getString("error"), ressources.getString("errorParameterLabel"),
+					ressources.getString("errorParameterLabelMessage"));
+		} else {
+			height = Double.parseDouble(heightField.getText());
+			width = Double.parseDouble(widthField.getText());
+			heightMesh = Double.parseDouble(heightMeshField.getText());
+			maxWidthPrint = Double.parseDouble(maxWidthPrintField.getText());
+			maxHeightPrint = Double.parseDouble(maxHeightPrintField.getText());
+			if (height / width != imageLoader.getRatioHeight()) {
+				showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
+						ressources.getString("errorAdjustLabelMessage"));
+			} else {
+				Parameter parameters = new Parameter(height, heightMesh, width, maxHeightPrint, maxWidthPrint);
+				Treatment treatment = new Treatment();
+				parcelsList = treatment.executeTreatment(parameters, this.imageLoader);
+				gridPaneExport.setDisable(false);
+			}
 		}
 	}
 
@@ -272,7 +279,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			heightField.setStyle("-fx-control-inner-background: red");
 		} else {
 			width = Double.parseDouble(widthField.getText());
-			height = width * ratioHeight;
+			height = width * this.imageLoader.getRatioHeight();
 			heightField.setText(String.valueOf(height));
 			adjustHeightButton.setDisable(true);
 		}
@@ -287,7 +294,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			widthField.setStyle("-fx-control-inner-background: red");
 		} else {
 			height = Double.parseDouble(widthField.getText());
-			width = height * ratioWidth;
+			width = height * this.imageLoader.getRatioWidth();
 			widthField.setText(String.valueOf(width));
 			adjustWidthButton.setDisable(true);
 		}
@@ -302,34 +309,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		heightField.setText("");
 		adjustWidthButton.setDisable(false);
 		adjustHeightButton.setDisable(false);
-	}
-
-	/**
-	 * Method to validate parameters fields
-	 * 
-	 * @return
-	 */
-	private boolean ValidateAction() {
-		if (heightField.getText().isEmpty() || widthField.getText().isEmpty() || maxWidthPrintField.getText().isEmpty()
-				|| maxHeightPrintField.getText().isEmpty()) {
-			showErrorPopUp(ressources.getString("error"), ressources.getString("errorParameterLabel"),
-					ressources.getString("errorParameterLabelMessage"));
-		} else {
-			height = Double.parseDouble(heightField.getText());
-			width = Double.parseDouble(widthField.getText());
-			heightMesh = Double.parseDouble(heightMeshField.getText());
-			maxWidthPrint = Double.parseDouble(maxWidthPrintField.getText());
-			maxHeightPrint = Double.parseDouble(maxHeightPrintField.getText());
-			if (height / width != ratioHeight) {
-				showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
-						ressources.getString("errorAdjustLabelMessage"));
-
-			} else {
-				parameters.setElements(height, heightMesh, width, maxHeightPrint, maxWidthPrint);
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -372,7 +351,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Methof to refresh button text
+	 * Method to refresh button text
 	 */
 	private void refreshButtonText() {
 		adjustHeightButton.setText(ressources.getString("adjustButton"));
@@ -384,7 +363,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Methof to refresh menu item text
+	 * Method to refresh menu item text
 	 */
 	private void refreshMenuItemText() {
 		englishLanguagePreference.setText(ressources.getString("englishLanguagePreference"));

@@ -11,7 +11,7 @@ import javafx.scene.transform.Translate;
  * @author picharles
  *
  */
-public class Interaction3D extends Group {
+public class Interactor3D extends Group {
 
 	public enum RotateOrder {
 		XYZ, XZY, YXZ, YZX, ZXY, ZYX
@@ -40,12 +40,12 @@ public class Interaction3D extends Group {
 
 	public Scale s = new Scale();
 
-	public Interaction3D() {
+	public Interactor3D() {
 		super();
 		getTransforms().addAll(t, rz, ry, rx, s);
 	}
 
-	public Interaction3D(RotateOrder rotateOrder) {
+	public Interactor3D(RotateOrder rotateOrder) {
 		super();
 		// choose the order of rotations based on the rotateOrder
 		switch (rotateOrder) {
