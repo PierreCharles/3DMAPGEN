@@ -7,6 +7,6 @@
 			<accessrule kind="accessible" pattern="javafx/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/picharles/Downloads/JFX3DModelImporters_EA_2014-02-09/jimObjModelImporterJFX.jar"/>
+	<classpathentry kind="lib" path="lib/jimObjModelImporterJFX.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
