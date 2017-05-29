@@ -1,5 +1,10 @@
 package model.viewer;
 
+import java.net.URL;
+
+import com.interactivemesh.jfx.importer.ImportException;
+import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
+
 import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -12,6 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
+import javafx.scene.shape.MeshView;
 import javafx.util.Duration;
 
 /**
@@ -21,13 +27,13 @@ import javafx.util.Duration;
  *
  */
 public class Viewer3D {
-
+		
 	final Group root = new Group();
     final Group axisGroup = new Group();
    
     final PerspectiveCamera camera = new PerspectiveCamera(true);
 
-    final double cameraDistance = 450;
+    final double cameraDistance = 1000;
     
     private Timeline timeline;
     boolean timelinePlaying = false;
@@ -39,7 +45,7 @@ public class Viewer3D {
     double ALT_MULTIPLIER = 0.5;
     double mousePosX, mousePosY, mouseOldX, mouseOldY, mouseDeltaX, mouseDeltaY;
     
-    final Interactor3D moleculeGroup = new Interactor3D();
+    final Interactor3D object3DGroup = new Interactor3D();
     final Interactor3D world = new Interactor3D();
     final Interactor3D cameraXform = new Interactor3D();
     final Interactor3D cameraXform2 = new Interactor3D();
@@ -54,15 +60,56 @@ public class Viewer3D {
 		root.getChildren().add(world);
         buildCamera();
         buildAxes();
+        
         return new SubScene(root, paneViewer3D.widthProperty().get(), paneViewer3D.heightProperty().get());
     }
+    
+    
+   public void build3DObjectViewer(){
+    	
+    	ObjModelImporter objImporter = new ObjModelImporter();
+    	try {
+    	    URL modelUrl = this.getClass().getResource("/other/MeshPart1.obj");
+    	    objImporter.read(modelUrl);            
+    	}
+    	catch (ImportException e){
+    	}
+    
+    	MeshView[] meshView = objImporter.getImport();
+    	
+    	Interactor3D meshForm3dObject = new Interactor3D();
+
+		meshForm3dObject.getChildren().addAll(meshView);
+		meshForm3dObject.setTranslateX(-175);
+		meshForm3dObject.setTranslateZ(200);
+	
+		world.getChildren().addAll(meshForm3dObject);
+
+    }
+   
+   /*
+
+   public void buildMolecule(){
+       final PhongMaterial redMaterial = new PhongMaterial();
+       redMaterial.setDiffuseColor(Color.DARKRED);
+       redMaterial.setSpecularColor(Color.RED);
+       Interactor3D moleculeXform = new Interactor3D();
+       Interactor3D oxygenXform = new Interactor3D();
+       Sphere oxygenSphere = new Sphere(40.0);
+       oxygenSphere.setMaterial(redMaterial);
+       moleculeXform.getChildren().add(oxygenXform);
+       oxygenXform.getChildren().add(oxygenSphere);
+       object3DGroup.getChildren().add(moleculeXform);
+       world.getChildren().addAll(object3DGroup);
+   }    
+    */
 
     /**
      * Method for configure the 3d viewer and define view controller
      * @param subSceneViewer3D : the subscene to configure
      */
     public void configure(SubScene subSceneViewer3D){
-        subSceneViewer3D.setFill(Color.LIGHTGRAY);
+        subSceneViewer3D.setFill(Color.DARKORANGE);
         handleKeyboard(subSceneViewer3D, world);
         handleMouse(subSceneViewer3D, world);
         subSceneViewer3D.setCamera(camera);
@@ -78,11 +125,11 @@ public class Viewer3D {
         cameraXform3.getChildren().add(camera);
         cameraXform3.setRotateZ(180.0);
 
-        camera.setNearClip(0.1);
-        camera.setFarClip(10000.0);
+        camera.setNearClip(1);
+        camera.setFarClip(1000.0);
         camera.setTranslateZ(-cameraDistance);
-        cameraXform.ry.setAngle(320.0);
-        cameraXform.rx.setAngle(40);
+        cameraXform.ry.setAngle(-320.0);
+        cameraXform.rx.setAngle(-40);
     }
 
     /**
@@ -148,7 +195,7 @@ public class Viewer3D {
                     cameraXform.rx.setAngle(cameraXform.rx.getAngle() + mouseDeltaY * modifierFactor * modifier * 2.0);  // -
                 } else if (me.isSecondaryButtonDown()) {
                     double z = camera.getTranslateZ();
-                    double newZ = z + mouseDeltaX * modifierFactor * modifier;
+                    double newZ = z + mouseDeltaX * modifierFactor * modifier*10;
                     camera.setTranslateZ(newZ);
                 } else if (me.isMiddleButtonDown()) {
                     cameraXform2.t.setX(cameraXform2.t.getX() + mouseDeltaX * modifierFactor * modifier * 0.3);  // -
@@ -190,10 +237,10 @@ public class Viewer3D {
                         break;
                     case S:
                         if (event.isControlDown()) {
-                            if (moleculeGroup.isVisible()) {
-                                moleculeGroup.setVisible(false);
+                            if (object3DGroup.isVisible()) {
+                                object3DGroup.setVisible(false);
                             } else {
-                                moleculeGroup.setVisible(true);
+                                object3DGroup.setVisible(true);
                             }
                         }
                         break;

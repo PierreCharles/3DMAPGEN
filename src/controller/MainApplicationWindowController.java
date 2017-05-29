@@ -100,6 +100,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		subSceneViewer3D = viewer.initializeViewer3D(paneViewer3D);
 		paneViewer3D.getChildren().add(subSceneViewer3D);
 		viewer.configure(subSceneViewer3D);
+		//viewer.build3DObjectViewer();
 	}
 
 	/**
@@ -164,6 +165,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			gridPaneParameters.setDisable(false);
 			gridPaneTreatment.setDisable(false);
 		}
+		
 	}
 
 	/**
@@ -199,8 +201,8 @@ public class MainApplicationWindowController extends Stage implements Initializa
 						ressources.getString("errorAdjustLabelMessage"));
 			} else {
 				Parameter parameters = new Parameter(height, heightMesh, width, maxHeightPrint, maxWidthPrint);
-				Treatment treatment = new Treatment();
-				parcelsList = treatment.executeTreatment(parameters, this.imageLoader);
+				Treatment treatment = new Treatment(parameters, this.imageLoader);
+				parcelsList = treatment.executeTreatment();
 				gridPaneExport.setDisable(false);
 			}
 		}

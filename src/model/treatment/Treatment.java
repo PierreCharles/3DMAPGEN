@@ -1,12 +1,6 @@
 package model.treatment;
 
-import static model.treatment.Cut.cutImage;
-import static model.treatment.Cut.getHeightOfParcel;
-import static model.treatment.Cut.getWidthOfParcel;
-
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.net.URI;
 import java.util.TreeMap;
 
 import config.Config;
@@ -28,7 +22,37 @@ import java.util.Set;
  *
  */
 public class Treatment {
+	
+	private Parameter parameters;
+	private ImageLoader imageLoader;
+	private int heightCutNumber, widthCutNumber, heightOfPartel, widthOfParcel;
 		
+	public int getHeightCutNumber() {
+		return heightCutNumber;
+	}
+
+
+	public int getWidthCutNumber() {
+		return widthCutNumber;
+	}
+
+
+	public int getHeightOfPartel() {
+		return heightOfPartel;
+	}
+
+
+	public int getWidthOfParcel() {
+		return widthOfParcel;
+	}
+
+
+	public Treatment(Parameter parameters, ImageLoader imageLoader) {
+		this.parameters = parameters;
+		this.imageLoader = imageLoader;
+	}
+
+
 	/**
 	 * Method to execute treatment 
 	 * 
@@ -36,22 +60,55 @@ public class Treatment {
 	 * @param parameter
 	 * @return
 	 */
-	public List<Mesh> executeTreatment(Parameter parameter, ImageLoader imageLoaded)
+	public List<Mesh> executeTreatment()
 	{
 		List<Mesh> parcelsList = new ArrayList<>();
-		List<BufferedImage> imagesList = cutImage(imageLoaded, parameter);
+		List<BufferedImage> imagesList = cutImage();
 
 		imagesList.forEach((image) -> {
-			parcelsList.add(parcelToMesh(image, parameter.getMeshHeight(), parameter));
+			parcelsList.add(parcelToMesh(image, parameters));
 		});
 		
 		parcelsList.forEach((parcelle) -> {
 			if(Config.DEBUG){
 				System.out.println("Mise à l'échelle parcelle");
 			}
-			scalling(parcelle, imagesList.get(0), parameter);
+			scalling(parcelle, imagesList.get(0), parameters);
 		});
 		return parcelsList;
+	}
+	
+	/**
+	 * Method for cut the image with some parameters
+	 * 
+	 * @param imageLoaded
+	 * @param expectedWidth
+	 * @param expectedHeight
+	 * @param maxWidthOfPrint
+	 * @param maxHeightOfPrint
+	 * @return a list of cut images
+	 */
+	public List<BufferedImage> cutImage() {
+	
+		List<BufferedImage> imageList = new ArrayList<>();
+		BufferedImage imageBase = imageLoader.getBufferedImage();
+		heightCutNumber = (int) Math.ceil(parameters.getImageHeight() / (parameters.getMaxHeightOfPrint()) / 10);
+		widthCutNumber = (int) Math.ceil(parameters.getImageWidth() / (parameters.getMaxWidthOfPrint() / 10));
+		heightOfPartel = (int) Math.floor(imageBase.getHeight() / heightCutNumber);
+		widthOfParcel = (int) Math.floor(imageBase.getWidth() / widthCutNumber);
+
+		if (Config.DEBUG) {
+			System.out.println("Hauteur de la partelle : " + heightOfPartel);
+			System.out.println("Largeur de la partelle : " + widthOfParcel);
+		}
+
+		for (int x = 0; x < widthCutNumber; x++) {
+			for (int y = 0; y < heightCutNumber; y++) {
+				imageList.add(imageBase.getSubimage(x * widthOfParcel, y * heightOfPartel, widthOfParcel,
+						heightOfPartel));
+			}
+		}
+		return imageList;
 	}
 	
 
@@ -65,18 +122,13 @@ public class Treatment {
 	 * @param bufferedImage loaded image into application
 	 * @return the attempt height for the vertices of the mesh associated at the attempt pixel
 	 */
-	public double getPixelHeight(double line, double column, double resolution, BufferedImage bufferedImage) {
-		double height;
-		int red, green, blue, medium;
-		int x = (int) Math.floor(column);
-		int y = (int) Math.floor(line);
-		int pixel = bufferedImage.getRGB(x, y);
-		red = (pixel >> 16) & 0xff;
-		green = (pixel >> 8) & 0xff;
-		blue = (pixel) & 0xff;
-		medium = 255 - (red + green + blue) / 3;
-		height = (resolution * medium) + 5;
-		return height;
+	public double getPixelHeight(double line, double column, double resolution) {
+		int pixel = imageLoader.getBufferedImage().getRGB((int) Math.floor(column), (int) Math.floor(line));
+		int red = (pixel >> 16) & 0xff;
+		int green = (pixel >> 8) & 0xff;
+		int blue = (pixel) & 0xff;
+		int medium = 255 - (red + green + blue) / 3;
+		return (resolution * medium) + 5;
 	}
 
 	/**
@@ -148,10 +200,10 @@ public class Treatment {
 	 * @param parameter
 	 * @return a mesh
 	 */
-	public Mesh parcelToMesh(BufferedImage bufferedImage, double max, Parameter parameter) {
+	public Mesh parcelToMesh(BufferedImage bufferedImage, Parameter parameter) {
 
 		Mesh mesh = new Mesh();
-		double resolution = max / 256;
+		double resolution = parameters.getMeshHeight() / 256;
 		double height = bufferedImage.getHeight() - 1;
 		double width = bufferedImage.getWidth() - 1;
 		double tickness = 3;
@@ -161,7 +213,7 @@ public class Treatment {
 			for (double column = 0; column < width; column++) {
 				// Create a surface coordonates points  : line;column
 				mesh.addVertices(line, column,
-						new Vertices(line, getPixelHeight(line, column, resolution, bufferedImage), column));
+						new Vertices(line, getPixelHeight(line, column, resolution), column));
 			}
 		}
 
@@ -285,7 +337,7 @@ public class Treatment {
 	 * @param cutHeightNumber
 	 * @return an integer
 	 */
-	public static Integer calculateNumberOfClip(int cutWidthNumber, int cutHeightNumber) {
+	public Integer calculateNumberOfClip(int cutWidthNumber, int cutHeightNumber) {
 		return (cutWidthNumber - 1) + (2 * cutWidthNumber - 1) * (cutHeightNumber - 1);
 	}
 
@@ -419,8 +471,8 @@ public class Treatment {
 	 */
 	public void scalling(Mesh mesh, BufferedImage bufferedImage, Parameter parameter) {
 
-		double ratioX = parameter.getMaxWidthOfPrint() / getWidthOfParcel();
-		double ratioZ = parameter.getMaxHeightOfPrint() / getHeightOfParcel();
+		double ratioX = parameter.getMaxWidthOfPrint() / widthOfParcel;
+		double ratioZ = parameter.getMaxHeightOfPrint() / heightOfPartel;
 
 		Set<Map.Entry<Double, TreeMap>> setLine = mesh.getSetOfVertices().entrySet();
 		Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();

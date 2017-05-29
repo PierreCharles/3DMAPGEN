@@ -105,12 +105,13 @@ public class Export {
 	 * @param directoryName
 	 * @param attacheMesh
 	 */
-	static public void exportAttacheMeshToObject(String destinationFile, String directoryName, Mesh attacheMesh) {
+	// TO DO -> A verifier - ne fonctionne pas correctement
+	static public void exportAttacheMeshToObject(String destinationFile, String directoryName, Mesh attacheMesh, Treatment treatment) {
 		File file = new File(destinationFile + "\\" + directoryName + "\\" + "Attache.obj");
 		try (FileWriter fileWriter = new FileWriter(file)) {
 			fileWriter.write("# 3DGenMap - File generator\r\n");
 			fileWriter.write("# Pièce à imprimer "
-					+ Treatment.calculateNumberOfClip(Cut.getWidthCutNumber(), Cut.getHeightCutNumber()).toString() + " fois\n");
+					+ treatment.calculateNumberOfClip(treatment.getWidthCutNumber(), treatment.getHeightCutNumber()).toString() + " fois\n");
 			fileWriter.write("o attache\n\n");
 			Set set = attacheMesh.getSetOfVertices().entrySet();
 			Iterator iterator = set.iterator();
