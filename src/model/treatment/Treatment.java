@@ -225,32 +225,40 @@ public class Treatment {
 					// Create a point coordonate base : ligne;colonne
 					mesh.addVerticesBase(line, column, new Vertices(line, 0, column));
 				}
-
 			}
 		}
 
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
-				
-				if (isTopEdge(line, column) || isBottomEdge(line, column, width, height - 1)) {
-					/* CrÃ©ation du cotÃ© haut ou bas */
+
+				if (isTopEdge(line, column)) {
+					// Création du cotÃ© haut ou bas 
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getBasePoint(line, column).getId(), mesh.getBasePoint(line, column - 1).getId()));
+							mesh.getBasePoint(line, column).getId(),mesh.getBasePoint(line, column - 1).getId()));
 					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
 							mesh.getSurfacePoint(line, column - 1).getId(),
 							mesh.getSurfacePoint(line, column).getId()));
 				}
-
+				
+				if (isBottomEdge(line, column, width, height - 1)) {
+					// Création du cotÃ© haut ou bas 
+					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
+							mesh.getBasePoint(line, column).getId(),mesh.getSurfacePoint(line, column).getId() ));
+					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
+							mesh.getSurfacePoint(line, column - 1).getId(),
+							mesh.getBasePoint(line, column - 1).getId()));
+				}
+				
 				if (isLeftEdge(line, column)) {
-					/* CrÃ©ation de la face de la surface collÃ©e au bord */
+					// Création de la face de la surface collée au bord
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getSurfacePoint(line - 1, column + 1).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId()));
-					/* CrÃ©ation de la face du socle collÃ©e au bord */
-					mesh.addFace(new Face(mesh.getBasePoint(line, column).getId(),
+					// Création de la face du socle collée au bord
+					mesh.addFace(new Face(mesh.getBasePoint(line - 1, column).getId(),
 							mesh.getBasePoint(line - 1, column + 1).getId(),
-							mesh.getBasePoint(line - 1, column).getId()));
-					/* CrÃ©ation du cÃ´tÃ© gauche */
+							mesh.getBasePoint(line, column).getId()));
+					// Création du coté gauche 
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
 					mesh.addFace(new Face(mesh.getSurfacePoint(line - 1, column).getId(),
@@ -258,21 +266,21 @@ public class Treatment {
 				}
 
 				if (isRightEdge(line, column, width - 1, height)) {
-					/* CrÃ©ation de la face de la surface collÃ©e au bord */
+					// Création de la face de la surface collée au bord */
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId(),
 							mesh.getSurfacePoint(line, column - 1).getId()));
-					/* CrÃ©ation de la face du socle collÃ© au bord */
-					mesh.addFace(new Face(mesh.getBasePoint(line, column).getId(),
-							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column - 1).getId()));
-					/* CrÃ©ation du cÃ´tÃ© droit */
+					// Création de la face du socle collé au bord 
+					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
+							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
+					// Création du coté droit 
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getBasePoint(line, column).getId(), mesh.getBasePoint(line - 1, column).getId()));
 					mesh.addFace(new Face(mesh.getBasePoint(line - 1, column).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId(),
 							mesh.getSurfacePoint(line, column).getId()));
 				}
-
+			
 				if (isCenter(line, column, width - 1, height)) {
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId(),
@@ -281,12 +289,12 @@ public class Treatment {
 							mesh.getSurfacePoint(line - 1, column + 1).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId()));
 
-					mesh.addFace(new Face(mesh.getBasePoint(line, column).getId(),
-							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column - 1).getId()));
-					mesh.addFace(new Face(mesh.getBasePoint(line, column).getId(),
+					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
+							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
+					mesh.addFace(new Face(mesh.getBasePoint(line - 1, column).getId(),
 							mesh.getBasePoint(line - 1, column + 1).getId(),
-							mesh.getBasePoint(line - 1, column).getId()));
-				}
+							mesh.getBasePoint(line, column).getId()));
+				}			
 			}
 		}
 		return mesh;
@@ -308,7 +316,8 @@ public class Treatment {
 			double endWidth, double beginHeight, double endHeight) {
 		double begin = bufferedImage.getWidth() * 0.1;
 		double end = bufferedImage.getWidth() * 0.9;
-		boolean condition1, condition2, condition3, condition4, condition5;
+		
+		boolean condition1, condition2, condition3, condition4, condition5, letter;
 		
 		condition1 = column >= beginWidth && column <= endWidth && line >= beginHeight
 				&& line <= (bufferedImage.getHeight() - 1) - beginWidth; // zone  du restangle socle
@@ -323,11 +332,13 @@ public class Treatment {
 				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2
 				&& line >= (bufferedImage.getHeight() - 1) - beginHeight; // slot bas
 		
-		
 		condition5 = line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
 				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth ; // slot droit
-		
-		return condition1 || condition2 || condition3 || condition4 || condition5;
+				
+		// TEMPORAIRE !! - TODO GENERATE A LETTER				
+		letter = column >= 700.0 && column <= 800.0 && line >= 650.0 && line <=850.0;
+
+		return (condition1 && !letter) || condition2 || condition3 || condition4 || condition5;
 	}
 
 	/**

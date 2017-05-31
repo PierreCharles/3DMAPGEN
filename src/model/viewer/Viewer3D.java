@@ -33,7 +33,7 @@ public class Viewer3D {
    
     final PerspectiveCamera camera = new PerspectiveCamera(true);
 
-    final double cameraDistance = 1000;
+    final double cameraDistance = 500;
     
     private Timeline timeline;
     boolean timelinePlaying = false;
@@ -88,7 +88,6 @@ public class Viewer3D {
     }
    
    /*
-
    public void buildMolecule(){
        final PhongMaterial redMaterial = new PhongMaterial();
        redMaterial.setDiffuseColor(Color.DARKRED);
@@ -109,7 +108,7 @@ public class Viewer3D {
      * @param subSceneViewer3D : the subscene to configure
      */
     public void configure(SubScene subSceneViewer3D){
-        subSceneViewer3D.setFill(Color.DARKORANGE);
+        subSceneViewer3D.setFill(Color.LIGHTSLATEGREY);
         handleKeyboard(subSceneViewer3D, world);
         handleMouse(subSceneViewer3D, world);
         subSceneViewer3D.setCamera(camera);

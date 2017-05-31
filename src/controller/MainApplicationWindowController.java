@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import application.MainApplicationWindow;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -89,6 +90,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		ressources = bundle;
 		initialize3dViewer();
 		initializeFirstLaunch();
+
 	}
 
 	/**

@@ -124,6 +124,11 @@ public class Vertices {
 	public String toString() {
 		return "v " + this.x + " " + this.y + " " + this.z + "\r\n";
 	}
+	
+	public String toStringReverse() {
+		return "v " + this.z + " " + this.y + " " + this.x + "\r\n";
+	}
+	
 
 	/**
 	 * Method for move on X
