@@ -21,7 +21,7 @@ import java.util.Set;
  * @author
  *
  */
-public class Treatment {
+public class MapGenerator {
 	
 	private Parameter parameters;
 	private ImageLoader imageLoader;
@@ -47,7 +47,7 @@ public class Treatment {
 	}
 
 
-	public Treatment(Parameter parameters, ImageLoader imageLoader) {
+	public MapGenerator(Parameter parameters, ImageLoader imageLoader) {
 		this.parameters = parameters;
 		this.imageLoader = imageLoader;
 	}

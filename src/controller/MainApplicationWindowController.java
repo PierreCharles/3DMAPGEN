@@ -38,7 +38,7 @@ import static model.treatment.Export.exportToObj;
 import model.Parameter;
 import model.mesh.Mesh;
 import model.treatment.ImageLoader;
-import model.treatment.Treatment;
+import model.treatment.MapGenerator;
 import model.viewer.Viewer3D;
 import config.Config;
 
@@ -90,7 +90,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		ressources = bundle;
 		initialize3dViewer();
 		initializeFirstLaunch();
-
 	}
 
 	/**
@@ -203,8 +202,10 @@ public class MainApplicationWindowController extends Stage implements Initializa
 						ressources.getString("errorAdjustLabelMessage"));
 			} else {
 				Parameter parameters = new Parameter(height, heightMesh, width, maxHeightPrint, maxWidthPrint);
-				Treatment treatment = new Treatment(parameters, this.imageLoader);
+				MapGenerator treatment = new MapGenerator(parameters, this.imageLoader);
 				parcelsList = treatment.executeTreatment();
+				viewer.setNewMesh(parcelsList);
+				//viewer.build3DObjectViewer();
 				gridPaneExport.setDisable(false);
 			}
 		}

@@ -106,7 +106,7 @@ public class Export {
 	 * @param attacheMesh
 	 */
 	// TO DO -> A verifier - ne fonctionne pas correctement
-	static public void exportAttacheMeshToObject(String destinationFile, String directoryName, Mesh attacheMesh, Treatment treatment) {
+	static public void exportAttacheMeshToObject(String destinationFile, String directoryName, Mesh attacheMesh, MapGenerator treatment) {
 		File file = new File(destinationFile + "\\" + directoryName + "\\" + "Attache.obj");
 		try (FileWriter fileWriter = new FileWriter(file)) {
 			fileWriter.write("# 3DGenMap - File generator\r\n");

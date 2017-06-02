@@ -7,7 +7,7 @@ package model.mesh;
  */
 public class Vertices {
 
-	private static int Counter = 1;
+	private static int Counter = 0;
 	private double x, y, z;
 	private int id;
 
@@ -15,12 +15,12 @@ public class Vertices {
 	 * Vertices constructor
 	 * 
 	 * @param line
-	 * @param hieght
+	 * @param height
 	 * @param column
 	 */
-	public Vertices(double line, double hieght, double column) {
+	public Vertices(double line, double height, double column) {
 		x = column;
-		y = hieght;
+		y = height;
 		z = line;
 		id = Counter;
 		Counter++;
@@ -124,11 +124,6 @@ public class Vertices {
 	public String toString() {
 		return "v " + this.x + " " + this.y + " " + this.z + "\r\n";
 	}
-	
-	public String toStringReverse() {
-		return "v " + this.z + " " + this.y + " " + this.x + "\r\n";
-	}
-	
 
 	/**
 	 * Method for move on X
