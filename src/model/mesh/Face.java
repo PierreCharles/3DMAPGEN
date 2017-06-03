@@ -9,7 +9,7 @@ package model.mesh;
  */
 public class Face {
 
-	public static int Counter = 1;
+	public static int Faces_Counter = 0;
 	private int id, idVertice1, idVertice2, idVertice3;
 
 	/**
@@ -20,8 +20,8 @@ public class Face {
 	 * @param idVertice3
 	 */
 	public Face(int idVertice1, int idVertice2, int idVertice3) {
-		this.id = Counter;
-		Counter++;
+		this.id = Faces_Counter;
+		Faces_Counter++;
 		this.idVertice1 = idVertice1;
 		this.idVertice2 = idVertice2;
 		this.idVertice3 = idVertice3;

@@ -6,7 +6,8 @@ import java.util.TreeMap;
 import config.Config;
 import model.Parameter;
 import model.mesh.Face;
-import model.mesh.Mesh;
+import model.mesh.MapMesh;
+import model.mesh.Parcel;
 import model.mesh.Vertices;
 
 import java.util.ArrayList;
@@ -60,22 +61,35 @@ public class MapGenerator {
 	 * @param parameter
 	 * @return
 	 */
-	public List<Mesh> executeTreatment()
+	public List<Parcel> executeTreatment()
 	{
-		List<Mesh> parcelsList = new ArrayList<>();
+		//List<MapMesh> parcelsList = new ArrayList<>();
+		List<Parcel> parcelList = new ArrayList<>();
+		
 		List<BufferedImage> imagesList = cutImage();
 
 		imagesList.forEach((image) -> {
-			parcelsList.add(parcelToMesh(image, parameters));
+			//parcelsList.add(parcelToMesh(image, parameters));
+			parcelList.add(new Parcel(parcelToMesh(image, parameters)));
 		});
-		
+		/*
 		parcelsList.forEach((parcelle) -> {
 			if(Config.DEBUG){
 				System.out.println("Mise à l'échelle parcelle");
 			}
 			scalling(parcelle, imagesList.get(0), parameters);
 		});
-		return parcelsList;
+		*/
+		
+		parcelList.forEach((parcelle) -> {
+			if(Config.DEBUG){
+				System.out.println("Mise à l'échelle parcelle");
+			}
+			scalling(parcelle.getMapMesh(), imagesList.get(0), parameters);
+		});
+		
+		
+		return parcelList;
 	}
 	
 	/**
@@ -200,9 +214,9 @@ public class MapGenerator {
 	 * @param parameter
 	 * @return a mesh
 	 */
-	public Mesh parcelToMesh(BufferedImage bufferedImage, Parameter parameter) {
+	public MapMesh parcelToMesh(BufferedImage bufferedImage, Parameter parameter) {
 
-		Mesh mesh = new Mesh();
+		MapMesh mesh = new MapMesh();
 		double resolution = parameters.getMeshHeight() / 256;
 		double height = bufferedImage.getHeight() - 1;
 		double width = bufferedImage.getWidth() - 1;
@@ -366,8 +380,8 @@ public class MapGenerator {
      * 1   2           9    10
      * Vertices s0X: vertices at the top of verticeX
      */
-	public Mesh clipGenerator(BufferedImage bufferedImageParcel) {
-		Mesh clipMesh = new Mesh();
+	public MapMesh clipGenerator(BufferedImage bufferedImageParcel) {
+		MapMesh clipMesh = new MapMesh();
 		double deb = bufferedImageParcel.getWidth() * 0.1;
 		Vertices vertices1 = new Vertices(0, 0, 0);
 		clipMesh.getSetOfVertices().put(vertices1.getId(), vertices1);
@@ -480,7 +494,7 @@ public class MapGenerator {
 	 * @param bufferedImage
 	 * @param parameter
 	 */
-	public void scalling(Mesh mesh, BufferedImage bufferedImage, Parameter parameter) {
+	public void scalling(MapMesh mesh, BufferedImage bufferedImage, Parameter parameter) {
 
 		double ratioX = parameter.getMaxWidthOfPrint() / widthOfParcel;
 		double ratioZ = parameter.getMaxHeightOfPrint() / heightOfPartel;

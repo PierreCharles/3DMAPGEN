@@ -7,7 +7,8 @@ package model.mesh;
  */
 public class Vertices {
 
-	private static int Counter = 0;
+	private static int 	Vertices_Counter = 0;
+	private final static int DEFAULT_VERTICES_COUNTER = 0;
 	private double x, y, z;
 	private int id;
 
@@ -22,8 +23,8 @@ public class Vertices {
 		x = column;
 		y = height;
 		z = line;
-		id = Counter;
-		Counter++;
+		id = Vertices_Counter;
+		Vertices_Counter++;
 	}
 
 	/**
@@ -102,7 +103,7 @@ public class Vertices {
 	 * Method for reset the counter
 	 */
 	public static void resetCounter() {
-		Counter = 1;
+		Vertices_Counter = DEFAULT_VERTICES_COUNTER;
 	}
 
 	/**

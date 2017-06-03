@@ -1,26 +1,15 @@
 package model.viewer;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import javax.sql.rowset.spi.TransactionalWriter;
-
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
-
 import javafx.animation.Timeline;
 import javafx.event.EventHandler;
-import javafx.scene.AmbientLight;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
-import javafx.scene.PointLight;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.input.KeyEvent;
@@ -29,14 +18,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.shape.CullFace;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
-import javafx.scene.shape.TriangleMesh;
 import javafx.util.Duration;
-import model.mesh.Face;
-import model.mesh.Mesh;
-import model.mesh.Vertices;
+import model.mesh.MapMesh;
+import model.mesh.Parcel;
+
 
 /**
  * Builder of viewer 3D. This object instantiate interaction and configuration
@@ -75,6 +62,8 @@ public class Viewer3D {
     final static float minY = -10;
     final static float maxX = 10;
     final static float maxY = 10;
+    
+    private MeshView currentMeshView;
 
 	/**
 	 * Initialize methof for add a new world, build a camera and build the axes
@@ -91,6 +80,7 @@ public class Viewer3D {
 				SceneAntialiasing.BALANCED);
 	}
 
+	/* TO DO CAN USE IT FOR LOAD AN OBJ FILE TO READ AND OBSERVE IT
 	public void build3DObjectViewer() {
 
 		ObjModelImporter objImporter = new ObjModelImporter();
@@ -113,60 +103,24 @@ public class Viewer3D {
 
 		world.getChildren().addAll(meshForm3dObject);
 	}
+	*/
+	
 
-	public void setNewMesh(List<Mesh> parcelsList) {
+	/**
+	 * Method to display the 3D object into the vewer 3D
+	 * @param parcelsList
+	 */
+	public void setNewMesh(List<Parcel> parcelsList, int parcelID) {
+		parcelsList.get(parcelID).getMapMesh().generate3DObject();
+		MeshView meshView = new MeshView(parcelsList.get(parcelID).getMapMesh().getMapTriangleMesh());
+		meshView.setDrawMode(DrawMode.FILL); // OR LINE for display vertices
+		world.getChildren().addAll(meshView);
+		currentMeshView = meshView;
+	}
+	
 
-		for (Mesh mesh : parcelsList) {
-			
-			MeshView meshView = mesh.generate3DObject();
-			
-			meshView.setDrawMode(DrawMode.FILL);
-			
-			//meshView.setMaterial(new PhongMaterial(Color.RED));
-			
-			world.getChildren().addAll(meshView);
-			
-			/*
-			
-			TriangleMesh pyramidMesh = new TriangleMesh();
-			
-			pyramidMesh.getTexCoords().addAll(0,0);
-			
-			float h = 150;                    // Height
-			float s = 300;                    // Side
-			pyramidMesh.getPoints().addAll(
-			        0,    0,    0,            // Point 0 - Top
-			        0,    h,    -s/2,         // Point 1 - Front
-			        -s/2, h,    0,            // Point 2 - Left
-			        s/2,  h,    0,            // Point 3 - Back
-			        0,    h,    s/2           // Point 4 - Right
-			    );
-			
-			pyramidMesh.getFaces().addAll(
-			        0,0,  2,0,  1,0,          // Front left face
-			        0,0,  1,0,  3,0,          // Front right face
-			        0,0,  3,0,  4,0,          // Back right face
-			        0,0,  4,0,  2,0,          // Back left face
-			        4,0,  1,0,  2,0,          // Bottom rear face
-			        4,0,  3,0,  1,0           // Bottom front face
-			    ); 
-			
-			System.out.println("1. : "+pyramidMesh.getPointElementSize());
-			System.out.println("2. : "+pyramidMesh.getFaceElementSize());
-			System.out.println("3. : "+pyramidMesh.getTexCoordElementSize());
-			System.out.println("4. : "+pyramidMesh.getPoints().size());
-			System.out.println("5. : "+pyramidMesh.getFaces().size());
-			System.out.println("6. : "+pyramidMesh.getTexCoords().size());
-			
-			MeshView pyramid = new MeshView(pyramidMesh);
-			pyramid.setDrawMode(DrawMode.FILL);
-			pyramid.setTranslateX(200);
-			pyramid.setTranslateY(100);
-			pyramid.setTranslateZ(200);
-			root.getChildren().add(pyramid);
-			*/
-		}
-
+	public void changeDrawModeViewer(DrawMode drawMode){
+		currentMeshView.setDrawMode(drawMode);
 	}
 
 

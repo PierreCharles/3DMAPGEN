@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 import config.Config;
 import model.mesh.Face;
-import model.mesh.Mesh;
+import model.mesh.MapMesh;
 import model.mesh.Vertices;
 
 /**
@@ -30,7 +30,7 @@ public class Export {
 	 * @param numberOfPart
 	 * @throws IOException
 	 */
-	static public void exportToObj(Mesh mesh, String destinationFile, String directoryName, int numberOfPart)
+	static public void exportToObj(MapMesh mesh, String destinationFile, String directoryName, int numberOfPart)
 			throws IOException {
 		File file = new File(
 				destinationFile + "\\" + directoryName + "\\" + directoryName + "Part" + numberOfPart + ".obj");
@@ -106,7 +106,7 @@ public class Export {
 	 * @param attacheMesh
 	 */
 	// TO DO -> A verifier - ne fonctionne pas correctement
-	static public void exportAttacheMeshToObject(String destinationFile, String directoryName, Mesh attacheMesh, MapGenerator treatment) {
+	static public void exportAttacheMeshToObject(String destinationFile, String directoryName, MapMesh attacheMesh, MapGenerator treatment) {
 		File file = new File(destinationFile + "\\" + directoryName + "\\" + "Attache.obj");
 		try (FileWriter fileWriter = new FileWriter(file)) {
 			fileWriter.write("# 3DGenMap - File generator\r\n");

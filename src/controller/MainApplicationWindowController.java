@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import application.MainApplicationWindow;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,6 +20,7 @@ import javafx.scene.SubScene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
@@ -31,12 +33,14 @@ import javafx.stage.DirectoryChooser;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.DrawMode;
 
 import static model.treatment.Export.createDirectory;
 import static model.treatment.Export.exportToObj;
 
 import model.Parameter;
-import model.mesh.Mesh;
+import model.mesh.MapMesh;
+import model.mesh.Parcel;
 import model.treatment.ImageLoader;
 import model.treatment.MapGenerator;
 import model.viewer.Viewer3D;
@@ -50,7 +54,7 @@ import config.Config;
 public class MainApplicationWindowController extends Stage implements Initializable {
 
 	@FXML
-	private BorderPane borderPane;
+	private BorderPane borderPane, borderPaneConfigViewer;
 	@FXML
 	private ImageView viewImage;
 	@FXML
@@ -70,13 +74,16 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	private ResourceBundle ressources;
 	@FXML
-	private ListView ListView3D;
+	private ListView<String> ListView3D;
 	@FXML
 	private Pane paneViewer3D;
+	@FXML
+	private CheckBox checkDiplayingVertices;
+
 
 	private SubScene subSceneViewer3D;
-	public List<Mesh> parcelsList = new ArrayList<>();
-	public Mesh clipMesh = new Mesh();
+	public List<Parcel> parcelsList = new ArrayList<>();
+	public MapMesh clipMesh = new MapMesh();
 	private File selectedFile;
 	private double heightMesh, maxWidthPrint, maxHeightPrint, height, width;
 	private ImageLoader imageLoader;
@@ -105,18 +112,19 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Method to initialize somes Nodes for the first luanch first launch
+	 * Method to initialize some Nodes for the first launch first launch
 	 */
 	private void initializeFirstLaunch() {
 		gridPaneParameters.setDisable(true);
 		gridPaneTreatment.setDisable(true);
 		gridPaneExport.setDisable(true);
+		borderPaneConfigViewer.setDisable(true);
 		subSceneViewer3D.heightProperty().bind(paneViewer3D.heightProperty());
-		subSceneViewer3D.widthProperty().bind(paneViewer3D.widthProperty());
+		subSceneViewer3D.widthProperty().bind(paneViewer3D.widthProperty());	
 	}
 
 	/**
-	 * Method to change propertie file language
+	 * Method to change properties file language
 	 * 
 	 * @param lang
 	 *            : string language shortcut
@@ -204,13 +212,36 @@ public class MainApplicationWindowController extends Stage implements Initializa
 				Parameter parameters = new Parameter(height, heightMesh, width, maxHeightPrint, maxWidthPrint);
 				MapGenerator treatment = new MapGenerator(parameters, this.imageLoader);
 				parcelsList = treatment.executeTreatment();
-				viewer.setNewMesh(parcelsList);
+				viewer.setNewMesh(parcelsList, 0);
 				//viewer.build3DObjectViewer();
 				gridPaneExport.setDisable(false);
+				borderPaneConfigViewer.setDisable(false);
+				ObservableList<String> items =FXCollections.observableArrayList();
+				for(Parcel parcel : parcelsList){
+					items.add(parcel.getParcelName());
+				}
+				ListView3D.setItems(items);
+				
 			}
 		}
 	}
-
+	
+	/**
+	 * Method launch when user check the vertices checkbox
+	 * 
+	 * @param envent
+	 * @throws IOException
+	 */
+	@FXML
+	public void OnCheckVerticesBox(ActionEvent envent) throws IOException {
+		if(checkDiplayingVertices.isSelected()){
+			viewer.changeDrawModeViewer(DrawMode.LINE);
+		} else{
+			viewer.changeDrawModeViewer(DrawMode.FILL);
+		}
+	}
+	
+	
 	/**
 	 * Method launch when user press save button
 	 * 
@@ -224,14 +255,15 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		directoryChooser.setInitialDirectory(new File("C://"));
 
 		File selectedSaveFile = directoryChooser.showDialog(this);
-		if (Config.DEBUG) {
-			System.out.println(selectedSaveFile.toString());
-		}
+		
 		if (selectedSaveFile != null) {
+			if (Config.DEBUG) {
+				System.out.println(selectedSaveFile.toString());
+			}
 			createDirectory(selectedSaveFile.toString(), "Mesh");
-			for (Mesh mesh : parcelsList) {
-				exportToObj(mesh, selectedSaveFile.toString(), "Mesh", i);
-				i++;
+			
+			for (Parcel parcel : parcelsList) {
+				exportToObj(parcel.getMapMesh(), selectedSaveFile.toString(), "Mesh", i++);
 			}
 			if (Config.DEBUG) {
 				System.out.println("Exportation terminée");
@@ -306,7 +338,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Method to reset wiht and height fields
+	 * Method to reset width and height fields
 	 */
 	@FXML
 	public void ResetAction() {
@@ -365,6 +397,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		openFileChooserButton.setText(ressources.getString("openFileChooserButton"));
 		saveButton.setText(ressources.getString("saveButton"));
 		onTreatmentButton.setText(ressources.getString("onTreatmentButton"));
+		checkDiplayingVertices.setText(ressources.getString("checkDiplayingVertices"));
 	}
 
 	/**
