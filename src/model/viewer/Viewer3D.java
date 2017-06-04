@@ -110,17 +110,19 @@ public class Viewer3D {
 	 * Method to display the 3D object into the vewer 3D
 	 * @param parcelsList
 	 */
-	public void setNewMesh(List<Parcel> parcelsList, int parcelID) {
-		parcelsList.get(parcelID).getMapMesh().generate3DObject();
-		MeshView meshView = new MeshView(parcelsList.get(parcelID).getMapMesh().getMapTriangleMesh());
-		meshView.setDrawMode(DrawMode.FILL); // OR LINE for display vertices
-		world.getChildren().addAll(meshView);
-		currentMeshView = meshView;
+	public void setNewMesh(Parcel parcel) {
+		world.getChildren().clear();
+		parcel.getMapMesh().generate3DObject();
+		currentMeshView = new MeshView(parcel.getMapMesh().getMapTriangleMesh());
+		currentMeshView.setDrawMode(DrawMode.FILL); // OR LINE for display vertices
+		world.getChildren().addAll(currentMeshView);
 	}
 	
 
-	public void changeDrawModeViewer(DrawMode drawMode){
+	public void changeDrawModeViewer(DrawMode drawMode, PhongMaterial color){
+
 		currentMeshView.setDrawMode(drawMode);
+		currentMeshView.setMaterial(color);
 	}
 
 

@@ -4,6 +4,13 @@ import java.awt.image.BufferedImage;
 import java.util.TreeMap;
 
 import config.Config;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.Modality;
 import model.Parameter;
 import model.mesh.Face;
 import model.mesh.MapMesh;
@@ -63,29 +70,16 @@ public class MapGenerator {
 	 */
 	public List<Parcel> executeTreatment()
 	{
-		//List<MapMesh> parcelsList = new ArrayList<>();
 		List<Parcel> parcelList = new ArrayList<>();
 		
 		List<BufferedImage> imagesList = cutImage();
 
 		imagesList.forEach((image) -> {
-			//parcelsList.add(parcelToMesh(image, parameters));
 			parcelList.add(new Parcel(parcelToMesh(image, parameters)));
+			
 		});
-		/*
-		parcelsList.forEach((parcelle) -> {
-			if(Config.DEBUG){
-				System.out.println("Mise à l'échelle parcelle");
-			}
-			scalling(parcelle, imagesList.get(0), parameters);
-		});
-		*/
-		
-		parcelList.forEach((parcelle) -> {
-			if(Config.DEBUG){
-				System.out.println("Mise à l'échelle parcelle");
-			}
-			scalling(parcelle.getMapMesh(), imagesList.get(0), parameters);
+		parcelList.forEach((parcel) -> {
+			scalling(parcel, parameters);
 		});
 		
 		
@@ -106,22 +100,22 @@ public class MapGenerator {
 	
 		List<BufferedImage> imageList = new ArrayList<>();
 		BufferedImage imageBase = imageLoader.getBufferedImage();
-		heightCutNumber = (int) Math.ceil(parameters.getImageHeight() / (parameters.getMaxHeightOfPrint()) / 10);
+		heightCutNumber = (int) Math.ceil(parameters.getImageHeight() / (parameters.getMaxHeightOfPrint() / 10));
 		widthCutNumber = (int) Math.ceil(parameters.getImageWidth() / (parameters.getMaxWidthOfPrint() / 10));
 		heightOfPartel = (int) Math.floor(imageBase.getHeight() / heightCutNumber);
 		widthOfParcel = (int) Math.floor(imageBase.getWidth() / widthCutNumber);
-
-		if (Config.DEBUG) {
-			System.out.println("Hauteur de la partelle : " + heightOfPartel);
-			System.out.println("Largeur de la partelle : " + widthOfParcel);
-		}
-
+		
+		Config.Debug("Hauteur d'une partelle : " + heightOfPartel+" --- Largeur d'une partelle : " + widthOfParcel);
+		Config.Debug("Nombre de découpe en largeur : "+widthCutNumber + " --- Nombre de découpe en hauteur : "+heightCutNumber);
+		
 		for (int x = 0; x < widthCutNumber; x++) {
 			for (int y = 0; y < heightCutNumber; y++) {
 				imageList.add(imageBase.getSubimage(x * widthOfParcel, y * heightOfPartel, widthOfParcel,
 						heightOfPartel));
 			}
 		}
+		Config.Debug("Nombre de map : "+imageList.size());
+		
 		return imageList;
 	}
 	
@@ -136,8 +130,8 @@ public class MapGenerator {
 	 * @param bufferedImage loaded image into application
 	 * @return the attempt height for the vertices of the mesh associated at the attempt pixel
 	 */
-	public double getPixelHeight(double line, double column, double resolution) {
-		int pixel = imageLoader.getBufferedImage().getRGB((int) Math.floor(column), (int) Math.floor(line));
+	public double getPixelHeight(BufferedImage bufferedImage, double line, double column, double resolution) {
+		int pixel = bufferedImage.getRGB((int) Math.floor(column), (int) Math.floor(line));
 		int red = (pixel >> 16) & 0xff;
 		int green = (pixel >> 8) & 0xff;
 		int blue = (pixel) & 0xff;
@@ -215,7 +209,7 @@ public class MapGenerator {
 	 * @return a mesh
 	 */
 	public MapMesh parcelToMesh(BufferedImage bufferedImage, Parameter parameter) {
-
+		
 		MapMesh mesh = new MapMesh();
 		double resolution = parameters.getMeshHeight() / 256;
 		double height = bufferedImage.getHeight() - 1;
@@ -227,7 +221,7 @@ public class MapGenerator {
 			for (double column = 0; column < width; column++) {
 				// Create a surface coordonates points  : line;column
 				mesh.addVertices(line, column,
-						new Vertices(line, getPixelHeight(line, column, resolution), column));
+						new Vertices(line, getPixelHeight(bufferedImage,line, column, resolution), column));
 			}
 		}
 
@@ -494,7 +488,10 @@ public class MapGenerator {
 	 * @param bufferedImage
 	 * @param parameter
 	 */
-	public void scalling(MapMesh mesh, BufferedImage bufferedImage, Parameter parameter) {
+	public void scalling(Parcel parcel, Parameter parameter) {
+		
+		MapMesh mesh = parcel.getMapMesh();
+		Config.Debug("Mesh de la partelle : "+parcel.getPartelID()+" mise à l'echelle");
 
 		double ratioX = parameter.getMaxWidthOfPrint() / widthOfParcel;
 		double ratioZ = parameter.getMaxHeightOfPrint() / heightOfPartel;

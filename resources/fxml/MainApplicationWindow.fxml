@@ -272,7 +272,7 @@
             <CheckBox id="checkDiplayingVertices" fx:id="checkDiplayingVertices" mnemonicParsing="false" onAction="#OnCheckVerticesBox" styleClass="theme_text" text="%checkDiplayingVertices" BorderPane.alignment="CENTER" />
          </bottom>
          <center>
-            <ListView fx:id="ListView3D" prefHeight="610.0" prefWidth="164.0" BorderPane.alignment="CENTER">
+            <ListView fx:id="listView3D" prefHeight="610.0" prefWidth="164.0" BorderPane.alignment="CENTER">
                <BorderPane.margin>
                   <Insets />
                </BorderPane.margin>

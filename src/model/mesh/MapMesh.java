@@ -31,13 +31,11 @@ public class MapMesh {
 		triangleMesh = new TriangleMesh();
 		triangleMesh.getTexCoords().addAll(0,0);	
 		triangleMesh.vertexFormatProperty().setValue(VertexFormat.POINT_TEXCOORD);
-		
 		setOfFaces = new LinkedList<>();
 		setOfVertices = new TreeMap<Double, TreeMap<Double, Vertices>>();
 		setOfVerticesBase = new TreeMap<Double, TreeMap<Double, Vertices>>();
 		Vertices.resetCounter();
 	}
-	
 	
 	public TriangleMesh getMapTriangleMesh(){
 		return triangleMesh;

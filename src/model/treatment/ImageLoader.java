@@ -38,9 +38,7 @@ public class ImageLoader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (Config.DEBUG) {
-			System.out.println("image chargée : hauteur : " + height + " largeur : " + width);
-		}
+		Config.Debug("image chargée : hauteur : " + height + " largeur : " + width);
 	}
 
 	private void calculateRatio() {

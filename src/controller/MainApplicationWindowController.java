@@ -11,6 +11,8 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -33,6 +35,8 @@ import javafx.stage.DirectoryChooser;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.DrawMode;
 
 import static model.treatment.Export.createDirectory;
@@ -74,18 +78,18 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	private ResourceBundle ressources;
 	@FXML
-	private ListView<String> ListView3D;
+	private ListView<Parcel> listView3D;
 	@FXML
 	private Pane paneViewer3D;
 	@FXML
 	private CheckBox checkDiplayingVertices;
-
+	
+	private ObservableList<Parcel> listView3DItems = FXCollections.observableArrayList();
 
 	private SubScene subSceneViewer3D;
 	public List<Parcel> parcelsList = new ArrayList<>();
-	public MapMesh clipMesh = new MapMesh();
 	private File selectedFile;
-	private double heightMesh, maxWidthPrint, maxHeightPrint, height, width;
+	private double height, width;
 	private ImageLoader imageLoader;
 	private StringProperty heightProperty = new SimpleStringProperty();
 	private Viewer3D viewer;
@@ -202,32 +206,48 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		} else {
 			height = Double.parseDouble(heightField.getText());
 			width = Double.parseDouble(widthField.getText());
-			heightMesh = Double.parseDouble(heightMeshField.getText());
-			maxWidthPrint = Double.parseDouble(maxWidthPrintField.getText());
-			maxHeightPrint = Double.parseDouble(maxHeightPrintField.getText());
+			double heightMesh = Double.parseDouble(heightMeshField.getText());
+			double maxWidthPrint = Double.parseDouble(maxWidthPrintField.getText());
+			double maxHeightPrint = Double.parseDouble(maxHeightPrintField.getText());
 			if (height / width != imageLoader.getRatioHeight()) {
 				showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
 						ressources.getString("errorAdjustLabelMessage"));
 			} else {
-				Parameter parameters = new Parameter(height, heightMesh, width, maxHeightPrint, maxWidthPrint);
-				MapGenerator treatment = new MapGenerator(parameters, this.imageLoader);
-				parcelsList = treatment.executeTreatment();
-				viewer.setNewMesh(parcelsList, 0);
-				//viewer.build3DObjectViewer();
-				gridPaneExport.setDisable(false);
-				borderPaneConfigViewer.setDisable(false);
-				ObservableList<String> items =FXCollections.observableArrayList();
-				for(Parcel parcel : parcelsList){
-					items.add(parcel.getParcelName());
-				}
-				ListView3D.setItems(items);
-				
+				Parameter parameters = new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint);
+				executeTreatement(parameters);				
 			}
 		}
 	}
 	
 	/**
-	 * Method launch when user check the vertices checkbox
+	 * 
+	 * @param parameters
+	 */
+	private void executeTreatement(Parameter parameters){
+		
+		MapGenerator treatment = new MapGenerator(parameters, this.imageLoader);
+		parcelsList = treatment.executeTreatment();
+		viewer.setNewMesh(parcelsList.get(0));
+		gridPaneExport.setDisable(false);
+		borderPaneConfigViewer.setDisable(false);
+
+		listView3DItems.clear();
+		for(Parcel parcel : parcelsList){
+			listView3DItems.add(parcel);
+		}
+		listView3D.setItems(listView3DItems);
+		
+		listView3D.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Parcel>() {
+		    @Override
+		    public void changed(ObservableValue<? extends Parcel> observable, Parcel oldValue, Parcel newValue) {
+		        viewer.setNewMesh(parcelsList.get(newValue.getPartelID()-1));
+		    }
+		});
+	}
+	
+	
+	/**
+	 * Method launch when user check or uncheck the vertices checkbox - change draw mode and color
 	 * 
 	 * @param envent
 	 * @throws IOException
@@ -235,9 +255,9 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	public void OnCheckVerticesBox(ActionEvent envent) throws IOException {
 		if(checkDiplayingVertices.isSelected()){
-			viewer.changeDrawModeViewer(DrawMode.LINE);
+			viewer.changeDrawModeViewer(DrawMode.LINE, new PhongMaterial(Color.RED));
 		} else{
-			viewer.changeDrawModeViewer(DrawMode.FILL);
+			viewer.changeDrawModeViewer(DrawMode.FILL, new PhongMaterial(Color.WHITESMOKE));
 		}
 	}
 	
@@ -257,17 +277,17 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		File selectedSaveFile = directoryChooser.showDialog(this);
 		
 		if (selectedSaveFile != null) {
-			if (Config.DEBUG) {
-				System.out.println(selectedSaveFile.toString());
-			}
+			
+			Config.Debug(selectedSaveFile.toString());
+			
 			createDirectory(selectedSaveFile.toString(), "Mesh");
 			
 			for (Parcel parcel : parcelsList) {
 				exportToObj(parcel.getMapMesh(), selectedSaveFile.toString(), "Mesh", i++);
 			}
-			if (Config.DEBUG) {
-				System.out.println("Exportation terminée");
-			}
+			
+			Config.Debug("Exportation terminée");
+
 		}
 	}
 
@@ -349,7 +369,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Method to display an error pop up when error occured
+	 * Method to display an error pop up when error appear
 	 * 
 	 * @param title
 	 * @param errorName

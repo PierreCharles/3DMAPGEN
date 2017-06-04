@@ -1,5 +1,7 @@
 package model;
 
+import config.Config;
+
 /**
  * She allows the user to choose her own parameters as the treatment of the
  * image according to the size of her printer.
