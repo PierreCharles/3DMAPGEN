@@ -1,11 +1,15 @@
 package model.mesh;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import config.Config;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
 
@@ -22,12 +26,22 @@ public class MapMesh {
 	private TreeMap<Double, TreeMap<Double, Vertices>> setOfVertices, setOfVerticesBase;
 	private LinkedList<Face> setOfFaces;
 	private TriangleMesh triangleMesh;
+	private double mapHeight, mapWidth;
+
+	public void setMapHeight(double mapHeight) {
+		this.mapHeight = mapHeight;
+	}
+
+	public void setMapWidth(double mapWidth) {
+		this.mapWidth = mapWidth;
+	}
 
 	/**
 	 * Constructor af a Mesh
 	 */
-	public MapMesh() {		
-		
+	public MapMesh(double mapHeight, double mapWidth) {		
+		this.mapHeight = mapHeight;
+		this.mapWidth = mapWidth;
 		triangleMesh = new TriangleMesh();
 		triangleMesh.getTexCoords().addAll(0,0);	
 		triangleMesh.vertexFormatProperty().setValue(VertexFormat.POINT_TEXCOORD);
@@ -37,6 +51,14 @@ public class MapMesh {
 		Vertices.resetCounter();
 	}
 	
+	public double getMapHeight() {
+		return mapHeight;
+	}
+
+	public double getMapWidth() {
+		return mapWidth;
+	}
+
 	public TriangleMesh getMapTriangleMesh(){
 		return triangleMesh;
 	}
@@ -80,6 +102,7 @@ public class MapMesh {
 			triangleMesh.getFaces().addAll(face.getIdVertice1(), 0,face.getIdVertice2(), 0,face.getIdVertice3(),0);
 		}
 	}
+
 		
 
 	/**

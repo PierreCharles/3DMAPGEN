@@ -39,5 +39,6 @@ public class MainApplicationWindow extends Application {
 		primaryStage.getIcons().add(icon);
 		primaryStage.setTitle("3DMapGen");
 		primaryStage.show();
-	}
+	}	
+	
 }

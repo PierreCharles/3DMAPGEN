@@ -39,11 +39,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.DrawMode;
 
-import static model.treatment.Export.createDirectory;
-import static model.treatment.Export.exportToObj;
-
 import model.Parameter;
-import model.mesh.MapMesh;
 import model.mesh.Parcel;
 import model.treatment.ImageLoader;
 import model.treatment.MapGenerator;
@@ -112,7 +108,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		subSceneViewer3D = viewer.initializeViewer3D(paneViewer3D);
 		paneViewer3D.getChildren().add(subSceneViewer3D);
 		viewer.configure(subSceneViewer3D);
-		//viewer.build3DObjectViewer();
 	}
 
 	/**
@@ -140,7 +135,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Method luanch when user change language to french
+	 * Method launch when user change language to French
 	 * 
 	 * @param event
 	 */
@@ -150,7 +145,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Method luanch when user change language to english
+	 * Method launch when user change language to English
 	 * 
 	 * @param event
 	 */
@@ -178,7 +173,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			gridPaneParameters.setDisable(false);
 			gridPaneTreatment.setDisable(false);
 		}
-		
 	}
 
 	/**
@@ -199,6 +193,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	@FXML
 	public void onTreatement(ActionEvent envent) throws IOException {
+		Parcel.resetCounter();
 		if (heightField.getText().isEmpty() || widthField.getText().isEmpty() || maxWidthPrintField.getText().isEmpty()
 				|| maxHeightPrintField.getText().isEmpty()) {
 			showErrorPopUp(ressources.getString("error"), ressources.getString("errorParameterLabel"),
@@ -213,8 +208,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 				showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
 						ressources.getString("errorAdjustLabelMessage"));
 			} else {
-				Parameter parameters = new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint);
-				executeTreatement(parameters);				
+				executeTreatement(new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint));				
 			}
 		}
 	}
@@ -225,8 +219,8 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	private void executeTreatement(Parameter parameters){
 		
-		MapGenerator treatment = new MapGenerator(parameters, this.imageLoader);
-		parcelsList = treatment.executeTreatment();
+		MapGenerator mapGenerator = new MapGenerator(parameters, this.imageLoader);
+		parcelsList = mapGenerator.executeTreatment();
 		viewer.setNewMesh(parcelsList.get(0));
 		gridPaneExport.setDisable(false);
 		borderPaneConfigViewer.setDisable(false);
@@ -270,24 +264,21 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	@FXML
 	public void save(ActionEvent envent) throws IOException {
-		int i = 1;
+		
 		DirectoryChooser directoryChooser = new DirectoryChooser();
 		directoryChooser.setInitialDirectory(new File("C://"));
-
 		File selectedSaveFile = directoryChooser.showDialog(this);
 		
 		if (selectedSaveFile != null) {
 			
-			Config.Debug(selectedSaveFile.toString());
-			
-			createDirectory(selectedSaveFile.toString(), "Mesh");
+			File file = new File(selectedSaveFile.toString() + "\\" + Config.OUTPUR_FODLER_NAME);
+			file.mkdir();
 			
 			for (Parcel parcel : parcelsList) {
-				exportToObj(parcel.getMapMesh(), selectedSaveFile.toString(), "Mesh", i++);
+				parcel.exportPartelMapMeshToObj(file.toString());
 			}
 			
-			Config.Debug("Exportation terminée");
-
+			Config.Debug("Exportation terminée dans " + file.toString());
 		}
 	}
 

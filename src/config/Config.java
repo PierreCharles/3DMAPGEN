@@ -22,6 +22,9 @@ public class Config {
 	// Name of the export file
 	public static final String EXPORT_FILE_NAME = "MeshPart";
 	
+	// Name of the output folder to export obj file
+	public static final String OUTPUR_FODLER_NAME = "Mesh";
+	
 	/**
 	 * Debug function for displaying a message
 	 * @param message

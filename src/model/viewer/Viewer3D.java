@@ -1,10 +1,10 @@
 package model.viewer;
 
 import java.net.URL;
-import java.util.List;
+
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
-import javafx.animation.Timeline;
+
 import javafx.event.EventHandler;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
@@ -12,7 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -20,8 +19,6 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
-import javafx.util.Duration;
-import model.mesh.MapMesh;
 import model.mesh.Parcel;
 
 
@@ -41,7 +38,6 @@ public class Viewer3D {
 
 	final double cameraDistance = 500;
 
-	private Timeline timeline;
 	boolean timelinePlaying = false;
 
 	double ONE_FRAME = 1.0 / 24.0;
@@ -66,7 +62,7 @@ public class Viewer3D {
     private MeshView currentMeshView;
 
 	/**
-	 * Initialize methof for add a new world, build a camera and build the axes
+	 * Initialize method for add a new world, build a camera and build the axes
 	 * 
 	 * @param paneViewer3D
 	 *            the paneViewer3D JavaFX of the main window
@@ -78,9 +74,9 @@ public class Viewer3D {
 		buildAxes();
 		return new SubScene(root, paneViewer3D.widthProperty().get(), paneViewer3D.heightProperty().get(), true,
 				SceneAntialiasing.BALANCED);
-	}
-
-	/* TO DO CAN USE IT FOR LOAD AN OBJ FILE TO READ AND OBSERVE IT
+	}	
+	
+	/* TO DO CAN USE IT FOR LOAD AN OBJ FILE TO READ AND OBSERVE IT 
 	public void build3DObjectViewer() {
 
 		ObjModelImporter objImporter = new ObjModelImporter();
@@ -94,8 +90,6 @@ public class Viewer3D {
 
 		Interactor3D meshForm3dObject = new Interactor3D();
 
-		System.out.println(meshView[0]);
-		
 		meshForm3dObject.getChildren().addAll(meshView);
 		meshForm3dObject.setTranslateX(-50);
 		meshForm3dObject.setTranslateZ(-50);
@@ -103,24 +97,25 @@ public class Viewer3D {
 
 		world.getChildren().addAll(meshForm3dObject);
 	}
-	*/
 	
 
+
 	/**
-	 * Method to display the 3D object into the vewer 3D
+	 * Method to display the 3D object into the viewer 3D
 	 * @param parcelsList
 	 */
 	public void setNewMesh(Parcel parcel) {
-		world.getChildren().clear();
+		world.getChildren().remove(currentMeshView);
 		parcel.getMapMesh().generate3DObject();
 		currentMeshView = new MeshView(parcel.getMapMesh().getMapTriangleMesh());
 		currentMeshView.setDrawMode(DrawMode.FILL); // OR LINE for display vertices
+		currentMeshView.setTranslateX(-parcel.getMapMesh().getMapHeight()/2);
+		currentMeshView.setTranslateZ(-parcel.getMapMesh().getMapWidth()/2);
 		world.getChildren().addAll(currentMeshView);
 	}
 	
 
 	public void changeDrawModeViewer(DrawMode drawMode, PhongMaterial color){
-
 		currentMeshView.setDrawMode(drawMode);
 		currentMeshView.setMaterial(color);
 	}
@@ -130,11 +125,10 @@ public class Viewer3D {
 	 * Method for configure the 3d viewer and define view controller
 	 * 
 	 * @param subSceneViewer3D
-	 *            : the subscene to configure
+	 *            : the subScene to configure
 	 */
 	public void configure(SubScene subSceneViewer3D) {
 		subSceneViewer3D.setFill(Color.LIGHTSLATEGREY);
-		handleKeyboard(subSceneViewer3D, world);
 		handleMouse(subSceneViewer3D, world);
 		subSceneViewer3D.setCamera(camera);
 		subSceneViewer3D.setCache(true);
@@ -228,112 +222,6 @@ public class Viewer3D {
 				} else if (me.isMiddleButtonDown()) {
 					cameraXform2.t.setX(cameraXform2.t.getX() + mouseDeltaX * modifierFactor * modifier * 0.3); // -
 					cameraXform2.t.setY(cameraXform2.t.getY() + mouseDeltaY * modifierFactor * modifier * 0.3); // -
-				}
-			}
-		});
-	}
-
-	/**
-	 * Keyboard controller
-	 * 
-	 * @param subSceneViewer3D2
-	 * @param root
-	 */
-	private void handleKeyboard(SubScene subSceneViewer3D2, final Node root) {
-		final boolean moveCamera = true;
-		subSceneViewer3D2.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent event) {
-				Duration currentTime;
-				switch (event.getCode()) {
-				case Z:
-					if (event.isShiftDown()) {
-						cameraXform.ry.setAngle(0.0);
-						cameraXform.rx.setAngle(0.0);
-						camera.setTranslateZ(-300.0);
-					}
-					cameraXform2.t.setX(0.0);
-					cameraXform2.t.setY(0.0);
-					break;
-				case X:
-					if (event.isControlDown()) {
-						if (axisGroup.isVisible()) {
-							axisGroup.setVisible(false);
-						} else {
-							axisGroup.setVisible(true);
-						}
-					}
-					break;
-				case S:
-					if (event.isControlDown()) {
-						if (object3DGroup.isVisible()) {
-							object3DGroup.setVisible(false);
-						} else {
-							object3DGroup.setVisible(true);
-						}
-					}
-					break;
-				case SPACE:
-					if (timelinePlaying) {
-						timeline.pause();
-						timelinePlaying = false;
-					} else {
-						timeline.play();
-						timelinePlaying = true;
-					}
-					break;
-				case UP:
-					if (event.isControlDown() && event.isShiftDown()) {
-						cameraXform2.t.setY(cameraXform2.t.getY() - 10.0 * CONTROL_MULTIPLIER);
-					} else if (event.isAltDown() && event.isShiftDown()) {
-						cameraXform.rx.setAngle(cameraXform.rx.getAngle() - 10.0 * ALT_MULTIPLIER);
-					} else if (event.isControlDown()) {
-						cameraXform2.t.setY(cameraXform2.t.getY() - 1.0 * CONTROL_MULTIPLIER);
-					} else if (event.isAltDown()) {
-						cameraXform.rx.setAngle(cameraXform.rx.getAngle() - 2.0 * ALT_MULTIPLIER);
-					} else if (event.isShiftDown()) {
-						double z = camera.getTranslateZ();
-						double newZ = z + 5.0 * SHIFT_MULTIPLIER;
-						camera.setTranslateZ(newZ);
-					}
-					break;
-				case DOWN:
-					if (event.isControlDown() && event.isShiftDown()) {
-						cameraXform2.t.setY(cameraXform2.t.getY() + 10.0 * CONTROL_MULTIPLIER);
-					} else if (event.isAltDown() && event.isShiftDown()) {
-						cameraXform.rx.setAngle(cameraXform.rx.getAngle() + 10.0 * ALT_MULTIPLIER);
-					} else if (event.isControlDown()) {
-						cameraXform2.t.setY(cameraXform2.t.getY() + 1.0 * CONTROL_MULTIPLIER);
-					} else if (event.isAltDown()) {
-						cameraXform.rx.setAngle(cameraXform.rx.getAngle() + 2.0 * ALT_MULTIPLIER);
-					} else if (event.isShiftDown()) {
-						double z = camera.getTranslateZ();
-						double newZ = z - 5.0 * SHIFT_MULTIPLIER;
-						camera.setTranslateZ(newZ);
-					}
-					break;
-				case RIGHT:
-					if (event.isControlDown() && event.isShiftDown()) {
-						cameraXform2.t.setX(cameraXform2.t.getX() + 10.0 * CONTROL_MULTIPLIER);
-					} else if (event.isAltDown() && event.isShiftDown()) {
-						cameraXform.ry.setAngle(cameraXform.ry.getAngle() - 10.0 * ALT_MULTIPLIER);
-					} else if (event.isControlDown()) {
-						cameraXform2.t.setX(cameraXform2.t.getX() + 1.0 * CONTROL_MULTIPLIER);
-					} else if (event.isAltDown()) {
-						cameraXform.ry.setAngle(cameraXform.ry.getAngle() - 2.0 * ALT_MULTIPLIER);
-					}
-					break;
-				case LEFT:
-					if (event.isControlDown() && event.isShiftDown()) {
-						cameraXform2.t.setX(cameraXform2.t.getX() - 10.0 * CONTROL_MULTIPLIER);
-					} else if (event.isAltDown() && event.isShiftDown()) {
-						cameraXform.ry.setAngle(cameraXform.ry.getAngle() + 10.0 * ALT_MULTIPLIER); // -
-					} else if (event.isControlDown()) {
-						cameraXform2.t.setX(cameraXform2.t.getX() - 1.0 * CONTROL_MULTIPLIER);
-					} else if (event.isAltDown()) {
-						cameraXform.ry.setAngle(cameraXform.ry.getAngle() + 2.0 * ALT_MULTIPLIER); // -
-					}
-					break;
 				}
 			}
 		});
