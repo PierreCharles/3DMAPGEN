@@ -10,6 +10,11 @@ import java.util.TreeMap;
 
 import config.Config;
 
+/**
+ * Class Parcel
+ * 
+ * @author picharles
+ */
 public class Parcel {
 
 	private MapMesh mapMesh;
@@ -18,6 +23,11 @@ public class Parcel {
 	private static int Partel_Counter = 1;
 	private static final int DEFAULT_PARTEL_COUNTER = 1;
 
+	/**
+	 * Constructor of a Parcel
+	 * 
+	 * @param mapMesh the map mesh
+	 */
 	public Parcel(MapMesh mapMesh){
 		this.mapMesh = mapMesh;
 		this.partelID = Partel_Counter;
@@ -25,13 +35,16 @@ public class Parcel {
 		Partel_Counter++;
 	}
 	
+	/**
+	 * Static method to reset the Parcel counter
+	 */
 	public static void resetCounter(){
 		Partel_Counter = DEFAULT_PARTEL_COUNTER;
 	}
 	
 	
 	/**
-	 * Methof for export a MeshMap object file
+	 * Method to export a MeshMap object file
 	 * 
 	 * @param mesh
 	 * @param destinationFile
@@ -96,22 +109,47 @@ public class Parcel {
 		}
 	}	
 	
+	/**
+	 * Getter of the parcel name
+	 * 
+	 * @return the parcel name : String
+	 */
 	public String getParcelName() {
 		return parcelName;
 	}
 	
+	/**
+	 * Getter of the partel ID
+	 * 
+	 * @return the partel id : int
+	 */
 	public int getPartelID(){
 		return partelID;
 	}
 
+	/**
+	 * Setter of the parcel name
+	 * 
+	 * @param parcelName : string
+	 */
 	public void setParcelName(String parcelName) {
 		this.parcelName = parcelName;
 	}
 
+	/**
+	 * Getter of the MapMesh
+	 * 
+	 * @return the map mesh : MapMesh
+	 */
 	public MapMesh getMapMesh() {
 		return mapMesh;
 	}
 
+	/**
+	 * To string override method
+	 * 
+	 * @return parcel name : String
+	 */
 	@Override
 	public String toString() {
 		return parcelName;

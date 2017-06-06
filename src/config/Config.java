@@ -4,6 +4,7 @@ import java.util.Locale;
 
 /**
  * Configuration application class
+ * Used to define all configuration variables
  * 
  * @author picharles
  *

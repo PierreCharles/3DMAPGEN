@@ -23,62 +23,45 @@ import java.util.Set;
  *
  */
 public class MapGenerator {
-	
+
 	private Parameter parameters;
 	private ImageLoader imageLoader;
 	private int heightCutNumber, widthCutNumber, heightOfPartel, widthOfParcel;
-		
-	public int getHeightCutNumber() {
-		return heightCutNumber;
-	}
 
-
-	public int getWidthCutNumber() {
-		return widthCutNumber;
-	}
-
-
-	public int getHeightOfPartel() {
-		return heightOfPartel;
-	}
-
-
-	public int getWidthOfParcel() {
-		return widthOfParcel;
-	}
-
-
+	/**
+	 * Constructor of a map generator
+	 * 
+	 * @param parameters
+	 * @param imageLoader
+	 */
 	public MapGenerator(Parameter parameters, ImageLoader imageLoader) {
 		this.parameters = parameters;
 		this.imageLoader = imageLoader;
 	}
 
-
 	/**
-	 * Method to execute treatment 
+	 * Method to execute treatment
 	 * 
 	 * @param selectedFileURI
 	 * @param parameter
 	 * @return
 	 */
-	public List<Parcel> executeTreatment()
-	{
+	public List<Parcel> executeTreatment() {
 		List<Parcel> parcelList = new ArrayList<>();
-		
+
 		List<BufferedImage> imagesList = cutImage();
 
 		imagesList.forEach((image) -> {
 			parcelList.add(new Parcel(parcelToMesh(image, parameters)));
-			
+
 		});
 		parcelList.forEach((parcel) -> {
 			scalling(parcel, parameters);
 		});
-		
-		
+
 		return parcelList;
 	}
-	
+
 	/**
 	 * Method for cut the image with some parameters
 	 * 
@@ -90,38 +73,43 @@ public class MapGenerator {
 	 * @return a list of cut images
 	 */
 	public List<BufferedImage> cutImage() {
-	
+
 		List<BufferedImage> imageList = new ArrayList<>();
 		BufferedImage imageBase = imageLoader.getBufferedImage();
 		heightCutNumber = (int) Math.ceil(parameters.getImageHeight() / (parameters.getMaxHeightOfPrint() / 10));
 		widthCutNumber = (int) Math.ceil(parameters.getImageWidth() / (parameters.getMaxWidthOfPrint() / 10));
 		heightOfPartel = (int) Math.floor(imageBase.getHeight() / heightCutNumber);
 		widthOfParcel = (int) Math.floor(imageBase.getWidth() / widthCutNumber);
-		
-		Config.Debug("Hauteur d'une partelle : " + heightOfPartel+" --- Largeur d'une partelle : " + widthOfParcel);
-		Config.Debug("Nombre de découpe en largeur : "+widthCutNumber + " --- Nombre de découpe en hauteur : "+heightCutNumber);
-		
+
+		Config.Debug("Hauteur d'une partelle : " + heightOfPartel + " --- Largeur d'une partelle : " + widthOfParcel);
+		Config.Debug("Nombre de découpe en largeur : " + widthCutNumber + " --- Nombre de découpe en hauteur : "
+				+ heightCutNumber);
+
 		for (int x = 0; x < widthCutNumber; x++) {
 			for (int y = 0; y < heightCutNumber; y++) {
-				imageList.add(imageBase.getSubimage(x * widthOfParcel, y * heightOfPartel, widthOfParcel,
-						heightOfPartel));
+				imageList.add(
+						imageBase.getSubimage(x * widthOfParcel, y * heightOfPartel, widthOfParcel, heightOfPartel));
 			}
 		}
-		Config.Debug("Nombre de map : "+imageList.size());
-		
+		Config.Debug("Nombre de map : " + imageList.size());
+
 		return imageList;
 	}
-	
 
 	/**
 	 * Allow to obtain the height of a pixel of the loaded image in function of
 	 * these coordonate
 	 * 
-	 * @param line y coordonate
-	 * @param column x coordonate
-	 * @param resolution Resolution of the height in function of the grey level
-	 * @param bufferedImage loaded image into application
-	 * @return the attempt height for the vertices of the mesh associated at the attempt pixel
+	 * @param line
+	 *            y coordonate
+	 * @param column
+	 *            x coordonate
+	 * @param resolution
+	 *            Resolution of the height in function of the grey level
+	 * @param bufferedImage
+	 *            loaded image into application
+	 * @return the attempt height for the vertices of the mesh associated at the
+	 *         attempt pixel
 	 */
 	public double getPixelHeight(BufferedImage bufferedImage, double line, double column, double resolution) {
 		int pixel = bufferedImage.getRGB((int) Math.floor(column), (int) Math.floor(line));
@@ -130,6 +118,42 @@ public class MapGenerator {
 		int blue = (pixel) & 0xff;
 		int medium = 255 - (red + green + blue) / 3;
 		return (resolution * medium) + 5;
+	}
+
+	/**
+	 * Getter of the height cut number
+	 * 
+	 * @return the height cut number : int
+	 */
+	public int getHeightCutNumber() {
+		return heightCutNumber;
+	}
+
+	/**
+	 * Getter of the width cut number
+	 * 
+	 * @return the width cut numner : int
+	 */
+	public int getWidthCutNumber() {
+		return widthCutNumber;
+	}
+
+	/**
+	 * Getter of the height of the partel
+	 * 
+	 * @return height of the partel : int
+	 */
+	public int getHeightOfPartel() {
+		return heightOfPartel;
+	}
+
+	/**
+	 * Getter of the width of the partel
+	 * 
+	 * @return width of the parcel : int
+	 */
+	public int getWidthOfPartel() {
+		return widthOfParcel;
 	}
 
 	/**
@@ -202,7 +226,7 @@ public class MapGenerator {
 	 * @return a mesh
 	 */
 	public MapMesh parcelToMesh(BufferedImage bufferedImage, Parameter parameter) {
-		
+
 		double resolution = parameters.getMeshHeight() / 256;
 		double height = bufferedImage.getHeight() - 1;
 		double width = bufferedImage.getWidth() - 1;
@@ -212,9 +236,9 @@ public class MapGenerator {
 
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
-				// Create a surface coordinates points  : line;column
+				// Create a surface coordinates points : line;column
 				mesh.addVertices(line, column,
-						new Vertices(line, getPixelHeight(bufferedImage,line, column, resolution), column));
+						new Vertices(line, getPixelHeight(bufferedImage, line, column, resolution), column));
 			}
 		}
 
@@ -235,30 +259,29 @@ public class MapGenerator {
 				if (isTopEdge(line, column)) {
 					// Creation of top side
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getBasePoint(line, column).getId(),mesh.getBasePoint(line, column - 1).getId()));
+							mesh.getBasePoint(line, column).getId(), mesh.getBasePoint(line, column - 1).getId()));
 					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
 							mesh.getSurfacePoint(line, column - 1).getId(),
 							mesh.getSurfacePoint(line, column).getId()));
 				}
-				
+
 				if (isBottomEdge(line, column, width, height - 1)) {
 					// Creation of bottom side
 					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
-							mesh.getBasePoint(line, column).getId(),mesh.getSurfacePoint(line, column).getId() ));
+							mesh.getBasePoint(line, column).getId(), mesh.getSurfacePoint(line, column).getId()));
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getSurfacePoint(line, column - 1).getId(),
 							mesh.getBasePoint(line, column - 1).getId()));
 				}
-				
+
 				if (isLeftEdge(line, column)) {
 					// Creation of side surface face
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getSurfacePoint(line - 1, column + 1).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId()));
-					// Creation of side base surface face 
+					// Creation of side base surface face
 					mesh.addFace(new Face(mesh.getBasePoint(line - 1, column).getId(),
-							mesh.getBasePoint(line - 1, column + 1).getId(),
-							mesh.getBasePoint(line, column).getId()));
+							mesh.getBasePoint(line - 1, column + 1).getId(), mesh.getBasePoint(line, column).getId()));
 					// Creation of the left side
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
@@ -281,7 +304,7 @@ public class MapGenerator {
 							mesh.getSurfacePoint(line - 1, column).getId(),
 							mesh.getSurfacePoint(line, column).getId()));
 				}
-			
+
 				if (isCenter(line, column, width - 1, height)) {
 					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
 							mesh.getSurfacePoint(line - 1, column).getId(),
@@ -293,9 +316,8 @@ public class MapGenerator {
 					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
 							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
 					mesh.addFace(new Face(mesh.getBasePoint(line - 1, column).getId(),
-							mesh.getBasePoint(line - 1, column + 1).getId(),
-							mesh.getBasePoint(line, column).getId()));
-				}			
+							mesh.getBasePoint(line - 1, column + 1).getId(), mesh.getBasePoint(line, column).getId()));
+				}
 			}
 		}
 		return mesh;
@@ -317,32 +339,38 @@ public class MapGenerator {
 			double endWidth, double beginHeight, double endHeight) {
 		double begin = bufferedImage.getWidth() * 0.1;
 		double end = bufferedImage.getWidth() * 0.9;
-		
+
 		boolean condition1, condition2, condition3, condition4, condition5, letter;
-		
+
 		condition1 = column >= beginWidth && column <= endWidth && line >= beginHeight
-				&& line <= (bufferedImage.getHeight() - 1) - beginWidth; // zone  du restangle socle
-		
+				&& line <= (bufferedImage.getHeight() - 1) - beginWidth; // zone
+																			// du
+																			// restangle
+																			// socle
+
 		condition2 = column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
-				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2 && line <= beginHeight; // slot haut
-		
+				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2 && line <= beginHeight; // slot
+																										// haut
+
 		condition3 = column <= beginWidth && line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
-				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2; // slot gauche		
-				
+				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2; // slot
+																				// gauche
+
 		condition4 = column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
 				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2
-				&& line >= (bufferedImage.getHeight() - 1) - beginHeight; // slot bas
-		
+				&& line >= (bufferedImage.getHeight() - 1) - beginHeight; // slot
+																			// bas
+
 		condition5 = line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
-				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth ; // slot droit
-				
-		// TEMPORAIRE !! - TODO GENERATE A LETTER				
-		letter = column >= 700.0 && column <= 800.0 && line >= 650.0 && line <=850.0;
+				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth; // slot
+																										// droit
+
+		// TEMPORAIRE !! - TODO GENERATE A LETTER
+		letter = column >= 700.0 && column <= 800.0 && line >= 650.0 && line <= 850.0;
 
 		return (condition1 && !letter) || condition2 || condition3 || condition4 || condition5;
 	}
-	
-	
+
 	/**
 	 * Method for scalling
 	 * 
@@ -351,15 +379,15 @@ public class MapGenerator {
 	 * @param parameter
 	 */
 	public void scalling(Parcel parcel, Parameter parameter) {
-		
+
 		MapMesh mesh = parcel.getMapMesh();
-		Config.Debug("Mesh de la partelle : "+parcel.getPartelID()+" mise à l'echelle");
+		Config.Debug("Mesh de la partelle : " + parcel.getPartelID() + " mise à l'echelle");
 
 		double ratioX = parameter.getMaxWidthOfPrint() / widthOfParcel;
 		double ratioZ = parameter.getMaxHeightOfPrint() / heightOfPartel;
-		
-		mesh.setMapHeight(mesh.getMapHeight()*ratioX);
-		mesh.setMapWidth(mesh.getMapWidth()*ratioZ);
+
+		mesh.setMapHeight(mesh.getMapHeight() * ratioX);
+		mesh.setMapWidth(mesh.getMapWidth() * ratioZ);
 
 		Set<Map.Entry<Double, TreeMap>> setLine = mesh.getSetOfVertices().entrySet();
 		Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();
@@ -394,9 +422,6 @@ public class MapGenerator {
 			}
 		}
 	}
-	
-	
-	
 
 	/**
 	 * Method to get the number of clip
@@ -409,22 +434,16 @@ public class MapGenerator {
 		return (cutWidthNumber - 1) + (2 * cutWidthNumber - 1) * (cutHeightNumber - 1);
 	}
 
-
-    /**
-     * Method to generate clip
-     * @param bufferedImageParcel
-     * @return
-     * Clip structure
-     * 3___4           11___12
-     * |   |5__________7|   |
-     * |                    |
-     * |    6__________8    |
-     * |___|            |___|
-     * 1   2           9    10
-     * Vertices s0X: vertices at the top of verticeX
-     */
+	/**
+	 * Method to generate clip
+	 * 
+	 * @param bufferedImageParcel
+	 * @return Clip structure 3___4 11___12 | |5__________7| | | | |
+	 *         6__________8 | |___| |___| 1 2 9 10 Vertices s0X: vertices at the
+	 *         top of verticeX
+	 */
 	public MapMesh clipGenerator(BufferedImage bufferedImageParcel) {
-		
+
 		double deb = bufferedImageParcel.getWidth() * 0.1;
 		MapMesh clipMesh = new MapMesh(bufferedImageParcel.getHeight(), bufferedImageParcel.getWidth());
 		Vertices vertices1 = new Vertices(0, 0, 0);
@@ -530,7 +549,5 @@ public class MapGenerator {
 
 		return clipMesh;
 	}
-
-	
 
 }

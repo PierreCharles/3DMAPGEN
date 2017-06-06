@@ -7,8 +7,6 @@ import javax.imageio.ImageIO;
 import config.Config;
 import javafx.scene.image.Image;
 
-// TO DO - Implement her an method to regenerate parameter when user change file
-
 /**
  * class Load Class use for load an image into the application
  * 

@@ -1,7 +1,5 @@
 package model;
 
-import config.Config;
-
 /**
  * She allows the user to choose her own parameters as the treatment of the
  * image according to the size of her printer.
@@ -120,17 +118,5 @@ public class Parameter {
 	public void setMaxHeightOfPrint(double maxHeightOfPrint) {
 		this.maxHeightOfPrint = maxHeightOfPrint;
 	}
-
-	@Override
-	public String toString() {
-		return "Parameter [imageWidth=" + imageWidth + ", imageHeight=" + imageHeight + ", meshHeight=" + meshHeight
-				+ ", maxWidthOfPrint=" + maxWidthOfPrint + ", maxHeightOfPrint=" + maxHeightOfPrint + "]";
-	}
-	
-
-
-	
-
-	
 
 }

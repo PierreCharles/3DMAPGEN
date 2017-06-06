@@ -1,15 +1,11 @@
 package model.mesh;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import config.Config;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
 
@@ -19,22 +15,14 @@ import javafx.scene.shape.VertexFormat;
  * When all Faces are triangles, we speak of triangular meshing trimesh, or of
  * triangulation according to them Domains.
  * 
- * @author
+ * @author picharles
  */
 public class MapMesh {
 
-	private TreeMap<Double, TreeMap<Double, Vertices>> setOfVertices, setOfVerticesBase;
-	private LinkedList<Face> setOfFaces;
-	private TriangleMesh triangleMesh;
+	private TreeMap<Double, TreeMap<Double, Vertices>> setOfMapVertices, setOfMapVerticesBase;
+	private LinkedList<Face> setOfMapFaces;
+	private TriangleMesh triangleMapMesh;
 	private double mapHeight, mapWidth;
-
-	public void setMapHeight(double mapHeight) {
-		this.mapHeight = mapHeight;
-	}
-
-	public void setMapWidth(double mapWidth) {
-		this.mapWidth = mapWidth;
-	}
 
 	/**
 	 * Constructor af a Mesh
@@ -42,27 +30,18 @@ public class MapMesh {
 	public MapMesh(double mapHeight, double mapWidth) {		
 		this.mapHeight = mapHeight;
 		this.mapWidth = mapWidth;
-		triangleMesh = new TriangleMesh();
-		triangleMesh.getTexCoords().addAll(0,0);	
-		triangleMesh.vertexFormatProperty().setValue(VertexFormat.POINT_TEXCOORD);
-		setOfFaces = new LinkedList<>();
-		setOfVertices = new TreeMap<Double, TreeMap<Double, Vertices>>();
-		setOfVerticesBase = new TreeMap<Double, TreeMap<Double, Vertices>>();
+		triangleMapMesh = new TriangleMesh(VertexFormat.POINT_TEXCOORD);
+		triangleMapMesh.getTexCoords().addAll(0,0);	
+		setOfMapFaces = new LinkedList<>();
+		setOfMapVertices = new TreeMap<Double, TreeMap<Double, Vertices>>();
+		setOfMapVerticesBase = new TreeMap<Double, TreeMap<Double, Vertices>>();
 		Vertices.resetCounter();
 	}
 	
-	public double getMapHeight() {
-		return mapHeight;
-	}
-
-	public double getMapWidth() {
-		return mapWidth;
-	}
-
-	public TriangleMesh getMapTriangleMesh(){
-		return triangleMesh;
-	}
 	
+	/**
+	 * Method allow to generate a 3D object : create a custom TriangleMesh and add all points and faces
+	 */
 	public void generate3DObject(){
 	
 		// Ecriture de l'ensemble des points de la surface
@@ -70,7 +49,7 @@ public class MapMesh {
 
 		Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();
 		
-		triangleMesh.getPoints().addAll(0,0,0);
+		triangleMapMesh.getPoints().addAll(0,0,0);
 
 		while (iterator.hasNext()) {
 			Map.Entry<Double, TreeMap> entry = iterator.next();
@@ -81,7 +60,7 @@ public class MapMesh {
 
 			while (iterator2.hasNext()) {
 				Map.Entry<Double, Vertices> verticesEntry = iterator2.next();
-				triangleMesh.getPoints().addAll((float) verticesEntry.getValue().getX(), (float) verticesEntry.getValue().getY(), (float) verticesEntry.getValue().getZ());
+				triangleMapMesh.getPoints().addAll((float) verticesEntry.getValue().getX(), (float) verticesEntry.getValue().getY(), (float) verticesEntry.getValue().getZ());
 			}
 		}
 	
@@ -97,14 +76,58 @@ public class MapMesh {
 
 			while (iterator4.hasNext()) {
 				Map.Entry<Double, Vertices> verticesEntrySocle = iterator4.next();
-				triangleMesh.getPoints().addAll((float) verticesEntrySocle.getValue().getX(), (float) verticesEntrySocle.getValue().getY(), (float) verticesEntrySocle.getValue().getZ());			}
+				triangleMapMesh.getPoints().addAll((float) verticesEntrySocle.getValue().getX(), (float) verticesEntrySocle.getValue().getY(), (float) verticesEntrySocle.getValue().getZ());			}
 		}
 		
 		for (Face face : getSetOfFaces()) {
-			triangleMesh.getFaces().addAll(face.getIdVertice1(), 0,face.getIdVertice2(), 0,face.getIdVertice3(),0);
+			triangleMapMesh.getFaces().addAll(face.getIdVertice1(), 0,face.getIdVertice2(), 0,face.getIdVertice3(),0);
 		}
 	}
 
+	/**
+	 * Getter of the map height
+	 * 
+	 * @return the map height
+	 */
+	public double getMapHeight() {
+		return mapHeight;
+	}
+
+	/**
+	 * Getter of the map width
+	 * 
+	 * @return the map width
+	 */
+	public double getMapWidth() {
+		return mapWidth;
+	}
+
+	/**
+	 * Getter of the triangle map mesh
+	 * 
+	 * @return the triangle map mesh
+	 */
+	public TriangleMesh getTriangleMapMesh(){
+		return triangleMapMesh;
+	}
+	
+	/**
+	 * Method to set the height of the map
+	 * 
+	 * @param mapHeight
+	 */
+	public void setMapHeight(double mapHeight) {
+		this.mapHeight = mapHeight;
+	}
+
+	/**
+	 * Method to set the width of the map
+	 * 
+	 * @param mapWidth
+	 */
+	public void setMapWidth(double mapWidth) {
+		this.mapWidth = mapWidth;
+	}
 		
 
 	/**
@@ -113,7 +136,7 @@ public class MapMesh {
 	 * @return a tree map of set of vertices
 	 */
 	public TreeMap getSetOfVertices() {
-		return setOfVertices;
+		return setOfMapVertices;
 	}
 
 	/**
@@ -122,7 +145,7 @@ public class MapMesh {
 	 * @return a linked list of set of faces
 	 */
 	public LinkedList<Face> getSetOfFaces() {
-		return setOfFaces;
+		return setOfMapFaces;
 	}
 
 	/**
@@ -131,63 +154,53 @@ public class MapMesh {
 	 * @return a tree map of set of vertices base
 	 */
 	public TreeMap getSetOfVerticesBase() {
-		return setOfVerticesBase;
+		return setOfMapVerticesBase;
 	}
 
 	/**
-	 * Method for add a face into the linked list
+	 * Method to add a face into the set of face map
 	 * 
 	 * @param face : the face
 	 */
 	public void addFace(Face face) {
-		setOfFaces.add(face);
-	;
+		setOfMapFaces.add(face);
 	}
 
 	/**
-	 * Method for count the size of faces linked list
-	 * 
-	 * @return
-	 */
-	public int countFace() {
-		return setOfFaces.size();
-	}
-
-	/**
-	 * Method for add a vertices into the tree map of set of vertices
+	 * Method to add a vertices into the tree map of set of vertices
 	 * 
 	 * @param line
 	 * @param column
 	 * @param vertices
 	 */
 	public void addVertices(double line, double column, Vertices vertices) {
-		if (!this.setOfVertices.containsKey(line)) {
-			this.setOfVertices.put(line, new TreeMap());
-			this.setOfVertices.get(line).put(column, vertices);
+		if (!this.setOfMapVertices.containsKey(line)) {
+			this.setOfMapVertices.put(line, new TreeMap());
+			this.setOfMapVertices.get(line).put(column, vertices);
 			
 		} else {
-			this.setOfVertices.get(line).put(column, vertices);
+			this.setOfMapVertices.get(line).put(column, vertices);
 		}
 	}
 		
 	/**
-	 * Method for add a vertices base into the tree map of set of vertices base
+	 * Method to add a vertices base into the tree map of set of vertices base
 	 * 
 	 * @param line
 	 * @param column
 	 * @param vertices
 	 */
 	public void addVerticesBase(double line, double column, Vertices vertices) {
-		if (!this.setOfVerticesBase.containsKey(line)) {
-			this.setOfVerticesBase.put(line, new TreeMap());
-			this.setOfVerticesBase.get(line).put(column, vertices);
+		if (!this.setOfMapVerticesBase.containsKey(line)) {
+			this.setOfMapVerticesBase.put(line, new TreeMap());
+			this.setOfMapVerticesBase.get(line).put(column, vertices);
 		} else {
-			this.setOfVerticesBase.get(line).put(column, vertices);
+			this.setOfMapVerticesBase.get(line).put(column, vertices);
 		}
 	}
 
 	/**
-	 * Method for get a surface point
+	 * Method to get a surface point
 	 * 
 	 * @param line
 	 * @param column
@@ -204,7 +217,7 @@ public class MapMesh {
 	}
 
 	/**
-	 * Method for get a base point
+	 * Method to get a base point
 	 * 
 	 * @param line
 	 * @param column

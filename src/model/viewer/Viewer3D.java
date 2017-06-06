@@ -21,7 +21,6 @@ import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import model.mesh.Parcel;
 
-
 /**
  * Builder of viewer 3D. This object instantiate interaction and configuration
  * of the subscene 3D use Intercation3D class
@@ -52,14 +51,13 @@ public class Viewer3D {
 	final Interactor3D cameraXform = new Interactor3D();
 	final Interactor3D cameraXform2 = new Interactor3D();
 	final Interactor3D cameraXform3 = new Interactor3D();
-	
-	
-    final static float minX = -10;
-    final static float minY = -10;
-    final static float maxX = 10;
-    final static float maxY = 10;
-    
-    private MeshView currentMeshView;
+
+	final static float minX = -10;
+	final static float minY = -10;
+	final static float maxX = 10;
+	final static float maxY = 10;
+
+	private MeshView currentMeshView;
 
 	/**
 	 * Initialize method for add a new world, build a camera and build the axes
@@ -74,52 +72,52 @@ public class Viewer3D {
 		buildAxes();
 		return new SubScene(root, paneViewer3D.widthProperty().get(), paneViewer3D.heightProperty().get(), true,
 				SceneAntialiasing.BALANCED);
-	}	
-	
-	/* TO DO CAN USE IT FOR LOAD AN OBJ FILE TO READ AND OBSERVE IT 
-	public void build3DObjectViewer() {
-
-		ObjModelImporter objImporter = new ObjModelImporter();
-		try {
-			URL modelUrl = this.getClass().getResource("/other/MeshPart1.obj");
-			objImporter.read(modelUrl);
-		} catch (ImportException e) {
-		}
-
-		MeshView[] meshView = objImporter.getImport();
-
-		Interactor3D meshForm3dObject = new Interactor3D();
-
-		meshForm3dObject.getChildren().addAll(meshView);
-		meshForm3dObject.setTranslateX(-50);
-		meshForm3dObject.setTranslateZ(-50);
-		meshForm3dObject.setRotateX(180);
-
-		world.getChildren().addAll(meshForm3dObject);
 	}
-	
 
+	/*
+	 * TO DO CAN USE IT FOR LOAD AN OBJ FILE TO READ AND OBSERVE IT public void
+	 * build3DObjectViewer() {
+	 * 
+	 * ObjModelImporter objImporter = new ObjModelImporter(); try { URL modelUrl
+	 * = this.getClass().getResource("/other/MeshPart1.obj");
+	 * objImporter.read(modelUrl); } catch (ImportException e) { }
+	 * 
+	 * MeshView[] meshView = objImporter.getImport();
+	 * 
+	 * Interactor3D meshForm3dObject = new Interactor3D();
+	 * 
+	 * meshForm3dObject.getChildren().addAll(meshView);
+	 * meshForm3dObject.setTranslateX(-50); meshForm3dObject.setTranslateZ(-50);
+	 * meshForm3dObject.setRotateX(180);
+	 * 
+	 * world.getChildren().addAll(meshForm3dObject); }
+	 */
 
 	/**
 	 * Method to display the 3D object into the viewer 3D
+	 * 
 	 * @param parcelsList
 	 */
 	public void setNewMesh(Parcel parcel) {
 		world.getChildren().remove(currentMeshView);
 		parcel.getMapMesh().generate3DObject();
-		currentMeshView = new MeshView(parcel.getMapMesh().getMapTriangleMesh());
-		currentMeshView.setDrawMode(DrawMode.FILL); // OR LINE for display vertices
-		currentMeshView.setTranslateX(-parcel.getMapMesh().getMapHeight()/2);
-		currentMeshView.setTranslateZ(-parcel.getMapMesh().getMapWidth()/2);
+		currentMeshView = new MeshView(parcel.getMapMesh().getTriangleMapMesh());
+		currentMeshView.setDrawMode(DrawMode.FILL);
+		currentMeshView.setTranslateX(-parcel.getMapMesh().getMapHeight() / 2);
+		currentMeshView.setTranslateZ(-parcel.getMapMesh().getMapWidth() / 2);
 		world.getChildren().addAll(currentMeshView);
 	}
-	
 
-	public void changeDrawModeViewer(DrawMode drawMode, PhongMaterial color){
+	/**
+	 * Methof for change the draw mode in the viewer
+	 * 
+	 * @param drawMode
+	 * @param color
+	 */
+	public void changeDrawModeViewer(DrawMode drawMode, PhongMaterial color) {
 		currentMeshView.setDrawMode(drawMode);
 		currentMeshView.setMaterial(color);
 	}
-
 
 	/**
 	 * Method for configure the 3d viewer and define view controller

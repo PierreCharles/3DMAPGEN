@@ -47,7 +47,7 @@ import model.viewer.Viewer3D;
 import config.Config;
 
 /**
- * MainWindowController Stage Is the controller of the main window stage
+ * MainWindowController Stage is the controller of the main window stage
  * 
  * @author picharles
  */
@@ -79,7 +79,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private Pane paneViewer3D;
 	@FXML
 	private CheckBox checkDiplayingVertices;
-	
+
 	private ObservableList<Parcel> listView3DItems = FXCollections.observableArrayList();
 
 	private SubScene subSceneViewer3D;
@@ -119,7 +119,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		gridPaneExport.setDisable(true);
 		borderPaneConfigViewer.setDisable(true);
 		subSceneViewer3D.heightProperty().bind(paneViewer3D.heightProperty());
-		subSceneViewer3D.widthProperty().bind(paneViewer3D.widthProperty());	
+		subSceneViewer3D.widthProperty().bind(paneViewer3D.widthProperty());
 	}
 
 	/**
@@ -176,16 +176,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Method launched when user press close button
-	 * 
-	 * @param event
-	 */
-	@FXML
-	public void close(ActionEvent event) {
-		Platform.exit();
-	}
-
-	/**
 	 * Method launch when user press Treatment button
 	 * 
 	 * @param envent
@@ -193,6 +183,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	@FXML
 	public void onTreatement(ActionEvent envent) throws IOException {
+
 		Parcel.resetCounter();
 		if (heightField.getText().isEmpty() || widthField.getText().isEmpty() || maxWidthPrintField.getText().isEmpty()
 				|| maxHeightPrintField.getText().isEmpty()) {
@@ -208,77 +199,81 @@ public class MainApplicationWindowController extends Stage implements Initializa
 				showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
 						ressources.getString("errorAdjustLabelMessage"));
 			} else {
-				executeTreatement(new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint));				
+				executeTreatement(new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint));
 			}
 		}
 	}
-	
+
 	/**
+	 * Method to execute treatment of the map generator and complete 3D view
 	 * 
 	 * @param parameters
 	 */
-	private void executeTreatement(Parameter parameters){
-		
+	private void executeTreatement(Parameter parameters) {
+
 		MapGenerator mapGenerator = new MapGenerator(parameters, this.imageLoader);
 		parcelsList = mapGenerator.executeTreatment();
-		viewer.setNewMesh(parcelsList.get(0));
 		gridPaneExport.setDisable(false);
 		borderPaneConfigViewer.setDisable(false);
 
 		listView3DItems.clear();
-		for(Parcel parcel : parcelsList){
+		for (Parcel parcel : parcelsList) {
 			listView3DItems.add(parcel);
 		}
 		listView3D.setItems(listView3DItems);
-		
+
 		listView3D.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Parcel>() {
-		    @Override
-		    public void changed(ObservableValue<? extends Parcel> observable, Parcel oldValue, Parcel newValue) {
-		        viewer.setNewMesh(parcelsList.get(newValue.getPartelID()-1));
-		    }
+			@Override
+			public void changed(ObservableValue<? extends Parcel> observable, Parcel oldValue, Parcel newValue) {
+				checkDiplayingVertices.setSelected(false);
+				viewer.setNewMesh(parcelsList.get(newValue.getPartelID() - 1));
+			}
 		});
+
+		listView3D.requestFocus();
+		listView3D.getSelectionModel().select(0);
+		listView3D.getFocusModel().focus(0);
 	}
-	
-	
+
 	/**
-	 * Method launch when user check or uncheck the vertices checkbox - change draw mode and color
-	 * 
-	 * @param envent
-	 * @throws IOException
-	 */
-	@FXML
-	public void OnCheckVerticesBox(ActionEvent envent) throws IOException {
-		if(checkDiplayingVertices.isSelected()){
-			viewer.changeDrawModeViewer(DrawMode.LINE, new PhongMaterial(Color.RED));
-		} else{
-			viewer.changeDrawModeViewer(DrawMode.FILL, new PhongMaterial(Color.WHITESMOKE));
-		}
-	}
-	
-	
-	/**
-	 * Method launch when user press save button
+	 * Method launch when user press save button : export mesh to obj file
 	 * 
 	 * @param envent
 	 * @throws IOException
 	 */
 	@FXML
 	public void save(ActionEvent envent) throws IOException {
-		
+
 		DirectoryChooser directoryChooser = new DirectoryChooser();
 		directoryChooser.setInitialDirectory(new File("C://"));
 		File selectedSaveFile = directoryChooser.showDialog(this);
-		
+
 		if (selectedSaveFile != null) {
-			
+
 			File file = new File(selectedSaveFile.toString() + "\\" + Config.OUTPUR_FODLER_NAME);
 			file.mkdir();
-			
+
 			for (Parcel parcel : parcelsList) {
 				parcel.exportPartelMapMeshToObj(file.toString());
 			}
-			
+
 			Config.Debug("Exportation terminée dans " + file.toString());
+		}
+	}
+
+	/**
+	 * Method launch when user check or uncheck the vertices checkbox - change
+	 * draw mode and color
+	 * 
+	 * @param envent
+	 * @throws IOException
+	 */
+	@FXML
+	public void OnCheckVerticesBox(ActionEvent envent) throws IOException {
+		if (checkDiplayingVertices.isSelected()) {
+			viewer.changeDrawModeViewer(DrawMode.LINE, new PhongMaterial(Color.RED));
+		} else {
+			viewer.changeDrawModeViewer(DrawMode.FILL, new PhongMaterial(Color.WHITESMOKE));
 		}
 	}
 
@@ -381,6 +376,16 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		refreshLabelText();
 		refreshButtonText();
 		refreshMenuItemText();
+	}
+
+	/**
+	 * Method launched when user press close button
+	 * 
+	 * @param event
+	 */
+	@FXML
+	public void close(ActionEvent event) {
+		Platform.exit();
 	}
 
 	/**
