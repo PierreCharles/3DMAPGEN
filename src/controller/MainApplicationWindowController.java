@@ -1,153 +1,381 @@
 package controller;
 
-import static model.treatment.Export.createDirectory;
-import static model.treatment.Export.exportToObj;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import model.Parameter;
-import model.mesh.Mesh;
-import model.treatment.Treatment;
-import javafx.scene.image.Image;
-import javafx.stage.DirectoryChooser;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import config.Config;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.SubScene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.stage.DirectoryChooser;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.DrawMode;
+
+import model.Parameter;
+import model.mesh.Parcel;
+import model.treatment.ImageLoader;
+import model.treatment.MapGenerator;
+import model.viewer.Viewer3D;
+import config.Config;
 
 /**
- * MainWindowController Stage Is the controller of the main window stage
+ * MainWindowController Stage is the controller of the main window stage
  * 
  * @author picharles
  */
-public class MainApplicationWindowController extends Stage {
+public class MainApplicationWindowController extends Stage implements Initializable {
 
 	@FXML
-	GridPane gridPane;
+	private BorderPane borderPane, borderPaneConfigViewer;
 	@FXML
 	private ImageView viewImage;
 	@FXML
-	private Button saveButton, onTreatmentButton, openFileChooserButton;
+	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton,
+			resetButton;
 	@FXML
 	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close;
 	@FXML
 	private Menu file, edit, language;
 	@FXML
-    private ResourceBundle ressources;
+	private TextField heightField, widthField, heightMeshField, maxWidthPrintField, maxHeightPrintField;
+	@FXML
+	private Label labelStep1, labelStep2, labelStep3, labelStep4, heightLabel, widthLabel, meshHeightLabel,
+			maxWidthOfPrintLabel, maxHeightOfPrintLabel;
+	@FXML
+	private GridPane gridPaneParameters, gridPaneTreatment, gridPaneExport;
+	@FXML
+	private ResourceBundle ressources;
+	@FXML
+	private ListView<Parcel> listView3D;
+	@FXML
+	private Pane paneViewer3D;
+	@FXML
+	private CheckBox checkDiplayingVertices;
 
-	Image image;
-	private String imagePath;
-	private Parameter parameters = new Parameter();
-	public List<Mesh> parcelsList = new ArrayList<>();
-	public Mesh clipMesh = new Mesh();
+	private ObservableList<Parcel> listView3DItems = FXCollections.observableArrayList();
+
+	private SubScene subSceneViewer3D;
+	public List<Parcel> parcelsList = new ArrayList<>();
 	private File selectedFile;
+	private double height, width;
+	private ImageLoader imageLoader;
+	private StringProperty heightProperty = new SimpleStringProperty();
+	private Viewer3D viewer;
 
 	/**
 	 * Initialize method
 	 */
-	public void initialize(URL location, ResourceBundle bundle) {	
-		saveButton.setDisable(true);
-		onTreatmentButton.setDisable(true);
+	public void initialize(URL location, ResourceBundle bundle) {
+		ressources = bundle;
+		initialize3dViewer();
+		initializeFirstLaunch();
 	}
-	
+
 	/**
-	 * Method to change propertie file language
-	 * 
-	 * @param lang : string language shortcut
+	 * Method to initialize the 3D viewer : Use Viewer3D model class first
+	 * launch
 	 */
-	private void loadLang(String lang){
+	private void initialize3dViewer() {
+		viewer = new Viewer3D();
+		subSceneViewer3D = viewer.initializeViewer3D(paneViewer3D);
+		paneViewer3D.getChildren().add(subSceneViewer3D);
+		viewer.configure(subSceneViewer3D);
+	}
+
+	/**
+	 * Method to initialize some Nodes for the first launch first launch
+	 */
+	private void initializeFirstLaunch() {
+		gridPaneParameters.setDisable(true);
+		gridPaneTreatment.setDisable(true);
+		gridPaneExport.setDisable(true);
+		borderPaneConfigViewer.setDisable(true);
+		subSceneViewer3D.heightProperty().bind(paneViewer3D.heightProperty());
+		subSceneViewer3D.widthProperty().bind(paneViewer3D.widthProperty());
+	}
+
+	/**
+	 * Method to change properties file language
+	 * 
+	 * @param lang
+	 *            : string language shortcut
+	 */
+	private void loadLang(String lang) {
 		Config.Current_Language = new Locale(lang);
 		ressources = ResourceBundle.getBundle("properties.lang_" + Config.Current_Language);
 		refreshTextApplication();
 	}
-	
+
 	/**
-	 * Method luanch when user change language to french
+	 * Method launch when user change language to French
 	 * 
 	 * @param event
 	 */
 	@FXML
-	private void changeLanguageFrench(ActionEvent event){
+	private void changeLanguageFrench(ActionEvent event) {
 		loadLang("fr");
 	}
-	
+
 	/**
-	 * Method luanch when user change language to english
+	 * Method launch when user change language to English
 	 * 
 	 * @param event
 	 */
 	@FXML
-	private void changeLanguageEnglish(ActionEvent event){
+	private void changeLanguageEnglish(ActionEvent event) {
 		loadLang("en");
 	}
-	
-	/**
-	 * Method to set all text in current selected language
-	 */
-	private void refreshTextApplication(){
-		openFileChooserButton.setText(ressources.getString("openFileChooserButton"));
-		saveButton.setText(ressources.getString("saveButton"));
-		onTreatmentButton.setText(ressources.getString("onTreatmentButton"));
-		englishLanguagePreference.setText(ressources.getString("englishLanguagePreference"));
-		frenchLanguagePreference.setText(ressources.getString("frenchLanguagePreference"));
-		themePreference1.setText(ressources.getString("themePreference1"));
-		themePreference2.setText(ressources.getString("themePreference2"));		
-		close.setText(ressources.getString("close"));
-		file.setText(ressources.getString("file"));
-		edit.setText(ressources.getString("edit"));
-		language.setText(ressources.getString("language"));
-	}
 
 	/**
-	 * Set the button to true
-	 */
-	public void setButtonTrue() {
-		saveButton.setDisable(false);
-		onTreatmentButton.setDisable(false);
-		openFileChooserButton.setDisable(false);
-	}
-
-	/**
-	 * Method execute when user click on oppen button
+	 * Method execute when user click on open button
 	 * 
 	 * @param event
 	 * @throws IOException
 	 */
 	@FXML
-	public void openFileChooser(ActionEvent event) throws IOException 
-	{
+	public void openFileChooser(ActionEvent event) throws IOException {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Ouvrir");
 		fileChooser.getExtensionFilters().addAll(
 				new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"),
 				new FileChooser.ExtensionFilter("All Files", "*.*"));
 		selectedFile = fileChooser.showOpenDialog(this);
 		if (selectedFile != null) {
-			imagePath = selectedFile.toURI().toString();
-			image = new Image(imagePath);
-			viewImage.setImage(image);
-			onTreatmentButton.setDisable(false);
-			openFileChooserButton.setDisable(true);
-			openParametersWindow();
+			this.imageLoader = new ImageLoader(selectedFile);
+			viewImage.setImage(this.imageLoader.getImage());
+			gridPaneParameters.setDisable(false);
+			gridPaneTreatment.setDisable(false);
 		}
+	}
+
+	/**
+	 * Method launch when user press Treatment button
+	 * 
+	 * @param envent
+	 * @throws IOException
+	 */
+	@FXML
+	public void onTreatement(ActionEvent envent) throws IOException {
+
+		Parcel.resetCounter();
+		if (heightField.getText().isEmpty() || widthField.getText().isEmpty() || maxWidthPrintField.getText().isEmpty()
+				|| maxHeightPrintField.getText().isEmpty()) {
+			showErrorPopUp(ressources.getString("error"), ressources.getString("errorParameterLabel"),
+					ressources.getString("errorParameterLabelMessage"));
+		} else {
+			height = Double.parseDouble(heightField.getText());
+			width = Double.parseDouble(widthField.getText());
+			double heightMesh = Double.parseDouble(heightMeshField.getText());
+			double maxWidthPrint = Double.parseDouble(maxWidthPrintField.getText());
+			double maxHeightPrint = Double.parseDouble(maxHeightPrintField.getText());
+			if (height / width != imageLoader.getRatioHeight()) {
+				showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
+						ressources.getString("errorAdjustLabelMessage"));
+			} else {
+				executeTreatement(new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint));
+			}
+		}
+	}
+
+	/**
+	 * Method to execute treatment of the map generator and complete 3D view
+	 * 
+	 * @param parameters
+	 */
+	private void executeTreatement(Parameter parameters) {
+
+		MapGenerator mapGenerator = new MapGenerator(parameters, this.imageLoader);
+		parcelsList = mapGenerator.executeTreatment();
+		gridPaneExport.setDisable(false);
+		borderPaneConfigViewer.setDisable(false);
+
+		listView3DItems.clear();
+		for (Parcel parcel : parcelsList) {
+			listView3DItems.add(parcel);
+		}
+		listView3D.setItems(listView3DItems);
+
+		listView3D.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Parcel>() {
+			@Override
+			public void changed(ObservableValue<? extends Parcel> observable, Parcel oldValue, Parcel newValue) {
+				checkDiplayingVertices.setSelected(false);
+				viewer.setNewMesh(parcelsList.get(newValue.getPartelID() - 1));
+			}
+		});
+
+		listView3D.requestFocus();
+		listView3D.getSelectionModel().select(0);
+		listView3D.getFocusModel().focus(0);
+	}
+
+	/**
+	 * Method launch when user press save button : export mesh to obj file
+	 * 
+	 * @param envent
+	 * @throws IOException
+	 */
+	@FXML
+	public void save(ActionEvent envent) throws IOException {
+
+		DirectoryChooser directoryChooser = new DirectoryChooser();
+		directoryChooser.setInitialDirectory(new File("C://"));
+		File selectedSaveFile = directoryChooser.showDialog(this);
+
+		if (selectedSaveFile != null) {
+
+			File file = new File(selectedSaveFile.toString() + "\\" + Config.OUTPUR_FODLER_NAME);
+			file.mkdir();
+
+			for (Parcel parcel : parcelsList) {
+				parcel.exportPartelMapMeshToObj(file.toString());
+			}
+
+			Config.Debug("Exportation terminée dans " + file.toString());
+		}
+	}
+
+	/**
+	 * Method launch when user check or uncheck the vertices checkbox - change
+	 * draw mode and color
+	 * 
+	 * @param envent
+	 * @throws IOException
+	 */
+	@FXML
+	public void OnCheckVerticesBox(ActionEvent envent) throws IOException {
+		if (checkDiplayingVertices.isSelected()) {
+			viewer.changeDrawModeViewer(DrawMode.LINE, new PhongMaterial(Color.RED));
+		} else {
+			viewer.changeDrawModeViewer(DrawMode.FILL, new PhongMaterial(Color.WHITESMOKE));
+		}
+	}
+
+	/**
+	 * Method using for select the theme 1
+	 */
+	@FXML
+	public void changeThemePreference1() {
+		borderPane.getStylesheets().clear();
+		borderPane.getStylesheets().add(getClass().getResource("/stylesheet/theme1.css").toExternalForm());
+	}
+
+	/**
+	 * Method using for select the theme 2
+	 */
+	@FXML
+	public void changeThemePreference2() {
+		borderPane.getStylesheets().clear();
+		borderPane.getStylesheets().add(getClass().getResource("/stylesheet/theme2.css").toExternalForm());
+	}
+
+	/**
+	 * Setter of the Height Property the heightProperty to set
+	 * 
+	 * @param heightProperty
+	 */
+	public void setHeightProperty(StringProperty heightProperty) {
+		this.heightProperty = heightProperty;
+	}
+
+	/**
+	 * Getter of the height property
+	 * 
+	 * @return the height property
+	 */
+	public StringProperty getHeightProperty() {
+		return heightProperty;
+	}
+
+	/**
+	 * Method to adjust the height entered by users
+	 */
+	@FXML
+	public void AdjustHeightAction() {
+		if (heightField.getText().isEmpty()) {
+			heightField.setStyle("-fx-control-inner-background: red");
+		} else {
+			width = Double.parseDouble(widthField.getText());
+			height = width * this.imageLoader.getRatioHeight();
+			heightField.setText(String.valueOf(height));
+			adjustHeightButton.setDisable(true);
+		}
+	}
+
+	/**
+	 * Method to adjust the with entered by users
+	 */
+	@FXML
+	public void AdjustWidthAction() {
+		if (widthField.getText().isEmpty()) {
+			widthField.setStyle("-fx-control-inner-background: red");
+		} else {
+			height = Double.parseDouble(widthField.getText());
+			width = height * this.imageLoader.getRatioWidth();
+			widthField.setText(String.valueOf(width));
+			adjustWidthButton.setDisable(true);
+		}
+	}
+
+	/**
+	 * Method to reset width and height fields
+	 */
+	@FXML
+	public void ResetAction() {
+		widthField.setText("");
+		heightField.setText("");
+		adjustWidthButton.setDisable(false);
+		adjustHeightButton.setDisable(false);
+	}
+
+	/**
+	 * Method to display an error pop up when error appear
+	 * 
+	 * @param title
+	 * @param errorName
+	 * @param errorMessage
+	 */
+	private void showErrorPopUp(String title, String errorName, String errorMessage) {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle(title);
+		alert.setHeaderText(errorName);
+		alert.setContentText(errorMessage);
+		alert.showAndWait();
+	}
+
+	/**
+	 * Method to set all text in current selected language
+	 */
+	private void refreshTextApplication() {
+		refreshLabelText();
+		refreshButtonText();
+		refreshMenuItemText();
 	}
 
 	/**
@@ -161,110 +389,45 @@ public class MainApplicationWindowController extends Stage {
 	}
 
 	/**
-	 * Method launch when user press Treatment button
-	 * 
-	 * @param envent
-	 * @throws IOException
+	 * Method to refresh label text
 	 */
-	@FXML
-	public void onTreatement(ActionEvent envent) throws IOException {
-		
-		// TO DO -> Corrected progress bar window openProgressWindow();
-		
-		Treatment treatment = new Treatment();
-		parcelsList = treatment.executeTreatment(selectedFile.toURI(), this.parameters);
-
-		saveButton.setDisable(false);
-		onTreatmentButton.setDisable(true);
+	private void refreshLabelText() {
+		labelStep1.setText(ressources.getString("labelStep1"));
+		labelStep2.setText(ressources.getString("labelStep2"));
+		labelStep3.setText(ressources.getString("labelStep3"));
+		labelStep4.setText(ressources.getString("labelStep4"));
+		heightLabel.setText(ressources.getString("heightLabel"));
+		widthLabel.setText(ressources.getString("widthLabel"));
+		meshHeightLabel.setText(ressources.getString("meshHeightLabel"));
+		maxWidthOfPrintLabel.setText(ressources.getString("maxWidthOfPrintLabel"));
+		maxHeightOfPrintLabel.setText(ressources.getString("maxHeightOfPrintLabel"));
 	}
 
 	/**
-	 * Method launch when user press save button
-	 * 
-	 * @param envent
-	 * @throws IOException
+	 * Method to refresh button text
 	 */
-	@FXML
-	public void save(ActionEvent envent) throws IOException 
-	{	
-		int i = 1;
-		DirectoryChooser directoryChooser = new DirectoryChooser();
-		directoryChooser.setTitle("Enregistrer");
-		directoryChooser.setInitialDirectory(new File("C://"));
-
-		File selectedSaveFile = directoryChooser.showDialog(this);
-		if(Config.DEBUG){
-			System.out.println(selectedSaveFile.toString());
-		}
-		if (selectedSaveFile != null) {
-			createDirectory(selectedSaveFile.toString(), "Mesh");
-			for (Mesh mesh : parcelsList) {
-				exportToObj(mesh, selectedSaveFile.toString(), "Mesh", i);
-				i++;
-			}
-			if(Config.DEBUG){
-				System.out.println("Exportation terminée");
-			}
-		}
-		this.setButtonTrue();
+	private void refreshButtonText() {
+		adjustHeightButton.setText(ressources.getString("adjustButton"));
+		adjustWidthButton.setText(ressources.getString("adjustButton"));
+		resetButton.setText(ressources.getString("resetButton"));
+		openFileChooserButton.setText(ressources.getString("openFileChooserButton"));
+		saveButton.setText(ressources.getString("saveButton"));
+		onTreatmentButton.setText(ressources.getString("onTreatmentButton"));
+		checkDiplayingVertices.setText(ressources.getString("checkDiplayingVertices"));
 	}
 
 	/**
-	 * Method using for open Parameters window
-	 * 
-	 * @throws IOException
+	 * Method to refresh menu item text
 	 */
-	public void openParametersWindow() throws IOException {
-		Stage parametersStage = new Stage();
-		ParametersWindowController parametersWindowController = new ParametersWindowController(image, this.parameters);
-		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/fxml/ParametersWindow.fxml"));
-		loader.setController(parametersWindowController);
-		parametersWindowController.setStage(parametersStage);
-		Parent root = loader.load();
-		Scene scene = new Scene(root);
-		parametersStage.setTitle("Paramètres");
-		parametersStage.setResizable(false);
-		parametersStage.setScene(scene);
-		parametersStage.showAndWait();
-	}
-
-	/*
-	public void openProgressWindow() throws IOException {
-		Stage progressStage = new Stage();
-
-		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/view/ProgressWindow.fxml"));
-
-		progressStage.setTitle("Traitement ...");
-		progressStage.setResizable(false);
-	}
-	*/
-
-	/**
-	 * Method using for select the theme 1
-	 */
-	@FXML
-	public void changeThemePreference1() {
-		gridPane.setStyle("-fx-background-color:white");
-		saveButton.getStyleClass().remove("record-sales");
-		saveButton.getStyleClass().add("basic");
-		onTreatmentButton.getStyleClass().remove("record-sales");
-		onTreatmentButton.getStyleClass().add("basic");
-		openFileChooserButton.getStyleClass().remove("record-sales");
-		openFileChooserButton.getStyleClass().add("basic");
-	}
-
-	/**
-	 * Method using for select the theme 2
-	 */
-	@FXML
-	public void changeThemePreference2() {
-		gridPane.setStyle("-fx-background-color:#2c3e50");
-		saveButton.getStyleClass().remove("basic");
-		saveButton.getStyleClass().add("record-sales");
-		onTreatmentButton.getStyleClass().remove("basic");
-		onTreatmentButton.getStyleClass().add("record-sales");
-		openFileChooserButton.getStyleClass().remove("basic");
-		openFileChooserButton.getStyleClass().add("record-sales");
+	private void refreshMenuItemText() {
+		englishLanguagePreference.setText(ressources.getString("englishLanguagePreference"));
+		frenchLanguagePreference.setText(ressources.getString("frenchLanguagePreference"));
+		themePreference1.setText(ressources.getString("themePreference1"));
+		themePreference2.setText(ressources.getString("themePreference2"));
+		close.setText(ressources.getString("close"));
+		file.setText(ressources.getString("file"));
+		edit.setText(ressources.getString("edit"));
+		language.setText(ressources.getString("language"));
 	}
 
 }

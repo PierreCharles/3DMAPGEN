@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.SubScene?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.Blend?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="borderPane" styleClass="theme" stylesheets="@../stylesheet/theme1.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainApplicationWindowController">
+   <top>
+    <MenuBar prefHeight="25.0" prefWidth="703.0" BorderPane.alignment="CENTER">
+      <menus>
+        <Menu fx:id="file" mnemonicParsing="false" text="%file">
+          <items>
+            
+                  <MenuItem fx:id="close" mnemonicParsing="false" onAction="#close" text="%close" />
+
+                </items>
+        </Menu>
+        <Menu fx:id="edit" mnemonicParsing="false" text="%edit">
+          <items>
+            <MenuItem id="themePreference1" fx:id="themePreference1" mnemonicParsing="false" onAction="#changeThemePreference1" text="%themePreference1" />
+                  <MenuItem id="themePreference2" fx:id="themePreference2" mnemonicParsing="false" onAction="#changeThemePreference2" text="%themePreference2" />
+          </items>
+        </Menu>
+            <Menu fx:id="language" mnemonicParsing="false" text="%language">
+               <items>
+                  <MenuItem id="englishLanguagePreference" fx:id="englishLanguagePreference" mnemonicParsing="false" onAction="#changeLanguageEnglish" text="%englishLanguagePreference" />
+                  <MenuItem id="frenchLanguagePreference" fx:id="frenchLanguagePreference" mnemonicParsing="false" onAction="#changeLanguageFrench" text="%frenchLanguagePreference" />
+               </items>
+            </Menu>
+      </menus>
+    </MenuBar>
+   </top>
+   <right>
+      <GridPane fx:id="gridPaneGlobal" prefHeight="600.0" prefWidth="393.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="142.0" minWidth="4.0" prefWidth="60.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="381.0" minWidth="10.0" prefWidth="376.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="350.0" minHeight="10.0" prefHeight="67.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="394.0" minHeight="10.0" prefHeight="249.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="177.0" minHeight="10.0" prefHeight="58.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="177.0" minHeight="10.0" prefHeight="64.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="182.0" minHeight="10.0" prefHeight="162.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <GridPane fx:id="gridPaneChooser" alignment="CENTER" prefHeight="76.0" prefWidth="287.0" GridPane.columnIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="79.0" minHeight="5.0" prefHeight="16.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="79.0" minHeight="5.0" prefHeight="16.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="235.0" minHeight="10.0" prefHeight="224.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label id="labelStep1" fx:id="labelStep1" prefHeight="78.0" prefWidth="298.0" styleClass="theme_text" text="%labelStep1" textFill="WHITE" underline="true" GridPane.rowIndex="1">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Button id="openFileChooserButton" fx:id="openFileChooserButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#openFileChooser" prefHeight="34.0" prefWidth="212.0" styleClass="theme_button" text="%openFileChooserButton" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+               </children>
+            </GridPane>
+            <GridPane fx:id="gridPaneParameters" alignment="CENTER" disable="true" prefHeight="184.0" prefWidth="298.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints maxHeight="267.0" minHeight="5.0" prefHeight="21.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="235.0" minHeight="10.0" prefHeight="218.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <Label id="labelStep2" fx:id="labelStep2" prefHeight="13.0" prefWidth="287.0" styleClass="theme_text" text="%labelStep2" textFill="WHITE" underline="true">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <GridPane prefHeight="450.0" prefWidth="186.0" GridPane.rowIndex="1">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="182.0" minWidth="10.0" prefWidth="178.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="113.0" minWidth="10.0" prefWidth="53.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="120.0" minWidth="10.0" prefWidth="78.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="203.0" minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="203.0" minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="203.0" minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="318.0" minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="318.0" minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="243.0" minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Label fx:id="heightLabel" styleClass="theme_text" text="%heightLabel" textFill="WHITE" GridPane.halignment="RIGHT">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
+                        </Label>
+                        <TextField fx:id="heightField" GridPane.columnIndex="1" />
+                        <Label styleClass="theme_text" text="cm" textFill="WHITE" GridPane.columnIndex="2">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <GridPane.margin>
+                              <Insets left="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label fx:id="widthLabel" styleClass="theme_text" text="%widthLabel" textFill="WHITE" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                           <GridPane.margin>
+                              <Insets right="10.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField fx:id="widthField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label styleClass="theme_text" text="cm" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <GridPane.margin>
+                              <Insets left="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label fx:id="meshHeightLabel" styleClass="theme_text" text="%meshHeightLabel" textFill="WHITE" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                           <GridPane.margin>
+                              <Insets right="10.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField fx:id="heightMeshField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Label styleClass="theme_text" text="mm" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <GridPane.margin>
+                              <Insets left="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label fx:id="maxWidthOfPrintLabel" styleClass="theme_text" text="%maxWidthOfPrintLabel" textFill="WHITE" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField fx:id="maxWidthPrintField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Label fx:id="maxHeightOfPrintLabel" styleClass="theme_text" text="%maxHeightOfPrintLabel" textAlignment="RIGHT" textFill="WHITE" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="maxHeightPrintField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Label styleClass="theme_text" text="mm" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <GridPane.margin>
+                              <Insets left="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label styleClass="theme_text" text="mm" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="5">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <GridPane.margin>
+                              <Insets left="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Button fx:id="adjustHeightButton" mnemonicParsing="false" onAction="#AdjustHeightAction" prefHeight="23.0" prefWidth="80.0" styleClass="theme_button_text" text="%adjustButton">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </Button>
+                        <Label fx:id="adjustLabel" text="Veuillez ajuster la &#10;taille de la pièce pour&#10;ne pas la déformer " textAlignment="CENTER" textFill="#f20000" visible="false" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="adjustWidthButton" mnemonicParsing="false" onAction="#AdjustWidthAction" prefHeight="30.0" prefWidth="80.0" styleClass="theme_button_text" text="%adjustButton" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </Button>
+                        <Button fx:id="resetButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#ResetAction" prefHeight="30.0" prefWidth="115.0" styleClass="theme_button_text" text="%resetButton" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                           <effect>
+                              <Blend />
+                           </effect>
+                        </Button>
+                     </children>
+                  </GridPane>
+               </children>
+            </GridPane>
+            <GridPane fx:id="gridPaneTreatment" alignment="CENTER" disable="true" prefHeight="99.0" prefWidth="298.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints maxHeight="267.0" minHeight="5.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="235.0" minHeight="10.0" prefHeight="102.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <Label id="labelStep3" fx:id="labelStep3" prefHeight="17.0" prefWidth="296.0" styleClass="theme_text" text="%labelStep3" textFill="WHITE" underline="true">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="onTreatmentButton" mnemonicParsing="false" onAction="#onTreatement" prefHeight="31.0" prefWidth="195.0" styleClass="theme_button" text="%onTreatmentButton" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+               </children>
+            </GridPane>
+            <GridPane fx:id="gridPaneExport" alignment="CENTER" disable="true" prefHeight="128.0" prefWidth="298.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints maxHeight="267.0" minHeight="5.0" prefHeight="53.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="235.0" minHeight="10.0" prefHeight="93.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <Label id="labelStep4" fx:id="labelStep4" prefHeight="17.0" prefWidth="296.0" styleClass="theme_text" text="%labelStep4" textFill="WHITE" underline="true">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="saveButton" mnemonicParsing="false" onAction="#save" prefHeight="30.0" prefWidth="196.0" styleClass="theme_button" text="%saveButton" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+               </children>
+            </GridPane>
+            <ImageView fx:id="viewImage" fitHeight="141.0" fitWidth="253.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+         </children>
+         <BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </BorderPane.margin>
+      </GridPane>
+   </right>
+   <center>
+      <Pane fx:id="paneViewer3D" prefHeight="610.0" prefWidth="223.0" style="-fx-background-color: white;">
+         <children>
+            <SubScene id="subSceneViewer3D" fx:id="subSceneViewer3D" fill="#ff1600" opacity="0.83">
+              <root>
+                <Region />
+              </root>
+            </SubScene>
+         </children>
+      </Pane>
+   </center>
+   <left>
+      <BorderPane fx:id="borderPaneConfigViewer" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <bottom>
+            <CheckBox id="checkDiplayingVertices" fx:id="checkDiplayingVertices" mnemonicParsing="false" onAction="#OnCheckVerticesBox" styleClass="theme_text" text="%checkDiplayingVertices" BorderPane.alignment="CENTER" />
+         </bottom>
+         <center>
+            <ListView fx:id="listView3D" prefHeight="610.0" prefWidth="164.0" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets />
+               </BorderPane.margin>
+            </ListView>
+         </center>
+      </BorderPane>
+   </left>
+</BorderPane>
