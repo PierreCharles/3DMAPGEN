@@ -7,8 +7,8 @@ package model.mesh;
  */
 public class Vertices {
 
-	private static int 	Vertices_Counter = 0;
-	private final static int DEFAULT_VERTICES_COUNTER = 0;
+	private static int 	Vertices_Counter = 1;
+	private final static int DEFAULT_VERTICES_COUNTER = 1;
 	private double x, y, z;
 	private int id;
 

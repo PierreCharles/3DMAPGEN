@@ -69,6 +69,8 @@ public class MapMesh {
 		Set<Map.Entry<Double, TreeMap>> setLine = getSetOfVertices().entrySet();
 
 		Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();
+		
+		triangleMesh.getPoints().addAll(0,0,0);
 
 		while (iterator.hasNext()) {
 			Map.Entry<Double, TreeMap> entry = iterator.next();
