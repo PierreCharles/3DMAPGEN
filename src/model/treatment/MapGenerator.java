@@ -7,7 +7,6 @@ import config.Config;
 import model.Parameter;
 import model.mesh.Face;
 import model.mesh.MapMesh;
-import model.mesh.Parcel;
 import model.mesh.Vertices;
 
 import java.util.ArrayList;
@@ -46,13 +45,13 @@ public class MapGenerator {
 	 * @param parameter
 	 * @return
 	 */
-	public List<Parcel> executeTreatment() {
-		List<Parcel> parcelList = new ArrayList<>();
+	public List<MapMesh> executeTreatment() {
+		List<MapMesh> parcelList = new ArrayList<>();
 
 		List<BufferedImage> imagesList = cutImage();
 
 		imagesList.forEach((image) -> {
-			parcelList.add(new Parcel(parcelToMesh(image, parameters)));
+			parcelList.add(parcelToMesh(image, parameters));
 
 		});
 		parcelList.forEach((parcel) -> {
@@ -231,7 +230,7 @@ public class MapGenerator {
 		double height = bufferedImage.getHeight() - 1;
 		double width = bufferedImage.getWidth() - 1;
 		MapMesh mesh = new MapMesh(height, width);
-		double tickness = 3;
+		double tickness = 5;
 		double beginWidth = 0.1 * width, endWidth = 0.9 * width, beginHeight = 0.1 * height, endHieght = 0.9 * height;
 
 		for (double line = 0; line < height; line++) {
@@ -248,7 +247,7 @@ public class MapGenerator {
 					mesh.addVerticesBase(line, column, new Vertices(line, tickness, column));
 				} else {
 					// Create a point coordinate base : line;column
-					mesh.addVerticesBase(line, column, new Vertices(line, 0, column));
+					mesh.addVerticesBase(line, column, new Vertices(line, 2, column));
 				}
 			}
 		}
@@ -378,18 +377,17 @@ public class MapGenerator {
 	 * @param bufferedImage
 	 * @param parameter
 	 */
-	public void scalling(Parcel parcel, Parameter parameter) {
+	public void scalling(MapMesh mapMesh, Parameter parameter) {
 
-		MapMesh mesh = parcel.getMapMesh();
-		Config.Debug("Mesh de la partelle : " + parcel.getPartelID() + " mise à l'echelle");
+		Config.Debug("Mesh de la partelle : " + mapMesh.getMapMeshID() + " mise à l'echelle");
 
 		double ratioX = parameter.getMaxWidthOfPrint() / widthOfParcel;
 		double ratioZ = parameter.getMaxHeightOfPrint() / heightOfPartel;
 
-		mesh.setMapHeight(mesh.getMapHeight() * ratioX);
-		mesh.setMapWidth(mesh.getMapWidth() * ratioZ);
+		mapMesh.setMapMeshHeight(mapMesh.getMapMeshHeight() * ratioX);
+		mapMesh.setMapMeshWidth(mapMesh.getMapMeshWidth() * ratioZ);
 
-		Set<Map.Entry<Double, TreeMap>> setLine = mesh.getSetOfVertices().entrySet();
+		Set<Map.Entry<Double, TreeMap>> setLine = mapMesh.getSetOfVertices().entrySet();
 		Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();
 		while (iterator.hasNext()) {
 			Map.Entry<Double, TreeMap> entry = iterator.next();
@@ -406,7 +404,7 @@ public class MapGenerator {
 		}
 
 		// Ecriture de l'ensemble des points du socle
-		Set<Map.Entry<Double, TreeMap>> setBaseLine = mesh.getSetOfVerticesBase().entrySet();
+		Set<Map.Entry<Double, TreeMap>> setBaseLine = mapMesh.getSetOfVerticesBase().entrySet();
 		Iterator<Map.Entry<Double, TreeMap>> iterator3 = setBaseLine.iterator();
 		while (iterator3.hasNext()) {
 			Map.Entry<Double, TreeMap> entry2 = iterator3.next();

@@ -19,7 +19,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
-import model.mesh.Parcel;
+import model.mesh.MapMesh;
 
 /**
  * Builder of viewer 3D. This object instantiate interaction and configuration
@@ -98,13 +98,13 @@ public class Viewer3D {
 	 * 
 	 * @param parcelsList
 	 */
-	public void setNewMesh(Parcel parcel) {
+	public void setNewMesh(MapMesh mapMesh) {
 		world.getChildren().remove(currentMeshView);
-		parcel.getMapMesh().generate3DObject();
-		currentMeshView = new MeshView(parcel.getMapMesh().getTriangleMapMesh());
+		mapMesh.generate3DObject();
+		currentMeshView = new MeshView(mapMesh.getTriangleMapMesh());
 		currentMeshView.setDrawMode(DrawMode.FILL);
-		currentMeshView.setTranslateX(-parcel.getMapMesh().getMapHeight() / 2);
-		currentMeshView.setTranslateZ(-parcel.getMapMesh().getMapWidth() / 2);
+		currentMeshView.setTranslateX(-mapMesh.getMapMeshHeight() / 2);
+		currentMeshView.setTranslateZ(-mapMesh.getMapMeshWidth() / 2);
 		world.getChildren().addAll(currentMeshView);
 	}
 

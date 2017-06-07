@@ -21,7 +21,7 @@ public class Config {
 	public static Locale Current_Language = new Locale(DEFAULT_LANG);
 	
 	// Name of the export file
-	public static final String EXPORT_FILE_NAME = "MeshPart";
+	public static final String EXPORT_PREFIX_FILE_NAME = "MeshPart";
 	
 	// Name of the output folder to export obj file
 	public static final String OUTPUR_FODLER_NAME = "Mesh";

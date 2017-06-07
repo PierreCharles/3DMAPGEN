@@ -1,11 +1,15 @@
 package model.mesh;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import config.Config;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
 
@@ -19,22 +23,35 @@ import javafx.scene.shape.VertexFormat;
  */
 public class MapMesh {
 
-	private TreeMap<Double, TreeMap<Double, Vertices>> setOfMapVertices, setOfMapVerticesBase;
-	private LinkedList<Face> setOfMapFaces;
+	private TreeMap<Double, TreeMap<Double, Vertices>> setOfMapMeshVertices, setOfMapMeshVerticesBase;
+	private LinkedList<Face> setOfMapMeshFaces;
 	private TriangleMesh triangleMapMesh;
-	private double mapHeight, mapWidth;
+	private double mapMeshHeight, mapMeshWidth;
+	private boolean mapMeshViewIsGenerated = false;
+	
+	private String mapMeshName;
+	private int mapMeshID;
+	private static int Map_Mesh_Counter = 1;
+	private static final int DEFAULT_MAP_MESH_COUNTER = 1;
+	
 
 	/**
 	 * Constructor af a Mesh
 	 */
-	public MapMesh(double mapHeight, double mapWidth) {		
-		this.mapHeight = mapHeight;
-		this.mapWidth = mapWidth;
+	public MapMesh(double mapHeight, double mapWidth) {	
+		
+		this.mapMeshHeight = mapHeight;
+		this.mapMeshWidth = mapWidth;
+		
+		this.mapMeshID = Map_Mesh_Counter;
+		Map_Mesh_Counter++;
+		
 		triangleMapMesh = new TriangleMesh(VertexFormat.POINT_TEXCOORD);
 		triangleMapMesh.getTexCoords().addAll(0,0);	
-		setOfMapFaces = new LinkedList<>();
-		setOfMapVertices = new TreeMap<Double, TreeMap<Double, Vertices>>();
-		setOfMapVerticesBase = new TreeMap<Double, TreeMap<Double, Vertices>>();
+		
+		setOfMapMeshFaces = new LinkedList<>();
+		setOfMapMeshVertices = new TreeMap<Double, TreeMap<Double, Vertices>>();
+		setOfMapMeshVerticesBase = new TreeMap<Double, TreeMap<Double, Vertices>>();
 		Vertices.resetCounter();
 	}
 	
@@ -43,45 +60,151 @@ public class MapMesh {
 	 * Method allow to generate a 3D object : create a custom TriangleMesh and add all points and faces
 	 */
 	public void generate3DObject(){
-	
-		// Ecriture de l'ensemble des points de la surface
-		Set<Map.Entry<Double, TreeMap>> setLine = getSetOfVertices().entrySet();
-
-		Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();
 		
-		triangleMapMesh.getPoints().addAll(0,0,0);
+		if(!mapMeshViewIsGenerated){
+			// Ecriture de l'ensemble des points de la surface
+			Set<Map.Entry<Double, TreeMap>> setLine = getSetOfVertices().entrySet();
 
-		while (iterator.hasNext()) {
-			Map.Entry<Double, TreeMap> entry = iterator.next();
-			TreeMap verticesTreeMap = entry.getValue();
+			Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();
+			
+			triangleMapMesh.getPoints().addAll(0,0,0);
 
-			Set<Map.Entry<Double, Vertices>> setColumn = verticesTreeMap.entrySet();
-			Iterator<Map.Entry<Double, Vertices>> iterator2 = setColumn.iterator();
+			while (iterator.hasNext()) {
+				Map.Entry<Double, TreeMap> entry = iterator.next();
+				TreeMap verticesTreeMap = entry.getValue();
 
-			while (iterator2.hasNext()) {
-				Map.Entry<Double, Vertices> verticesEntry = iterator2.next();
-				triangleMapMesh.getPoints().addAll((float) verticesEntry.getValue().getX(), (float) verticesEntry.getValue().getY(), (float) verticesEntry.getValue().getZ());
+				Set<Map.Entry<Double, Vertices>> setColumn = verticesTreeMap.entrySet();
+				Iterator<Map.Entry<Double, Vertices>> iterator2 = setColumn.iterator();
+
+				while (iterator2.hasNext()) {
+					Map.Entry<Double, Vertices> verticesEntry = iterator2.next();
+					triangleMapMesh.getPoints().addAll((float) verticesEntry.getValue().getX(), (float) verticesEntry.getValue().getY(), (float) verticesEntry.getValue().getZ());
+				}
 			}
-		}
-	
-		// Ecriture de l'ensemble des points du socle
-		Set<Map.Entry<Double, TreeMap>> setLineBase = getSetOfVerticesBase().entrySet();
-		Iterator<Map.Entry<Double, TreeMap>> iterator3 = setLineBase.iterator();
-		while (iterator3.hasNext()) {
-			Map.Entry<Double, TreeMap> entry2 = iterator3.next();
-			TreeMap verticesTreeMapBase = entry2.getValue();
-
-			Set<Map.Entry<Double, Vertices>> setColumnBase = verticesTreeMapBase.entrySet();
-			Iterator<Map.Entry<Double, Vertices>> iterator4 = setColumnBase.iterator();
-
-			while (iterator4.hasNext()) {
-				Map.Entry<Double, Vertices> verticesEntrySocle = iterator4.next();
-				triangleMapMesh.getPoints().addAll((float) verticesEntrySocle.getValue().getX(), (float) verticesEntrySocle.getValue().getY(), (float) verticesEntrySocle.getValue().getZ());			}
-		}
 		
-		for (Face face : getSetOfFaces()) {
-			triangleMapMesh.getFaces().addAll(face.getIdVertice1(), 0,face.getIdVertice2(), 0,face.getIdVertice3(),0);
+			// Ecriture de l'ensemble des points du socle
+			Set<Map.Entry<Double, TreeMap>> setLineBase = getSetOfVerticesBase().entrySet();
+			Iterator<Map.Entry<Double, TreeMap>> iterator3 = setLineBase.iterator();
+			while (iterator3.hasNext()) {
+				Map.Entry<Double, TreeMap> entry2 = iterator3.next();
+				TreeMap verticesTreeMapBase = entry2.getValue();
+
+				Set<Map.Entry<Double, Vertices>> setColumnBase = verticesTreeMapBase.entrySet();
+				Iterator<Map.Entry<Double, Vertices>> iterator4 = setColumnBase.iterator();
+
+				while (iterator4.hasNext()) {
+					Map.Entry<Double, Vertices> verticesEntrySocle = iterator4.next();
+					triangleMapMesh.getPoints().addAll((float) verticesEntrySocle.getValue().getX(), (float) verticesEntrySocle.getValue().getY(), (float) verticesEntrySocle.getValue().getZ());
+				}
+			}
+			
+			for (Face face : getSetOfFaces()) {
+				triangleMapMesh.getFaces().addAll(face.getIdVertice1(), 0,face.getIdVertice2(), 0,face.getIdVertice3(),0);
+			}
+			mapMeshViewIsGenerated = true;
+		}		
+	}
+	
+	
+	/**
+	 * Static method to reset the mesh counter
+	 */
+	public static void resetMapMeshCounter(){
+		Map_Mesh_Counter = DEFAULT_MAP_MESH_COUNTER;
+	}
+	
+	
+	/**
+	 * Method to export a MeshMap object file
+	 * 
+	 * @param mesh
+	 * @param destinationFile
+	 * @param directoryName
+	 * @param numberOfPart
+	 * @throws IOException
+	 */
+	public void exportMapMeshToObj(String destination){
+		
+		File file = new File(destination + "\\" +this.mapMeshName +".obj");
+		
+		try (FileWriter fileWriter = new FileWriter(file)) {
+			
+			fileWriter.write("# 3DGenMap - File generator\r\n");
+			
+			// Ecriture de l'ensemble des points de la surface
+			Set<Map.Entry<Double, TreeMap>> setLine = this.getSetOfVertices().entrySet();
+
+			Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();
+
+			while (iterator.hasNext()) {
+				Map.Entry<Double, TreeMap> entry = iterator.next();
+				TreeMap verticesTreeMap = entry.getValue();
+
+				Set<Map.Entry<Double, Vertices>> setColumn = verticesTreeMap.entrySet();
+				Iterator<Map.Entry<Double, Vertices>> iterator2 = setColumn.iterator();
+
+				while (iterator2.hasNext()) {
+					Map.Entry<Double, Vertices> verticesEntry = iterator2.next();
+					fileWriter.write(verticesEntry.getValue().toString());
+					
+				}
+			}
+		
+			// Ecriture de l'ensemble des points du socle
+			Set<Map.Entry<Double, TreeMap>> setLineBase = this.getSetOfVerticesBase().entrySet();
+			Iterator<Map.Entry<Double, TreeMap>> iterator3 = setLineBase.iterator();
+			while (iterator3.hasNext()) {
+				Map.Entry<Double, TreeMap> entry2 = iterator3.next();
+				TreeMap verticesTreeMapBase = entry2.getValue();
+
+				Set<Map.Entry<Double, Vertices>> setColumnBase = verticesTreeMapBase.entrySet();
+				Iterator<Map.Entry<Double, Vertices>> iterator4 = setColumnBase.iterator();
+
+				while (iterator4.hasNext()) {
+					Map.Entry<Double, Vertices> verticesEntrySocle = iterator4.next();
+					fileWriter.write(verticesEntrySocle.getValue().toString());
+				}
+			}
+			
+			for (Face face : this.getSetOfFaces()) {
+				fileWriter.write(face.toString());
+			}
+			
+			fileWriter.close();
+			
+			Config.Debug(this.mapMeshName +" exporté dans "+file.getAbsolutePath());
+			
+		} catch (IOException e) {
+			Config.Debug(e.getMessage());
+			e.printStackTrace();
 		}
+	}	
+	
+	/**
+	 * Getter of the parcel name
+	 * 
+	 * @return the parcel name : String
+	 */
+	public String getMapMeshName() {
+		return mapMeshName;
+	}
+	
+	/**
+	 * Getter of the partel ID
+	 * 
+	 * @return the partel id : int
+	 */
+	public int getMapMeshID(){
+		return mapMeshID;
+	}
+
+	/**
+	 * Setter of the parcel name
+	 * 
+	 * @param parcelName : string
+	 */
+	public void setMapMeshName(String meshName) {
+		this.mapMeshName = meshName;
 	}
 
 	/**
@@ -89,8 +212,8 @@ public class MapMesh {
 	 * 
 	 * @return the map height
 	 */
-	public double getMapHeight() {
-		return mapHeight;
+	public double getMapMeshHeight() {
+		return mapMeshHeight;
 	}
 
 	/**
@@ -98,14 +221,14 @@ public class MapMesh {
 	 * 
 	 * @return the map width
 	 */
-	public double getMapWidth() {
-		return mapWidth;
+	public double getMapMeshWidth() {
+		return mapMeshWidth;
 	}
 
 	/**
 	 * Getter of the triangle map mesh
 	 * 
-	 * @return the triangle map mesh
+	 * @return the triangle map mesh :  TriangleMesh
 	 */
 	public TriangleMesh getTriangleMapMesh(){
 		return triangleMapMesh;
@@ -114,19 +237,19 @@ public class MapMesh {
 	/**
 	 * Method to set the height of the map
 	 * 
-	 * @param mapHeight
+	 * @param mapMeshHeight : double
 	 */
-	public void setMapHeight(double mapHeight) {
-		this.mapHeight = mapHeight;
+	public void setMapMeshHeight(double mapMeshHeight) {
+		this.mapMeshHeight = mapMeshHeight;
 	}
 
 	/**
 	 * Method to set the width of the map
 	 * 
-	 * @param mapWidth
+	 * @param mapMeshWidth : double
 	 */
-	public void setMapWidth(double mapWidth) {
-		this.mapWidth = mapWidth;
+	public void setMapMeshWidth(double mapMeshWidth) {
+		this.mapMeshWidth = mapMeshWidth;
 	}
 		
 
@@ -136,7 +259,7 @@ public class MapMesh {
 	 * @return a tree map of set of vertices
 	 */
 	public TreeMap getSetOfVertices() {
-		return setOfMapVertices;
+		return setOfMapMeshVertices;
 	}
 
 	/**
@@ -145,7 +268,7 @@ public class MapMesh {
 	 * @return a linked list of set of faces
 	 */
 	public LinkedList<Face> getSetOfFaces() {
-		return setOfMapFaces;
+		return setOfMapMeshFaces;
 	}
 
 	/**
@@ -154,7 +277,7 @@ public class MapMesh {
 	 * @return a tree map of set of vertices base
 	 */
 	public TreeMap getSetOfVerticesBase() {
-		return setOfMapVerticesBase;
+		return setOfMapMeshVerticesBase;
 	}
 
 	/**
@@ -163,8 +286,19 @@ public class MapMesh {
 	 * @param face : the face
 	 */
 	public void addFace(Face face) {
-		setOfMapFaces.add(face);
+		setOfMapMeshFaces.add(face);
 	}
+	
+
+	/**
+	 * To string override method
+	 * 
+	 * @return string 
+	 */
+	@Override
+	public String toString() {
+		return Config.EXPORT_PREFIX_FILE_NAME+mapMeshID;
+	}	
 
 	/**
 	 * Method to add a vertices into the tree map of set of vertices
@@ -174,12 +308,12 @@ public class MapMesh {
 	 * @param vertices
 	 */
 	public void addVertices(double line, double column, Vertices vertices) {
-		if (!this.setOfMapVertices.containsKey(line)) {
-			this.setOfMapVertices.put(line, new TreeMap());
-			this.setOfMapVertices.get(line).put(column, vertices);
+		if (!this.setOfMapMeshVertices.containsKey(line)) {
+			this.setOfMapMeshVertices.put(line, new TreeMap());
+			this.setOfMapMeshVertices.get(line).put(column, vertices);
 			
 		} else {
-			this.setOfMapVertices.get(line).put(column, vertices);
+			this.setOfMapMeshVertices.get(line).put(column, vertices);
 		}
 	}
 		
@@ -191,11 +325,11 @@ public class MapMesh {
 	 * @param vertices
 	 */
 	public void addVerticesBase(double line, double column, Vertices vertices) {
-		if (!this.setOfMapVerticesBase.containsKey(line)) {
-			this.setOfMapVerticesBase.put(line, new TreeMap());
-			this.setOfMapVerticesBase.get(line).put(column, vertices);
+		if (!this.setOfMapMeshVerticesBase.containsKey(line)) {
+			this.setOfMapMeshVerticesBase.put(line, new TreeMap());
+			this.setOfMapMeshVerticesBase.get(line).put(column, vertices);
 		} else {
-			this.setOfMapVerticesBase.get(line).put(column, vertices);
+			this.setOfMapMeshVerticesBase.get(line).put(column, vertices);
 		}
 	}
 
