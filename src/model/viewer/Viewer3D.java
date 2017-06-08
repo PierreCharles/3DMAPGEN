@@ -2,9 +2,6 @@ package model.viewer;
 
 import java.net.URL;
 
-import com.interactivemesh.jfx.importer.ImportException;
-import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
-
 import javafx.event.EventHandler;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
@@ -73,25 +70,6 @@ public class Viewer3D {
 		return new SubScene(root, paneViewer3D.widthProperty().get(), paneViewer3D.heightProperty().get(), true,
 				SceneAntialiasing.BALANCED);
 	}
-
-	/*
-	 * TO DO CAN USE IT FOR LOAD AN OBJ FILE TO READ AND OBSERVE IT public void
-	 * build3DObjectViewer() {
-	 * 
-	 * ObjModelImporter objImporter = new ObjModelImporter(); try { URL modelUrl
-	 * = this.getClass().getResource("/other/MeshPart1.obj");
-	 * objImporter.read(modelUrl); } catch (ImportException e) { }
-	 * 
-	 * MeshView[] meshView = objImporter.getImport();
-	 * 
-	 * Interactor3D meshForm3dObject = new Interactor3D();
-	 * 
-	 * meshForm3dObject.getChildren().addAll(meshView);
-	 * meshForm3dObject.setTranslateX(-50); meshForm3dObject.setTranslateZ(-50);
-	 * meshForm3dObject.setRotateX(180);
-	 * 
-	 * world.getChildren().addAll(meshForm3dObject); }
-	 */
 
 	/**
 	 * Method to display the 3D object into the viewer 3D
