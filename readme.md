@@ -4,16 +4,23 @@
 
 ### Using Eclipse :
 
-To launch this project, clone or download into your workspace.
-Choose File -> Import -> Existing project into workspace -> Browse ("Select root directory") -> Select 3DMapGen -> Finish
+#### 3DMapGen :
 
-#### HE_Mesh library installation
+ 1) Clone or download into your workspace. 
 
- 1) First, clone or download the HE_Mesh project into the 3DMapGen workspace directory : https://github.com/wblut/HE_Mesh.git
+    git clone https://github.com/PierreCharles/3DMapGen.git
 
- 2) In Eclipse, : File -> New -> Java Project -> Enter the following name : HE_Mesh -> Finish
+ 2) In Eclipse, choose : File -> Import -> Existing project into workspace -> Browse ("Select root directory") -> Select 3DMapGen -> Finish
+
+#### HE_Mesh project (library) installation
+
+ 3) First, clone or download the HE_Mesh project into the 3DMapGen workspace directory : 
  
- 3) Right click on the 3DMapGen project in eclipse -> Properties -> Java Build Path -> Project -> Add -> Check HE_Mesh -> Apply and OK.
+     git clone https://github.com/wblut/HE_Mesh.git
+
+ 4) In Eclipse, choose: File -> New -> Java Project -> Enter the following (exactly) name : HE_Mesh -> Finish
+ 
+ 5) Add HE_Mesh project as reference : Right click on the 3DMapGen project in eclipse -> Properties -> Java Build Path -> Project -> Add -> Check HE_Mesh -> Apply and OK.
  
  The downloaded project contains the documentation into doxygen folder.
 	
@@ -60,3 +67,5 @@ This folder contains all source code of this application. It organized with some
 
 #### End User: 
 	- Guillaume Touya
+
+

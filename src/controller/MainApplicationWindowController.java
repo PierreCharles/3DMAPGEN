@@ -11,10 +11,6 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -38,7 +34,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.DrawMode;
-
 import model.Parameter;
 import model.mesh.MapMesh;
 import model.treatment.ImageLoader;
@@ -61,7 +56,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton,
 			resetButton;
 	@FXML
-	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close;
+	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close, importOBJFile;
 	@FXML
 	private Menu file, edit, language;
 	@FXML
@@ -80,7 +75,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	private CheckBox checkDiplayingVertices;
 
-	private ObservableList<MapMesh> listView3DItems = FXCollections.observableArrayList();
+	//private ObservableList<MapMesh> listView3DItems = FXCollections.observableArrayList();
 
 	private SubScene subSceneViewer3D;
 	public List<MapMesh> mapMeshList = new ArrayList<>();
@@ -153,6 +148,29 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private void changeLanguageEnglish(ActionEvent event) {
 		loadLang("en");
 	}
+	
+	
+	/**
+	 * Method execute when user click on obj import menu
+	 * 
+	 * @param event
+	 * @throws IOException
+	 */
+	@FXML
+	public void ImportOBJFile(ActionEvent event) throws IOException {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.getExtensionFilters().addAll(
+				new FileChooser.ExtensionFilter("OBJ Files", "*.obj"),
+				new FileChooser.ExtensionFilter("All Files", "*.*"));
+		selectedFile = fileChooser.showOpenDialog(this);
+		if (selectedFile != null) {
+			System.out.println(selectedFile.toString());
+			viewer.build3DObjectViewer(selectedFile);
+			borderPaneConfigViewer.setDisable(false);
+		}
+	}
+	
+	
 
 	/**
 	 * Method execute when user click on open button
@@ -162,6 +180,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	@FXML
 	public void openFileChooser(ActionEvent event) throws IOException {
+
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().addAll(
 				new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"),
@@ -173,6 +192,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			gridPaneParameters.setDisable(false);
 			gridPaneTreatment.setDisable(false);
 		}
+
 	}
 
 	/**
@@ -183,7 +203,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	@FXML
 	public void onTreatement(ActionEvent envent) throws IOException {
-
 		MapMesh.resetMapMeshCounter();
 		if (heightField.getText().isEmpty() || widthField.getText().isEmpty() || maxWidthPrintField.getText().isEmpty()
 				|| maxHeightPrintField.getText().isEmpty()) {
@@ -214,8 +233,10 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		MapGenerator mapGenerator = new MapGenerator(parameters, this.imageLoader);
 		mapMeshList = mapGenerator.executeTreatment();
 		gridPaneExport.setDisable(false);
-		borderPaneConfigViewer.setDisable(false);
 
+		/*
+		borderPaneConfigViewer.setDisable(false);
+		
 		listView3DItems.clear();
 		for (MapMesh mapMesh : mapMeshList) {
 			listView3DItems.add(mapMesh);
@@ -226,13 +247,14 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			@Override
 			public void changed(ObservableValue<? extends MapMesh> observable, MapMesh oldValue, MapMesh newValue) {
 				checkDiplayingVertices.setSelected(false);
-				viewer.setNewMesh(mapMeshList.get(newValue.getMapMeshID()- 1));
+				//viewer.setNewMesh(mapMeshList.get(newValue.getMapMeshID()- 1));
 			}
 		});
 
 		listView3D.requestFocus();
 		listView3D.getSelectionModel().select(0);
 		listView3D.getFocusModel().focus(0);
+		*/
 	}
 
 	/**
@@ -427,6 +449,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		file.setText(ressources.getString("file"));
 		edit.setText(ressources.getString("edit"));
 		language.setText(ressources.getString("language"));
+		importOBJFile.setText(ressources.getString("importOBJFile"));
 	}
 
 }

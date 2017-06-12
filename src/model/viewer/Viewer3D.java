@@ -1,6 +1,9 @@
 package model.viewer;
 
-import java.net.URL;
+import java.io.File;
+
+import com.interactivemesh.jfx.importer.ImportException;
+import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 
 import javafx.event.EventHandler;
 import javafx.scene.CacheHint;
@@ -16,7 +19,6 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
-import model.mesh.MapMesh;
 
 /**
  * Builder of viewer 3D. This object instantiate interaction and configuration
@@ -55,7 +57,8 @@ public class Viewer3D {
 	final static float maxY = 10;
 
 	private MeshView currentMeshView;
-
+	private Interactor3D currentInteractor3D;
+ 
 	/**
 	 * Initialize method for add a new world, build a camera and build the axes
 	 * 
@@ -71,19 +74,42 @@ public class Viewer3D {
 				SceneAntialiasing.BALANCED);
 	}
 
+	
+	/**
+	 * Method to display a .obj file to an 3d object into viewer
+	 * 
+	 * @param file
+	 */
+	public void build3DObjectViewer(File file) {
+		ObjModelImporter objImporter = new ObjModelImporter();
+		try {
+			objImporter.read(file);
+		} catch (ImportException e) {}
+		
+		world.getChildren().remove(currentMeshView);
+		currentMeshView = objImporter.getImport()[0];
+		world.getChildren().addAll(currentMeshView);
+	}
+
 	/**
 	 * Method to display the 3D object into the viewer 3D
 	 * 
 	 * @param parcelsList
 	 */
-	public void setNewMesh(MapMesh mapMesh) {
+	public void setNewMesh(MeshView mesh) {
+		/*
+		 * world.getChildren().remove(currentMeshView); mesh.generate3DObject();
+		 * currentMeshView = new MeshView(mesh.getTriangleMapMesh());
+		 * currentMeshView.setDrawMode(DrawMode.FILL);
+		 * currentMeshView.setTranslateX(-mesh.getMapMeshHeight() / 2);
+		 * currentMeshView.setTranslateZ(-mesh.getMapMeshWidth() / 2);
+		 * world.getChildren().addAll(currentMeshView);
+		 */
 		world.getChildren().remove(currentMeshView);
-		mapMesh.generate3DObject();
-		currentMeshView = new MeshView(mapMesh.getTriangleMapMesh());
+		currentMeshView = mesh;
 		currentMeshView.setDrawMode(DrawMode.FILL);
-		currentMeshView.setTranslateX(-mapMesh.getMapMeshHeight() / 2);
-		currentMeshView.setTranslateZ(-mapMesh.getMapMeshWidth() / 2);
 		world.getChildren().addAll(currentMeshView);
+
 	}
 
 	/**

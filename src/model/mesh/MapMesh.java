@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import config.Config;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
+import wblut.hemesh.HE_Mesh;
 
 /**
  * Class Mesh A meshing is a set of geometrical forms arranged so as to model
@@ -21,7 +22,7 @@ import javafx.scene.shape.VertexFormat;
  * 
  * @author picharles
  */
-public class MapMesh {
+public class MapMesh extends HE_Mesh{
 
 	private TreeMap<Double, TreeMap<Double, Vertices>> setOfMapMeshVertices, setOfMapMeshVerticesBase;
 	private LinkedList<Face> setOfMapMeshFaces;
