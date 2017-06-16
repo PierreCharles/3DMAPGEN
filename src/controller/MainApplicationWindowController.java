@@ -170,7 +170,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		}
 	}
 	
-	
 
 	/**
 	 * Method execute when user click on open button
@@ -179,8 +178,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 * @throws IOException
 	 */
 	@FXML
-	public void openFileChooser(ActionEvent event) throws IOException {
-
+	public void openFileChooser(ActionEvent event) throws IOException {	
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().addAll(
 				new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"),
@@ -192,7 +190,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			gridPaneParameters.setDisable(false);
 			gridPaneTreatment.setDisable(false);
 		}
-
 	}
 
 	/**

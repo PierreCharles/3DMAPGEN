@@ -5,15 +5,14 @@ import java.util.TreeMap;
 
 import config.Config;
 import model.Parameter;
-import model.mesh.Face;
+import model.mesh.Point3D;
 import model.mesh.MapMesh;
-import model.mesh.Vertices;
+import wblut.geom.WB_Triangle;
+import wblut.hemesh.HEC_FromTriangles;
+import wblut.hemesh.HE_Mesh;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Class treatment It is the class for execute the treatment of the task
@@ -46,16 +45,12 @@ public class MapGenerator {
 	 * @return
 	 */
 	public List<MapMesh> executeTreatment() {
-		List<MapMesh> parcelList = new ArrayList<>();
 
+		List<MapMesh> parcelList = new ArrayList<>();
 		List<BufferedImage> imagesList = cutImage();
 
 		imagesList.forEach((image) -> {
-			parcelList.add(parcelToMesh(image, parameters));
-
-		});
-		parcelList.forEach((parcel) -> {
-			scalling(parcel, parameters);
+			parcelList.add(parcelToMesh(image));
 		});
 
 		return parcelList;
@@ -80,17 +75,17 @@ public class MapGenerator {
 		heightOfPartel = (int) Math.floor(imageBase.getHeight() / heightCutNumber);
 		widthOfParcel = (int) Math.floor(imageBase.getWidth() / widthCutNumber);
 
-		Config.Debug("Hauteur d'une partelle : " + heightOfPartel + " --- Largeur d'une partelle : " + widthOfParcel);
-		Config.Debug("Nombre de découpe en largeur : " + widthCutNumber + " --- Nombre de découpe en hauteur : "
-				+ heightCutNumber);
-
 		for (int x = 0; x < widthCutNumber; x++) {
 			for (int y = 0; y < heightCutNumber; y++) {
 				imageList.add(
 						imageBase.getSubimage(x * widthOfParcel, y * heightOfPartel, widthOfParcel, heightOfPartel));
 			}
 		}
-		Config.Debug("Nombre de map : " + imageList.size());
+
+		Config.Debug("Découpage en : " + imageList.size() + " partelle(s)");
+		Config.Debug("Hauteur d'une partelle : " + heightOfPartel + " --- Largeur d'une partelle : " + widthOfParcel);
+		// Config.Debug("Nombre de découpe en largeur : " + widthCutNumber + "
+		// --- Nombre de découpe en hauteur : "+ heightCutNumber);
 
 		return imageList;
 	}
@@ -224,102 +219,190 @@ public class MapGenerator {
 	 * @param parameter
 	 * @return a mesh
 	 */
-	public MapMesh parcelToMesh(BufferedImage bufferedImage, Parameter parameter) {
+	public MapMesh parcelToMesh(BufferedImage bufferedImage) {
 
 		double resolution = parameters.getMeshHeight() / 256;
 		double height = bufferedImage.getHeight() - 1;
 		double width = bufferedImage.getWidth() - 1;
-		MapMesh mesh = new MapMesh(height, width);
+		double ratioX = parameters.getMaxWidthOfPrint() / widthOfParcel;
+		double ratioZ = parameters.getMaxHeightOfPrint() / heightOfPartel;
 		double tickness = 5;
 		double beginWidth = 0.1 * width, endWidth = 0.9 * width, beginHeight = 0.1 * height, endHieght = 0.9 * height;
 
+		Config.Debug("height : " + height + " ratioZ: " + ratioZ + " width: " + width + " ratioX : " + ratioX);
+
+		Point3D wb_coords[] = new Point3D[(int) (2 * width * height)];
+		MapMesh mapMesh = new MapMesh(height * ratioZ, width * ratioX);
+		TreeMap<Integer, TreeMap<Integer, Point3D>> setOfFaces = new TreeMap<>();
+
+		int i = 0, k = 0;
+
+		// Create a surface coordinates points : line;column
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
-				// Create a surface coordinates points : line;column
-				mesh.addVertices(line, column,
-						new Vertices(line, getPixelHeight(bufferedImage, line, column, resolution), column));
+				wb_coords[i] = new Point3D(line * ratioX, getPixelHeight(bufferedImage, line, column, resolution),
+						column * ratioZ);
+				mapMesh.addVertices(line, column, wb_coords[i]);
+				i++;
 			}
 		}
 
+		// Create a point coordinate base : line;column
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
 				if (haveToRaised(bufferedImage, line, column, beginWidth, endWidth, beginHeight, endHieght)) {
-					mesh.addVerticesBase(line, column, new Vertices(line, tickness, column));
+					wb_coords[i] = new Point3D(line * ratioX, tickness, column * ratioZ);
 				} else {
-					// Create a point coordinate base : line;column
-					mesh.addVerticesBase(line, column, new Vertices(line, 2, column));
+					wb_coords[i] = new Point3D(line * ratioX, 2, column * ratioZ);
 				}
+				mapMesh.addVerticesBase(line, column, wb_coords[i]);
+				i++;
 			}
 		}
 
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
 
+				// Creation of top side
 				if (isTopEdge(line, column)) {
-					// Creation of top side
-					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getBasePoint(line, column).getId(), mesh.getBasePoint(line, column - 1).getId()));
-					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
-							mesh.getSurfacePoint(line, column - 1).getId(),
-							mesh.getSurfacePoint(line, column).getId()));
+
+					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices2 = new TreeMap<>();
+
+					setOfVertices1.put(0, mapMesh.getSurfacePoint(line, column));
+					setOfVertices1.put(1, mapMesh.getBasePoint(line, column));
+					setOfVertices1.put(2, mapMesh.getBasePoint(line, column - 1));
+
+					setOfVertices2.put(0, mapMesh.getBasePoint(line, column - 1));
+					setOfVertices2.put(1, mapMesh.getSurfacePoint(line, column - 1));
+					setOfVertices2.put(2, mapMesh.getSurfacePoint(line, column));
+
+					setOfFaces.put(k++, setOfVertices1);
+					setOfFaces.put(k++, setOfVertices2);
 				}
 
+				// Creation of the bottom side
 				if (isBottomEdge(line, column, width, height - 1)) {
-					// Creation of bottom side
-					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
-							mesh.getBasePoint(line, column).getId(), mesh.getSurfacePoint(line, column).getId()));
-					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getSurfacePoint(line, column - 1).getId(),
-							mesh.getBasePoint(line, column - 1).getId()));
+																		
+					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices2 = new TreeMap<>();
+
+					setOfVertices1.put(0, mapMesh.getBasePoint(line, column - 1));
+					setOfVertices1.put(1, mapMesh.getBasePoint(line, column));
+					setOfVertices1.put(2, mapMesh.getSurfacePoint(line, column));
+
+					setOfVertices2.put(0, mapMesh.getSurfacePoint(line, column));
+					setOfVertices2.put(1, mapMesh.getSurfacePoint(line, column - 1));
+					setOfVertices2.put(2, mapMesh.getBasePoint(line, column - 1));
+
+					setOfFaces.put(k++, setOfVertices1);
+					setOfFaces.put(k++, setOfVertices2);
 				}
 
 				if (isLeftEdge(line, column)) {
-					// Creation of side surface face
-					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getSurfacePoint(line - 1, column + 1).getId(),
-							mesh.getSurfacePoint(line - 1, column).getId()));
-					// Creation of side base surface face
-					mesh.addFace(new Face(mesh.getBasePoint(line - 1, column).getId(),
-							mesh.getBasePoint(line - 1, column + 1).getId(), mesh.getBasePoint(line, column).getId()));
-					// Creation of the left side
-					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getSurfacePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
-					mesh.addFace(new Face(mesh.getSurfacePoint(line - 1, column).getId(),
-							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
+
+					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices2 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices3 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices4 = new TreeMap<>();
+
+					setOfVertices1.put(0, mapMesh.getSurfacePoint(line, column));
+					setOfVertices1.put(1, mapMesh.getSurfacePoint(line - 1, column + 1));
+					setOfVertices1.put(2, mapMesh.getSurfacePoint(line - 1, column));
+
+					setOfVertices2.put(0, mapMesh.getBasePoint(line - 1, column));
+					setOfVertices2.put(1, mapMesh.getBasePoint(line - 1, column + 1));
+					setOfVertices2.put(2, mapMesh.getBasePoint(line, column));
+
+					setOfVertices3.put(0, mapMesh.getSurfacePoint(line, column));
+					setOfVertices3.put(1, mapMesh.getSurfacePoint(line - 1, column));
+					setOfVertices3.put(2, mapMesh.getBasePoint(line, column));
+
+					setOfVertices4.put(0, mapMesh.getSurfacePoint(line - 1, column));
+					setOfVertices4.put(1, mapMesh.getBasePoint(line - 1, column));
+					setOfVertices4.put(2, mapMesh.getBasePoint(line, column));
+
+					setOfFaces.put(k++, setOfVertices1);
+					setOfFaces.put(k++, setOfVertices2);
+					setOfFaces.put(k++, setOfVertices3);
+					setOfFaces.put(k++, setOfVertices4);
 				}
 
 				if (isRightEdge(line, column, width - 1, height)) {
-					// Creation of the surface face stuck to the edge
-					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getSurfacePoint(line - 1, column).getId(),
-							mesh.getSurfacePoint(line, column - 1).getId()));
-					// Creation of the surface base face stuck to the edge
-					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
-							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
-					// Creation of the right side
-					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getBasePoint(line, column).getId(), mesh.getBasePoint(line - 1, column).getId()));
-					mesh.addFace(new Face(mesh.getBasePoint(line - 1, column).getId(),
-							mesh.getSurfacePoint(line - 1, column).getId(),
-							mesh.getSurfacePoint(line, column).getId()));
+
+					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices2 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices3 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices4 = new TreeMap<>();
+
+					setOfVertices1.put(0, mapMesh.getSurfacePoint(line, column));
+					setOfVertices1.put(1, mapMesh.getSurfacePoint(line - 1, column));
+					setOfVertices1.put(2, mapMesh.getSurfacePoint(line, column - 1));
+
+					setOfVertices2.put(0, mapMesh.getBasePoint(line, column - 1));
+					setOfVertices2.put(1, mapMesh.getBasePoint(line - 1, column));
+					setOfVertices2.put(2, mapMesh.getBasePoint(line, column));
+
+					setOfVertices3.put(0, mapMesh.getSurfacePoint(line, column));
+					setOfVertices3.put(1, mapMesh.getBasePoint(line, column));
+					setOfVertices3.put(2, mapMesh.getBasePoint(line - 1, column));
+
+					setOfVertices4.put(0, mapMesh.getBasePoint(line - 1, column));
+					setOfVertices4.put(1, mapMesh.getSurfacePoint(line - 1, column));
+					setOfVertices4.put(2, mapMesh.getSurfacePoint(line, column));
+
+					setOfFaces.put(k++, setOfVertices1);
+					setOfFaces.put(k++, setOfVertices2);
+					setOfFaces.put(k++, setOfVertices3);
+					setOfFaces.put(k++, setOfVertices4);
 				}
 
 				if (isCenter(line, column, width - 1, height)) {
-					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getSurfacePoint(line - 1, column).getId(),
-							mesh.getSurfacePoint(line, column - 1).getId()));
-					mesh.addFace(new Face(mesh.getSurfacePoint(line, column).getId(),
-							mesh.getSurfacePoint(line - 1, column + 1).getId(),
-							mesh.getSurfacePoint(line - 1, column).getId()));
 
-					mesh.addFace(new Face(mesh.getBasePoint(line, column - 1).getId(),
-							mesh.getBasePoint(line - 1, column).getId(), mesh.getBasePoint(line, column).getId()));
-					mesh.addFace(new Face(mesh.getBasePoint(line - 1, column).getId(),
-							mesh.getBasePoint(line - 1, column + 1).getId(), mesh.getBasePoint(line, column).getId()));
+					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices2 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices3 = new TreeMap<>();
+					TreeMap<Integer, Point3D> setOfVertices4 = new TreeMap<>();
+
+					setOfVertices1.put(0, mapMesh.getSurfacePoint(line, column));
+					setOfVertices1.put(1, mapMesh.getSurfacePoint(line - 1, column));
+					setOfVertices1.put(2, mapMesh.getSurfacePoint(line, column - 1));
+
+					setOfVertices2.put(0, mapMesh.getSurfacePoint(line, column));
+					setOfVertices2.put(1, mapMesh.getSurfacePoint(line - 1, column + 1));
+					setOfVertices2.put(2, mapMesh.getSurfacePoint(line - 1, column));
+
+					setOfVertices3.put(0, mapMesh.getBasePoint(line, column - 1));
+					setOfVertices3.put(1, mapMesh.getBasePoint(line - 1, column));
+					setOfVertices3.put(2, mapMesh.getBasePoint(line, column));
+
+					setOfVertices4.put(0, mapMesh.getBasePoint(line - 1, column));
+					setOfVertices4.put(1, mapMesh.getBasePoint(line - 1, column + 1));
+					setOfVertices4.put(2, mapMesh.getBasePoint(line, column));
+
+					setOfFaces.put(k++, setOfVertices1);
+					setOfFaces.put(k++, setOfVertices2);
+					setOfFaces.put(k++, setOfVertices3);
+					setOfFaces.put(k++, setOfVertices4);
 				}
 			}
 		}
-		return mesh;
+
+		k--;
+		WB_Triangle wb_triangle[] = new WB_Triangle[k];
+
+		for (int key = 0; key < k; key++) {
+			wb_triangle[key] = new WB_Triangle(setOfFaces.get(key).get(0), setOfFaces.get(key).get(1),
+					setOfFaces.get(key).get(2));
+		}
+
+		HEC_FromTriangles creator = new HEC_FromTriangles();
+		creator.setTriangles(wb_triangle);
+		HE_Mesh he_mesh= new HE_Mesh(creator);
+		
+		mapMesh.setHe_mesh(he_mesh);
+
+		return mapMesh;
 	}
 
 	/**
@@ -336,10 +419,13 @@ public class MapGenerator {
 	 */
 	public boolean haveToRaised(BufferedImage bufferedImage, double line, double column, double beginWidth,
 			double endWidth, double beginHeight, double endHeight) {
-		double begin = bufferedImage.getWidth() * 0.1;
-		double end = bufferedImage.getWidth() * 0.9;
 
-		boolean condition1, condition2, condition3, condition4, condition5, letter;
+		// double begin = bufferedImage.getWidth() * 0.1;
+		// double end = bufferedImage.getWidth() * 0.9;
+
+		// boolean condition1, condition2, condition3, condition4, condition5,
+		// letter;
+		boolean condition1, condition2, condition3, condition4, condition5;
 
 		condition1 = column >= beginWidth && column <= endWidth && line >= beginHeight
 				&& line <= (bufferedImage.getHeight() - 1) - beginWidth; // zone
@@ -364,61 +450,12 @@ public class MapGenerator {
 				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth; // slot
 																										// droit
 
-		// TEMPORAIRE !! - TODO GENERATE A LETTER
-		letter = column >= 700.0 && column <= 800.0 && line >= 650.0 && line <= 850.0;
+		// letter = column >= 700.0 && column <= 800.0 && line >= 650.0 && line
+		// <= 850.0; // TEMPORAIRE !! - TODO GENERATE A LETTER
+		// return (condition1 && !letter) || condition2 || condition3 ||
+		// condition4 || condition5;
 
-		return (condition1 && !letter) || condition2 || condition3 || condition4 || condition5;
-	}
-
-	/**
-	 * Method for scalling
-	 * 
-	 * @param mesh
-	 * @param bufferedImage
-	 * @param parameter
-	 */
-	public void scalling(MapMesh mapMesh, Parameter parameter) {
-
-		Config.Debug("Mesh de la partelle : " + mapMesh.getMapMeshID() + " mise à l'echelle");
-
-		double ratioX = parameter.getMaxWidthOfPrint() / widthOfParcel;
-		double ratioZ = parameter.getMaxHeightOfPrint() / heightOfPartel;
-
-		mapMesh.setMapMeshHeight(mapMesh.getMapMeshHeight() * ratioX);
-		mapMesh.setMapMeshWidth(mapMesh.getMapMeshWidth() * ratioZ);
-
-		Set<Map.Entry<Double, TreeMap>> setLine = mapMesh.getSetOfVertices().entrySet();
-		Iterator<Map.Entry<Double, TreeMap>> iterator = setLine.iterator();
-		while (iterator.hasNext()) {
-			Map.Entry<Double, TreeMap> entry = iterator.next();
-			TreeMap verticesTreeMap = entry.getValue();
-
-			Set<Map.Entry<Double, Vertices>> setColumn = verticesTreeMap.entrySet();
-			Iterator<Map.Entry<Double, Vertices>> iterator2 = setColumn.iterator();
-
-			while (iterator2.hasNext()) {
-				Map.Entry<Double, Vertices> verticesEntry = iterator2.next();
-				verticesEntry.getValue().setX(verticesEntry.getValue().getX() * ratioX);
-				verticesEntry.getValue().setZ(verticesEntry.getValue().getZ() * ratioZ);
-			}
-		}
-
-		// Ecriture de l'ensemble des points du socle
-		Set<Map.Entry<Double, TreeMap>> setBaseLine = mapMesh.getSetOfVerticesBase().entrySet();
-		Iterator<Map.Entry<Double, TreeMap>> iterator3 = setBaseLine.iterator();
-		while (iterator3.hasNext()) {
-			Map.Entry<Double, TreeMap> entry2 = iterator3.next();
-			TreeMap verticesTreeMapBase = entry2.getValue();
-
-			Set<Map.Entry<Double, Vertices>> setBaseColum = verticesTreeMapBase.entrySet();
-			Iterator<Map.Entry<Double, Vertices>> iterator4 = setBaseColum.iterator();
-
-			while (iterator4.hasNext()) {
-				Map.Entry<Double, Vertices> verticesEntryBase = iterator4.next();
-				verticesEntryBase.getValue().setX(verticesEntryBase.getValue().getX() * ratioX);
-				verticesEntryBase.getValue().setZ(verticesEntryBase.getValue().getZ() * ratioZ);
-			}
-		}
+		return condition1 || condition2 || condition3 || condition4 || condition5;
 	}
 
 	/**
@@ -442,110 +479,148 @@ public class MapGenerator {
 	 */
 	public MapMesh clipGenerator(BufferedImage bufferedImageParcel) {
 
-		double deb = bufferedImageParcel.getWidth() * 0.1;
-		MapMesh clipMesh = new MapMesh(bufferedImageParcel.getHeight(), bufferedImageParcel.getWidth());
-		Vertices vertices1 = new Vertices(0, 0, 0);
-		clipMesh.getSetOfVertices().put(vertices1.getId(), vertices1);
-		Vertices vertices01 = new Vertices(0, 3, 0);
-		clipMesh.getSetOfVertices().put(vertices01.getId(), vertices01);
-		Vertices vertices2 = new Vertices(deb / 2, 0, 0);
-		clipMesh.getSetOfVertices().put(vertices2.getId(), vertices2);
-		Vertices vertices02 = new Vertices(deb / 2, 3, 0);
-		clipMesh.getSetOfVertices().put(vertices02.getId(), vertices02);
-		Vertices vertices3 = new Vertices(0, 0, 2 * deb);
-		clipMesh.getSetOfVertices().put(vertices3.getId(), vertices3);
-		Vertices vertices03 = new Vertices(0, 3, 2 * deb);
-		clipMesh.getSetOfVertices().put(vertices03.getId(), vertices03);
-		Vertices vertices4 = new Vertices(deb / 2, 0, 2 * deb);
-		clipMesh.getSetOfVertices().put(vertices4.getId(), vertices4);
-		Vertices vertices04 = new Vertices(deb / 2, 3, 2 * deb);
-		clipMesh.getSetOfVertices().put(vertices04.getId(), vertices04);
-		Vertices vertices5 = new Vertices(deb / 2, 0, 1.5 * deb);
-		clipMesh.getSetOfVertices().put(vertices5.getId(), vertices5);
-		Vertices vertices05 = new Vertices(deb / 2, 3, 1.5 * deb);
-		clipMesh.getSetOfVertices().put(vertices05.getId(), vertices05);
-		Vertices vertices6 = new Vertices(deb / 2, 0, deb / 2);
-		clipMesh.getSetOfVertices().put(vertices6.getId(), vertices6);
-		Vertices vertices06 = new Vertices(deb / 2, 3, deb / 2);
-		clipMesh.getSetOfVertices().put(vertices06.getId(), vertices06);
-		Vertices vertices7 = new Vertices(2.5 * deb, 0, 1.5 * deb);
-		clipMesh.getSetOfVertices().put(vertices7.getId(), vertices7);
-		Vertices vertices07 = new Vertices(2.5 * deb, 3, 1.5 * deb);
-		clipMesh.getSetOfVertices().put(vertices07.getId(), vertices07);
-		Vertices vertices8 = new Vertices(2.5 * deb, 0, deb / 2);
-		clipMesh.getSetOfVertices().put(vertices8.getId(), vertices8);
-		Vertices vertices08 = new Vertices(2.5 * deb, 3, deb / 2);
-		clipMesh.getSetOfVertices().put(vertices08.getId(), vertices08);
-		Vertices vertices9 = new Vertices(2.5 * deb, 0, 0);
-		clipMesh.getSetOfVertices().put(vertices9.getId(), vertices9);
-		Vertices vertices09 = new Vertices(2.5 * deb, 3, 0);
-		clipMesh.getSetOfVertices().put(vertices09.getId(), vertices09);
-		Vertices vertices10 = new Vertices(3 * deb, 0, 0);
-		clipMesh.getSetOfVertices().put(vertices10.getId(), vertices10);
-		Vertices vertices010 = new Vertices(3 * deb, 3, 0);
-		clipMesh.getSetOfVertices().put(vertices010.getId(), vertices010);
-		Vertices vertices11 = new Vertices(2.5 * deb, 0, 2 * deb);
-		clipMesh.getSetOfVertices().put(vertices11.getId(), vertices11);
-		Vertices vertices011 = new Vertices(2.5 * deb, 3, 2 * deb);
-		clipMesh.getSetOfVertices().put(vertices011.getId(), vertices011);
-		Vertices vertices12 = new Vertices(3 * deb, 0, 2 * deb);
-		clipMesh.getSetOfVertices().put(vertices12.getId(), vertices12);
-		Vertices vertices012 = new Vertices(3 * deb, 3, 2 * deb);
-		clipMesh.getSetOfVertices().put(vertices012.getId(), vertices012);
-
-		// faces horizontales
-		clipMesh.getSetOfFaces().add(new Face(vertices1.getId(), vertices2.getId(), vertices3.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices01.getId(), vertices02.getId(), vertices03.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices2.getId(), vertices3.getId(), vertices4.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices02.getId(), vertices03.getId(), vertices04.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices5.getId(), vertices6.getId(), vertices7.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices05.getId(), vertices06.getId(), vertices07.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices6.getId(), vertices7.getId(), vertices8.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices06.getId(), vertices07.getId(), vertices08.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices9.getId(), vertices10.getId(), vertices11.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices09.getId(), vertices010.getId(), vertices011.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices10.getId(), vertices11.getId(), vertices12.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices010.getId(), vertices011.getId(), vertices012.getId()));
-
-		// faces verticales
-
-		clipMesh.getSetOfFaces().add(new Face(vertices1.getId(), vertices01.getId(), vertices3.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices3.getId(), vertices03.getId(), vertices01.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices1.getId(), vertices01.getId(), vertices2.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices01.getId(), vertices02.getId(), vertices2.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices3.getId(), vertices03.getId(), vertices4.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices03.getId(), vertices04.getId(), vertices4.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices2.getId(), vertices02.getId(), vertices6.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices02.getId(), vertices06.getId(), vertices6.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices4.getId(), vertices04.getId(), vertices5.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices04.getId(), vertices05.getId(), vertices5.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices6.getId(), vertices06.getId(), vertices8.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices06.getId(), vertices08.getId(), vertices8.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices5.getId(), vertices05.getId(), vertices7.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices05.getId(), vertices07.getId(), vertices7.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices8.getId(), vertices9.getId(), vertices08.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices08.getId(), vertices9.getId(), vertices09.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices7.getId(), vertices07.getId(), vertices11.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices07.getId(), vertices11.getId(), vertices011.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices9.getId(), vertices10.getId(), vertices09.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices09.getId(), vertices10.getId(), vertices010.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices11.getId(), vertices12.getId(), vertices011.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices011.getId(), vertices012.getId(), vertices12.getId()));
-
-		clipMesh.getSetOfFaces().add(new Face(vertices12.getId(), vertices10.getId(), vertices012.getId()));
-		clipMesh.getSetOfFaces().add(new Face(vertices10.getId(), vertices012.getId(), vertices010.getId()));
-
-		return clipMesh;
+		/*
+		 * double deb = bufferedImageParcel.getWidth() * 0.1; MapMesh clipMesh =
+		 * new MapMesh(bufferedImageParcel.getHeight(),
+		 * bufferedImageParcel.getWidth()); Vertices vertices1 = new Vertices(0,
+		 * 0, 0); clipMesh.getSetOfVertices().put(vertices1.getId(), vertices1);
+		 * Vertices vertices01 = new Vertices(0, 3, 0);
+		 * clipMesh.getSetOfVertices().put(vertices01.getId(), vertices01);
+		 * Vertices vertices2 = new Vertices(deb / 2, 0, 0);
+		 * clipMesh.getSetOfVertices().put(vertices2.getId(), vertices2);
+		 * Vertices vertices02 = new Vertices(deb / 2, 3, 0);
+		 * clipMesh.getSetOfVertices().put(vertices02.getId(), vertices02);
+		 * Vertices vertices3 = new Vertices(0, 0, 2 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices3.getId(), vertices3);
+		 * Vertices vertices03 = new Vertices(0, 3, 2 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices03.getId(), vertices03);
+		 * Vertices vertices4 = new Vertices(deb / 2, 0, 2 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices4.getId(), vertices4);
+		 * Vertices vertices04 = new Vertices(deb / 2, 3, 2 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices04.getId(), vertices04);
+		 * Vertices vertices5 = new Vertices(deb / 2, 0, 1.5 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices5.getId(), vertices5);
+		 * Vertices vertices05 = new Vertices(deb / 2, 3, 1.5 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices05.getId(), vertices05);
+		 * Vertices vertices6 = new Vertices(deb / 2, 0, deb / 2);
+		 * clipMesh.getSetOfVertices().put(vertices6.getId(), vertices6);
+		 * Vertices vertices06 = new Vertices(deb / 2, 3, deb / 2);
+		 * clipMesh.getSetOfVertices().put(vertices06.getId(), vertices06);
+		 * Vertices vertices7 = new Vertices(2.5 * deb, 0, 1.5 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices7.getId(), vertices7);
+		 * Vertices vertices07 = new Vertices(2.5 * deb, 3, 1.5 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices07.getId(), vertices07);
+		 * Vertices vertices8 = new Vertices(2.5 * deb, 0, deb / 2);
+		 * clipMesh.getSetOfVertices().put(vertices8.getId(), vertices8);
+		 * Vertices vertices08 = new Vertices(2.5 * deb, 3, deb / 2);
+		 * clipMesh.getSetOfVertices().put(vertices08.getId(), vertices08);
+		 * Vertices vertices9 = new Vertices(2.5 * deb, 0, 0);
+		 * clipMesh.getSetOfVertices().put(vertices9.getId(), vertices9);
+		 * Vertices vertices09 = new Vertices(2.5 * deb, 3, 0);
+		 * clipMesh.getSetOfVertices().put(vertices09.getId(), vertices09);
+		 * Vertices vertices10 = new Vertices(3 * deb, 0, 0);
+		 * clipMesh.getSetOfVertices().put(vertices10.getId(), vertices10);
+		 * Vertices vertices010 = new Vertices(3 * deb, 3, 0);
+		 * clipMesh.getSetOfVertices().put(vertices010.getId(), vertices010);
+		 * Vertices vertices11 = new Vertices(2.5 * deb, 0, 2 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices11.getId(), vertices11);
+		 * Vertices vertices011 = new Vertices(2.5 * deb, 3, 2 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices011.getId(), vertices011);
+		 * Vertices vertices12 = new Vertices(3 * deb, 0, 2 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices12.getId(), vertices12);
+		 * Vertices vertices012 = new Vertices(3 * deb, 3, 2 * deb);
+		 * clipMesh.getSetOfVertices().put(vertices012.getId(), vertices012);
+		 * 
+		 * // faces horizontales clipMesh.getSetOfFaces().add(new
+		 * Face(vertices1.getId(), vertices2.getId(), vertices3.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices01.getId(),
+		 * vertices02.getId(), vertices03.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices2.getId(),
+		 * vertices3.getId(), vertices4.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices02.getId(),
+		 * vertices03.getId(), vertices04.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices5.getId(),
+		 * vertices6.getId(), vertices7.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices05.getId(),
+		 * vertices06.getId(), vertices07.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices6.getId(),
+		 * vertices7.getId(), vertices8.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices06.getId(),
+		 * vertices07.getId(), vertices08.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices9.getId(),
+		 * vertices10.getId(), vertices11.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices09.getId(),
+		 * vertices010.getId(), vertices011.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices10.getId(),
+		 * vertices11.getId(), vertices12.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices010.getId(),
+		 * vertices011.getId(), vertices012.getId()));
+		 * 
+		 * // faces verticales
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices1.getId(),
+		 * vertices01.getId(), vertices3.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices3.getId(),
+		 * vertices03.getId(), vertices01.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices1.getId(),
+		 * vertices01.getId(), vertices2.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices01.getId(),
+		 * vertices02.getId(), vertices2.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices3.getId(),
+		 * vertices03.getId(), vertices4.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices03.getId(),
+		 * vertices04.getId(), vertices4.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices2.getId(),
+		 * vertices02.getId(), vertices6.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices02.getId(),
+		 * vertices06.getId(), vertices6.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices4.getId(),
+		 * vertices04.getId(), vertices5.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices04.getId(),
+		 * vertices05.getId(), vertices5.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices6.getId(),
+		 * vertices06.getId(), vertices8.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices06.getId(),
+		 * vertices08.getId(), vertices8.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices5.getId(),
+		 * vertices05.getId(), vertices7.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices05.getId(),
+		 * vertices07.getId(), vertices7.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices8.getId(),
+		 * vertices9.getId(), vertices08.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices08.getId(),
+		 * vertices9.getId(), vertices09.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices7.getId(),
+		 * vertices07.getId(), vertices11.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices07.getId(),
+		 * vertices11.getId(), vertices011.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices9.getId(),
+		 * vertices10.getId(), vertices09.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices09.getId(),
+		 * vertices10.getId(), vertices010.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices11.getId(),
+		 * vertices12.getId(), vertices011.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices011.getId(),
+		 * vertices012.getId(), vertices12.getId()));
+		 * 
+		 * clipMesh.getSetOfFaces().add(new Face(vertices12.getId(),
+		 * vertices10.getId(), vertices012.getId()));
+		 * clipMesh.getSetOfFaces().add(new Face(vertices10.getId(),
+		 * vertices012.getId(), vertices010.getId()));
+		 * 
+		 * return clipMesh;
+		 */
+		return null;
 	}
 
 }

@@ -57,7 +57,6 @@ public class Viewer3D {
 	final static float maxY = 10;
 
 	private MeshView currentMeshView;
-	private Interactor3D currentInteractor3D;
  
 	/**
 	 * Initialize method for add a new world, build a camera and build the axes
