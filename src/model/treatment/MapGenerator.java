@@ -236,6 +236,8 @@ public class MapGenerator {
 		TreeMap<Integer, TreeMap<Integer, Point3D>> setOfFaces = new TreeMap<>();
 
 		int i = 0, k = 0;
+		
+		Config.Debug("-- Creation des points de la map");
 
 		// Create a surface coordinates points : line;column
 		for (double line = 0; line < height; line++) {
@@ -260,6 +262,8 @@ public class MapGenerator {
 			}
 		}
 
+		Config.Debug("-- Génération des faces de la map");
+		
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
 
@@ -388,20 +392,33 @@ public class MapGenerator {
 			}
 		}
 
+		Config.Debug("-- Affectation des faces de la map");
+		
 		k--;
 		WB_Triangle wb_triangle[] = new WB_Triangle[k];
+		
+		System.out.println("k : " +k);
 
 		for (int key = 0; key < k; key++) {
 			wb_triangle[key] = new WB_Triangle(setOfFaces.get(key).get(0), setOfFaces.get(key).get(1),
 					setOfFaces.get(key).get(2));
 		}
 
+		
+		Config.Debug("-- Creation d'une HE_Mesh");
+		
 		HEC_FromTriangles creator = new HEC_FromTriangles();
 		creator.setTriangles(wb_triangle);
 		HE_Mesh he_mesh= new HE_Mesh(creator);
 		
+		
+		Config.Debug("-- Nettoyage de l'HE_Mesh");
+		he_mesh.clean();
+		
+		Config.Debug("-- Affectation de l'HE_Mesh");
+		
 		mapMesh.setHe_mesh(he_mesh);
-
+		
 		return mapMesh;
 	}
 
