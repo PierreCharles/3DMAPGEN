@@ -26,6 +26,9 @@ public class Config {
 	// Name of the output folder to export obj file
 	public static final String OUTPUR_FODLER_NAME = "Mesh";
 	
+	// Letter deep square size (under the map)
+	public static final int LETTER_SIZE_SQUARE = 0;
+	
 	/**
 	 * Debug function for displaying a message
 	 * @param message

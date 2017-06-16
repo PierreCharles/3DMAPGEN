@@ -115,103 +115,6 @@ public class MapGenerator {
 	}
 
 	/**
-	 * Getter of the height cut number
-	 * 
-	 * @return the height cut number : int
-	 */
-	public int getHeightCutNumber() {
-		return heightCutNumber;
-	}
-
-	/**
-	 * Getter of the width cut number
-	 * 
-	 * @return the width cut numner : int
-	 */
-	public int getWidthCutNumber() {
-		return widthCutNumber;
-	}
-
-	/**
-	 * Getter of the height of the partel
-	 * 
-	 * @return height of the partel : int
-	 */
-	public int getHeightOfPartel() {
-		return heightOfPartel;
-	}
-
-	/**
-	 * Getter of the width of the partel
-	 * 
-	 * @return width of the parcel : int
-	 */
-	public int getWidthOfPartel() {
-		return widthOfParcel;
-	}
-
-	/**
-	 * Method to know if an edge is a top edge
-	 * 
-	 * @param line
-	 * @param column
-	 * @return a boolean (true if an edge is a top edge)
-	 */
-	private boolean isTopEdge(double line, double column) {
-		return (line == 0 && column != 0);
-	}
-
-	/**
-	 * Method to know if an edge is a left edge
-	 * 
-	 * @param ligne
-	 * @param column
-	 * @return a boolean (true if an edge is a left edge)
-	 */
-	private boolean isLeftEdge(double ligne, double column) {
-		return (column == 0 && ligne != 0);
-	}
-
-	/**
-	 * Method to know if an edge is a right edge
-	 * 
-	 * @param line
-	 * @param column
-	 * @param width
-	 * @param height
-	 * @return a boolean (true if an edge is a right edge)
-	 */
-	private boolean isRightEdge(double line, double column, double width, double height) {
-		return (column == width && line != 0 && line != height);
-	}
-
-	/**
-	 * Method to know if an edge is a bottom edge
-	 * 
-	 * @param line
-	 * @param column
-	 * @param width
-	 * @param height
-	 * @return a boolean (true if an edge is a bottom edge)
-	 */
-	private boolean isBottomEdge(double line, double column, double width, double height) {
-		return (line == height && column != 0 && column != width);
-	}
-
-	/**
-	 * Method to know if that is centered
-	 * 
-	 * @param line
-	 * @param column
-	 * @param width
-	 * @param height
-	 * @return a boolean (true if is centered)
-	 */
-	private boolean isCenter(double line, double column, double width, double height) {
-		return (0 < line && line < height && 0 < column && column < width);
-	}
-
-	/**
 	 * Method to convert a parcel to mesh
 	 * 
 	 * @param bufferedImage
@@ -421,7 +324,8 @@ public class MapGenerator {
 		
 		return mapMesh;
 	}
-
+	
+	
 	/**
 	 * Method to know if have to raised
 	 * 
@@ -437,43 +341,130 @@ public class MapGenerator {
 	public boolean haveToRaised(BufferedImage bufferedImage, double line, double column, double beginWidth,
 			double endWidth, double beginHeight, double endHeight) {
 
-		// double begin = bufferedImage.getWidth() * 0.1;
-		// double end = bufferedImage.getWidth() * 0.9;
-
-		// boolean condition1, condition2, condition3, condition4, condition5,
-		// letter;
 		boolean condition1, condition2, condition3, condition4, condition5;
 
+		// Rectangle base support
 		condition1 = column >= beginWidth && column <= endWidth && line >= beginHeight
-				&& line <= (bufferedImage.getHeight() - 1) - beginWidth; // zone
-																			// du
-																			// restangle
-																			// socle
+				&& line <= (bufferedImage.getHeight() - 1) - beginWidth; 
 
+		// Top clip support
 		condition2 = column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
-				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2 && line <= beginHeight; // slot
-																										// haut
-
+				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2 && line <= beginHeight; 
+		// Left clip support
 		condition3 = column <= beginWidth && line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
-				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2; // slot
-																				// gauche
+				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2; 
 
+		// Bottom clip support
 		condition4 = column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
 				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2
-				&& line >= (bufferedImage.getHeight() - 1) - beginHeight; // slot
-																			// bas
+				&& line >= (bufferedImage.getHeight() - 1) - beginHeight; 
 
+		// Right clip support
 		condition5 = line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
-				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth; // slot
-																										// droit
-
-		// letter = column >= 700.0 && column <= 800.0 && line >= 650.0 && line
-		// <= 850.0; // TEMPORAIRE !! - TODO GENERATE A LETTER
-		// return (condition1 && !letter) || condition2 || condition3 ||
-		// condition4 || condition5;
-
+				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth; 
+				
 		return condition1 || condition2 || condition3 || condition4 || condition5;
 	}
+	
+	
+	/**
+	 * Getter of the height cut number
+	 * 
+	 * @return the height cut number : int
+	 */
+	public int getHeightCutNumber() {
+		return heightCutNumber;
+	}
+
+	/**
+	 * Getter of the width cut number
+	 * 
+	 * @return the width cut numner : int
+	 */
+	public int getWidthCutNumber() {
+		return widthCutNumber;
+	}
+
+	/**
+	 * Getter of the height of the partel
+	 * 
+	 * @return height of the partel : int
+	 */
+	public int getHeightOfPartel() {
+		return heightOfPartel;
+	}
+
+	/**
+	 * Getter of the width of the partel
+	 * 
+	 * @return width of the parcel : int
+	 */
+	public int getWidthOfPartel() {
+		return widthOfParcel;
+	}
+
+	/**
+	 * Method to know if an edge is a top edge
+	 * 
+	 * @param line
+	 * @param column
+	 * @return a boolean (true if an edge is a top edge)
+	 */
+	private boolean isTopEdge(double line, double column) {
+		return (line == 0 && column != 0);
+	}
+
+	/**
+	 * Method to know if an edge is a left edge
+	 * 
+	 * @param ligne
+	 * @param column
+	 * @return a boolean (true if an edge is a left edge)
+	 */
+	private boolean isLeftEdge(double ligne, double column) {
+		return (column == 0 && ligne != 0);
+	}
+
+	/**
+	 * Method to know if an edge is a right edge
+	 * 
+	 * @param line
+	 * @param column
+	 * @param width
+	 * @param height
+	 * @return a boolean (true if an edge is a right edge)
+	 */
+	private boolean isRightEdge(double line, double column, double width, double height) {
+		return (column == width && line != 0 && line != height);
+	}
+
+	/**
+	 * Method to know if an edge is a bottom edge
+	 * 
+	 * @param line
+	 * @param column
+	 * @param width
+	 * @param height
+	 * @return a boolean (true if an edge is a bottom edge)
+	 */
+	private boolean isBottomEdge(double line, double column, double width, double height) {
+		return (line == height && column != 0 && column != width);
+	}
+
+	/**
+	 * Method to know if that is centered
+	 * 
+	 * @param line
+	 * @param column
+	 * @param width
+	 * @param height
+	 * @return a boolean (true if is centered)
+	 */
+	private boolean isCenter(double line, double column, double width, double height) {
+		return (0 < line && line < height && 0 < column && column < width);
+	}
+	
+
 
 	/**
 	 * Method to get the number of clip

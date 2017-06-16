@@ -2,60 +2,33 @@ package model.mesh;
 
 import wblut.geom.WB_Coord;
 
+/**
+ * Custom Point3D class implement WB_Coord of the HE_Mesh library
+ * 
+ * @author picharles
+ *
+ */
 public class Point3D implements WB_Coord {
 
-	private static int WB_COORD_3D_COUNTER = 0 ;
-	private final static int WB_COORD_3D_DEFAULT_COUNTER = 0; 
-	
 	private double x, y, z;
-	private int id;
 	
+	/**
+	 * Constructor of 3DPoint
+	 * 
+	 * @param xf : double
+	 * @param yf : double
+	 * @param zf : double
+	 */
 	public Point3D(double xf, double yf, double zf) {
 		super();
 		this.x = xf;
 		this.y = yf;
 		this.z = zf;
-		this.id = WB_COORD_3D_COUNTER++;
-	}
-	
-	public void resetCounter(){
-		WB_COORD_3D_COUNTER = WB_COORD_3D_DEFAULT_COUNTER;
-	}
-	
-	public int getId(){
-		return this.id;
-	}
-	
-	@Override
-	public double xd() {
-		return x;
 	}
 
-	@Override
-	public double yd() {
-		return y;
-	}
-
-	@Override
-	public double zd() {
-		return z;
-	}
-	
-	@Override
-	public float xf() {
-		return (float) x;
-	}
-
-	@Override
-	public float yf() {
-		return (float) y;
-	}
-
-	@Override
-	public float zf() {
-		return (float) z;
-	}
-
+	/**
+	 * Method to compare this Coord to another Coord
+	 */
 	@Override
 	public int compareTo(WB_Coord p) {
 		int cmp = Double.compare(xd(), p.xd());
@@ -73,6 +46,9 @@ public class Point3D implements WB_Coord {
 		return Double.compare(wd(), p.wd());
 	}
 
+	/**
+	 * Method to get the double value of the a requested axe of the point
+	 */
 	@Override
 	public double getd(int i) {
 		if (i == 0) {
@@ -87,6 +63,9 @@ public class Point3D implements WB_Coord {
 		return Double.NaN;
 	}
 
+	/**
+	 * Method to get the float value of the a requested axe of the point
+	 */
 	@Override
 	public float getf(int i) {
 		if (i == 0) {
@@ -100,6 +79,55 @@ public class Point3D implements WB_Coord {
 		}
 		return Float.NaN;
 	}
+	
+	/**
+	 * Override getter of x type double
+	 */
+	@Override
+	public double xd() {
+		return x;
+	}
+
+	/**
+	 * Override getter of y type double
+	 */
+	@Override
+	public double yd() {
+		return y;
+	}
+
+	/**
+	 * Override getter of z type double
+	 */
+	@Override
+	public double zd() {
+		return z;
+	}
+	
+	/**
+	 * Override getter of x type float
+	 */
+	@Override
+	public float xf() {
+		return (float) x;
+	}
+
+	/**
+	 * Override getter of y type float
+	 */
+	@Override
+	public float yf() {
+		return (float) y;
+	}
+
+	/**
+	 * Override getter of z type float
+	 */
+	@Override
+	public float zf() {
+		return (float) z;
+	}
+	
 	
 	@Override
 	public float wf() {

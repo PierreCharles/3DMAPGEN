@@ -1,22 +1,16 @@
 package model.mesh;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
-import java.io.PrintWriter;
 import java.util.TreeMap;
 import config.Config;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
 import wblut.hemesh.HET_Export;
-import wblut.hemesh.HE_Face;
 import wblut.hemesh.HE_Mesh;
-import wblut.hemesh.HE_Vertex;
 
 /**
- * Class Mesh A meshing is a set of geometrical forms arranged so as to model
+ * Class Mesh A meshing is a set of geometric forms arranged so as to model
  * objects.It is constituted by summits, connected some to the others by faces.
- * When all Faces are triangles, we speak of triangular meshing trimesh, or of
+ * When all Faces are triangles, we speak of triangular meshing Trimesh, or of
  * triangulation according to them Domains.
  * 
  * @author picharles
@@ -52,17 +46,26 @@ public class MapMesh {
 		Config.Debug("Création d'une MapMesh: " + mapMeshName + " -> H: " + mapMeshHeight + " W: " + mapMeshWidth);
 	}
 
+	/**
+	 * Method to get the HE_Mesh object
+	 * 
+	 * @return HE_Mesh object
+	 */
 	public HE_Mesh getHe_mesh() {
 		return he_mesh;
 	}
 
+	/**
+	 * Setter of the HE_Mesh object of the current partel map
+	 * 
+	 * @param he_mesh
+	 */
 	public void setHe_mesh(HE_Mesh he_mesh) {
 		this.he_mesh = he_mesh;
 	}
 
 	/**
-	 * Method allow to generate a 3D object : create a custom TriangleMesh and
-	 * add all points and faces
+	 * Method to generate a 3D object for the 3D Viewer
 	 */
 	public void generate3DObject() {
 		// TODO NOT IMPLETED YET
@@ -94,16 +97,16 @@ public class MapMesh {
 	}
 
 	/**
-	 * Getter of the partel ID
+	 * Getter of the parcel map mesh ID
 	 * 
-	 * @return the partel id : int
+	 * @return the parcel id : an integer
 	 */
 	public int getMapMeshID() {
 		return mapMeshID;
 	}
 
 	/**
-	 * Setter of the parcel name
+	 * Setter of the parcel mesh name
 	 * 
 	 * @param parcelName
 	 *            : string
