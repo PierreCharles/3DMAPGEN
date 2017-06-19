@@ -1,6 +1,7 @@
 package model.treatment;
 
 import java.awt.image.BufferedImage;
+import java.lang.reflect.MalformedParametersException;
 import java.util.TreeMap;
 
 import config.Config;
@@ -113,6 +114,46 @@ public class MapGenerator {
 		int medium = 255 - (red + green + blue) / 3;
 		return (resolution * medium) + 5;
 	}
+	
+	/**
+	 * Method to know if have to raised
+	 * 
+	 * @param bufferedImage
+	 * @param line
+	 * @param column
+	 * @param beginWidth
+	 * @param endWidth
+	 * @param beginHeight
+	 * @param endHeight
+	 * @return a boolean
+	 */
+	public boolean haveToRaised(double height, double width, double line, double column) {
+
+		double baseSize = Config.BASE_MAP_SIZE;
+		boolean condition1, condition2, condition3, condition4, condition5;
+
+		// Rectangle base support
+		condition1 = column >= baseSize && column <= width-baseSize && line >= baseSize
+				&& line <= height-baseSize; 
+
+		// Top clip support
+		condition2 = column >= (width-baseSize) / 2
+				&& column <= (width+baseSize) / 2 && line <= baseSize; 
+		
+		// Left clip support
+		condition3 = column <= baseSize && line >= (height-baseSize) / 2
+				&& line <= (height+baseSize) / 2; 
+
+		// Bottom clip support
+		condition4 = column >= (width-baseSize) / 2	&& column <= (width+baseSize) / 2
+				&& line >= height-baseSize; 
+
+		// Right clip support
+		condition5 = line >= (height-baseSize) / 2
+				&& line <= (height+baseSize) / 2 && column >= width-baseSize; 
+				
+		return condition1 || condition2 || condition3 || condition4 || condition5;
+	}
 
 	/**
 	 * Method to convert a parcel to mesh
@@ -125,12 +166,11 @@ public class MapGenerator {
 	public MapMesh parcelToMesh(BufferedImage bufferedImage) {
 
 		double resolution = parameters.getMeshHeight() / 256;
-		double height = bufferedImage.getHeight() - 1;
-		double width = bufferedImage.getWidth() - 1;
+		double height = bufferedImage.getHeight();
+		double width = bufferedImage.getWidth();
 		double ratioX = parameters.getMaxWidthOfPrint() / widthOfParcel;
 		double ratioZ = parameters.getMaxHeightOfPrint() / heightOfPartel;
 		double tickness = 5;
-		double beginWidth = 0.1 * width, endWidth = 0.9 * width, beginHeight = 0.1 * height, endHieght = 0.9 * height;
 
 		Config.Debug("height : " + height + " ratioZ: " + ratioZ + " width: " + width + " ratioX : " + ratioX);
 
@@ -155,9 +195,10 @@ public class MapGenerator {
 		// Create a point coordinate base : line;column
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
-				if (haveToRaised(bufferedImage, line, column, beginWidth, endWidth, beginHeight, endHieght)) {
+				if (haveToRaised(height, width, line, column)) {
 					wb_coords[i] = new Point3D(line * ratioX, tickness, column * ratioZ);
-				} else {
+				}
+				else {
 					wb_coords[i] = new Point3D(line * ratioX, 2, column * ratioZ);
 				}
 				mapMesh.addVerticesBase(line, column, wb_coords[i]);
@@ -323,47 +364,6 @@ public class MapGenerator {
 		mapMesh.setHe_mesh(he_mesh);
 		
 		return mapMesh;
-	}
-	
-	
-	/**
-	 * Method to know if have to raised
-	 * 
-	 * @param bufferedImage
-	 * @param line
-	 * @param column
-	 * @param beginWidth
-	 * @param endWidth
-	 * @param beginHeight
-	 * @param endHeight
-	 * @return a boolean
-	 */
-	public boolean haveToRaised(BufferedImage bufferedImage, double line, double column, double beginWidth,
-			double endWidth, double beginHeight, double endHeight) {
-
-		boolean condition1, condition2, condition3, condition4, condition5;
-
-		// Rectangle base support
-		condition1 = column >= beginWidth && column <= endWidth && line >= beginHeight
-				&& line <= (bufferedImage.getHeight() - 1) - beginWidth; 
-
-		// Top clip support
-		condition2 = column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
-				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2 && line <= beginHeight; 
-		// Left clip support
-		condition3 = column <= beginWidth && line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
-				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2; 
-
-		// Bottom clip support
-		condition4 = column >= ((bufferedImage.getWidth() - 1) - beginWidth) / 2
-				&& column <= ((bufferedImage.getWidth() - 1) + beginWidth) / 2
-				&& line >= (bufferedImage.getHeight() - 1) - beginHeight; 
-
-		// Right clip support
-		condition5 = line >= ((bufferedImage.getHeight() - 1) - beginHeight) / 2
-				&& line <= ((bufferedImage.getHeight() - 1) + beginHeight) / 2 && column >= endWidth; 
-				
-		return condition1 || condition2 || condition3 || condition4 || condition5;
 	}
 	
 	
