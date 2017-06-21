@@ -14,6 +14,8 @@
 
 #### HE_Mesh project (library) installation
 
+ This application use [HE_Mesh](https://github.com/wblut/HE_Mesh) library.
+
  3) First, clone or download the HE_Mesh project into the 3DMapGen workspace directory : 
  
      git clone https://github.com/wblut/HE_Mesh.git
@@ -39,10 +41,11 @@ The directory layout looks like this:
 ### src directory
 This folder contains all source code of this application. It organized with some packages :
 	
-    ├ application    # Entry point classe for launching application. 
-    ├ model          # Entities or treatment classes.
-    ├ properties     # The properties files.
-    ├ config         # Contains constant static variables to configure application.
+    ├ application    	# Entry point classe for launching application. 
+    ├ config				# Contain global config of this application
+    ├ controller    	# This package contains the methods that control the display screen
+    ├ model          	# Entities or treatment classes.
+    ├ properties     	# The properties files.
 
 ### ressources directory
 	
