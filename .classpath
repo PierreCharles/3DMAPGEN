@@ -9,5 +9,6 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/HE_Mesh"/>
 	<classpathentry kind="lib" path="H:/workspace/3DMapGen/lib/JFX3DModelImporters/jimObjModelImporterJFX.jar"/>
+	<classpathentry kind="lib" path="H:/workspace/HE_Mesh/external/trove/trove-3.1a1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -5,6 +5,7 @@ import java.util.Locale;
 /**
  * Configuration application class
  * Used to define all configuration variables
+ * The size is writen in cm (print size)
  * 
  * @author picharles
  *
@@ -26,17 +27,17 @@ public class Config {
 	// Name of the output folder to export obj file
 	public static final String OUTPUR_FODLER_NAME = "Mesh";
 	
-	// Letter deep square size (under the map)
-	public static final int LETTER_SIZE_SQUARE = 0;
-	
-	//Base map size
+	//Base map size TODO to be deleted
 	public static final int BASE_MAP_SIZE = 25;
 	
+	//Size of ID sqaure under the map
+	public static final int SQUARE_ID_MAP_SIZE = 50;
+	
 	// -------- Clips size ------ //
-	public static final int WIDTH_CLIP_INSIDE = 1; // Width inside of the clip
-	public static final int CLIP_HEIGHT_INSIDE = 2; // Total height of the clip
-	public static final int CLIP_HEIGHT = 4; // Total height of the clip
-	public static final int WIDTH_CLIP_OUTSIDE = 2; // The with of the clip outside
+	public static final int WIDTH_CLIP_INSIDE = 20; // Width inside of the clip
+	public static final int CLIP_HEIGHT_INSIDE = 40; // Total height of the clip
+	public static final int CLIP_HEIGHT = 60; // Total height of the clip
+	public static final int WIDTH_CLIP_OUTSIDE = 40; // The with of the clip outside
 	
 	/**
 	 * Debug function for displaying a message
