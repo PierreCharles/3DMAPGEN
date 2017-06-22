@@ -131,7 +131,8 @@ public class MapGenerator {
 		MapMesh mapMesh = new MapMesh(height * ratioZ, width * ratioX);
 		TreeMap<Integer, TreeMap<Integer, Point3D>> setOfFaces = new TreeMap<>();
 
-		double[] basePointTable = generateBasePointTable(parameters.getMaxWidthOfPrint(), parameters.getMaxHeightOfPrint());
+		double[] basePointTableX = generateBasePointTable(parameters.getMaxWidthOfPrint());
+		double[] basePointTableY = generateBasePointTable(parameters.getMaxHeightOfPrint());
 
 		int k = 0;
 		Config.Debug("-- Indexation de tous les points de la map");
@@ -144,12 +145,12 @@ public class MapGenerator {
 			}
 		}
 
-		for (int a = 0; a < basePointTable.length; a++) {
-			for (int b = 0; b < 12; b++) {
-				mapMesh.addBasePoint(basePointTable[a], basePointTable[b],
-						new Point3D(basePointTable[a], Config.BASE_MAP_RAISED_TICKNESS, basePointTable[b]));
-				mapMesh.addBaseRaisedPoint(basePointTable[a], basePointTable[b],
-						new Point3D(basePointTable[a], Config.BASE_MAP_TICKNESS, basePointTable[b]));
+		for (int a = 0; a < basePointTableY.length; a++) {
+			for (int b = 0; b < basePointTableX.length; b++) {
+				mapMesh.addBasePoint(basePointTableY[a], basePointTableX[b],
+						new Point3D(basePointTableY[a], Config.BASE_MAP_RAISED_TICKNESS, basePointTableX[b]));
+				mapMesh.addBaseRaisedPoint(basePointTableY[a], basePointTableX[b],
+						new Point3D(basePointTableY[a], Config.BASE_MAP_TICKNESS, basePointTableX[b]));
 			}
 		}
 
@@ -171,21 +172,21 @@ public class MapGenerator {
 
 		Config.Debug("-- Indexation des faces sous la map");
 
-		for (int a = 0; a < basePointTable.length - 1; a++) {
-			for (int b = 0; b < basePointTable.length - 1; b++) {
+		for (int a = 0; a < basePointTableY.length - 1; a++) {
+			for (int b = 0; b < basePointTableX.length - 1; b++) {
 
 				TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
 				TreeMap<Integer, Point3D> setOfVertices2 = new TreeMap<>();
 
-				setOfVertices1.put(0, mapMesh.getBaseRaisedPoint(basePointTable[a], basePointTable[b]));
-				setOfVertices1.put(1, mapMesh.getBaseRaisedPoint(basePointTable[a + 1], basePointTable[b]));
-				setOfVertices1.put(2, mapMesh.getBaseRaisedPoint(basePointTable[a + 1], basePointTable[b + 1]));
-				setOfVertices1.put(3, mapMesh.getBaseRaisedPoint(basePointTable[a], basePointTable[b + 1]));
+				setOfVertices1.put(0, mapMesh.getBaseRaisedPoint(basePointTableY[a], basePointTableX[b]));
+				setOfVertices1.put(1, mapMesh.getBaseRaisedPoint(basePointTableY[a + 1], basePointTableX[b]));
+				setOfVertices1.put(2, mapMesh.getBaseRaisedPoint(basePointTableY[a + 1], basePointTableX[b + 1]));
+				setOfVertices1.put(3, mapMesh.getBaseRaisedPoint(basePointTableY[a], basePointTableX[b + 1]));
 
-				setOfVertices2.put(0, mapMesh.getBasePoint(basePointTable[a], basePointTable[b]));
-				setOfVertices2.put(1, mapMesh.getBasePoint(basePointTable[a + 1], basePointTable[b]));
-				setOfVertices2.put(2, mapMesh.getBasePoint(basePointTable[a + 1], basePointTable[b + 1]));
-				setOfVertices2.put(3, mapMesh.getBasePoint(basePointTable[a], basePointTable[b + 1]));
+				setOfVertices2.put(0, mapMesh.getBasePoint(basePointTableY[a], basePointTableX[b]));
+				setOfVertices2.put(1, mapMesh.getBasePoint(basePointTableY[a + 1], basePointTableX[b]));
+				setOfVertices2.put(2, mapMesh.getBasePoint(basePointTableY[a + 1], basePointTableX[b + 1]));
+				setOfVertices2.put(3, mapMesh.getBasePoint(basePointTableY[a], basePointTableX[b + 1]));
 
 				setOfFaces.put(k++, setOfVertices1);
 				setOfFaces.put(k++, setOfVertices2);
@@ -207,7 +208,7 @@ public class MapGenerator {
 	 *            (the width or the height of the map)
 	 * @return a double table contains value
 	 */
-	private double[] generateBasePointTable(double printWidth, double printHeight) {
+	private double[] generateBasePointTable(double printSize) {
 
 		// TODO clear this and add ratioZ !!!!!!
 		// duplicate floowing code line and replace ratioX by ratioZ
@@ -216,15 +217,15 @@ public class MapGenerator {
 		basePointTable[0] = 0;
 		basePointTable[1] = (Config.INSIDE_HEIGHT_CLIP / 2);
 		basePointTable[2] = (Config.TOTAL_CLIP_HEIGHT / 2);
-		basePointTable[3] = ((printWidth - Config.MIDDLE_SQUARE_MAP_SIZE) / 2) - 1;
-		basePointTable[4] = ((printWidth - Config.OUTSIDE_WIDTH_CLIP) / 2) - 1;
-		basePointTable[5] = ((printWidth - Config.INSIDE_WIDTH_CLIP) / 2) - 1;
-		basePointTable[6] = ((printWidth + Config.INSIDE_WIDTH_CLIP) / 2) - 1;
-		basePointTable[7] = ((printWidth + Config.OUTSIDE_WIDTH_CLIP) / 2) - 1;
-		basePointTable[8] = ((printWidth + Config.MIDDLE_SQUARE_MAP_SIZE) / 2) - 1;
-		basePointTable[9] = (printWidth - (Config.TOTAL_CLIP_HEIGHT / 2)) - 1;
-		basePointTable[10] = (printWidth - (Config.INSIDE_HEIGHT_CLIP / 2)) - 1;
-		basePointTable[11] = printWidth - 1;
+		basePointTable[3] = ((printSize - Config.MIDDLE_SQUARE_MAP_SIZE) / 2) - 1;
+		basePointTable[4] = ((printSize - Config.OUTSIDE_WIDTH_CLIP) / 2) - 1;
+		basePointTable[5] = ((printSize - Config.INSIDE_WIDTH_CLIP) / 2) - 1;
+		basePointTable[6] = ((printSize + Config.INSIDE_WIDTH_CLIP) / 2) - 1;
+		basePointTable[7] = ((printSize + Config.OUTSIDE_WIDTH_CLIP) / 2) - 1;
+		basePointTable[8] = ((printSize + Config.MIDDLE_SQUARE_MAP_SIZE) / 2) - 1;
+		basePointTable[9] = (printSize - (Config.TOTAL_CLIP_HEIGHT / 2)) - 1;
+		basePointTable[10] = (printSize - (Config.INSIDE_HEIGHT_CLIP / 2)) - 1;
+		basePointTable[11] = printSize - 1;
 
 		return basePointTable;
 	}
