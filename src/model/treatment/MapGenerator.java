@@ -1,11 +1,7 @@
 package model.treatment;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.TreeMap;
-
-import javax.imageio.ImageIO;
 
 import config.Config;
 import model.Parameter;
@@ -28,7 +24,7 @@ public class MapGenerator {
 
 	private Parameter parameters;
 	private ImageLoader imageLoader;
-	private int heightCutNumber, widthCutNumber, heightOfPartel, widthOfParcel;
+	private int heightCutNumber, widthCutNumber, heightOfParcel, widthOfParcel;
 
 	/**
 	 * Constructor of a map generator
@@ -76,18 +72,18 @@ public class MapGenerator {
 		BufferedImage imageBase = imageLoader.getBufferedImage();
 		heightCutNumber = (int) Math.ceil(parameters.getImageHeight() / (parameters.getMaxHeightOfPrint() / 10));
 		widthCutNumber = (int) Math.ceil(parameters.getImageWidth() / (parameters.getMaxWidthOfPrint() / 10));
-		heightOfPartel = (int) Math.floor(imageBase.getHeight() / heightCutNumber);
+		heightOfParcel = (int) Math.floor(imageBase.getHeight() / heightCutNumber);
 		widthOfParcel = (int) Math.floor(imageBase.getWidth() / widthCutNumber);
 
 		for (int x = 0; x < widthCutNumber; x++) {
 			for (int y = 0; y < heightCutNumber; y++) {
 				imageList.add(
-						imageBase.getSubimage(x * widthOfParcel, y * heightOfPartel, widthOfParcel, heightOfPartel));
+						imageBase.getSubimage(x * widthOfParcel, y * heightOfParcel, widthOfParcel, heightOfParcel));
 			}
 		}
 
-		Config.Debug("Découpage en : " + imageList.size() + " partelle(s)");
-		Config.Debug("Hauteur d'une partelle : " + heightOfPartel + " --- Largeur d'une partelle : " + widthOfParcel);
+		Config.Debug("Découpage en : " + imageList.size() + " partelle(s). Hauteur d'une parcelle : " + heightOfParcel
+				+ " largeur d'une parcelle : " + widthOfParcel);
 
 		return imageList;
 	}
@@ -113,50 +109,7 @@ public class MapGenerator {
 		int green = (pixel >> 8) & 0xff;
 		int blue = (pixel) & 0xff;
 		int medium = 255 - (red + green + blue) / 3;
-		return (resolution * medium) + 5;
-	}
-
-	/**
-	 * Method to know if have to raised
-	 * 
-	 * @param bufferedImage
-	 * @param line
-	 * @param column
-	 * @param beginWidth
-	 * @param endWidth
-	 * @param beginHeight
-	 * @param endHeight
-	 * @return a boolean
-	 */
-	public boolean haveToRaised(double height, double width, double line, double column) {
-
-		boolean condition1, topClipCondition, condition3, condition4, condition5;
-
-		// Rectangle base support
-		condition1 = column > (width - Config.SQUARE_ID_MAP_SIZE) / 2
-				&& column < (width + Config.SQUARE_ID_MAP_SIZE) / 2 && line > (height - Config.SQUARE_ID_MAP_SIZE) / 2
-				&& line < (height + Config.SQUARE_ID_MAP_SIZE) / 2;
-
-		// Top clip support
-		topClipCondition = (column >= (width - Config.BASE_MAP_SIZE) / 2 && column <= (width + Config.BASE_MAP_SIZE) / 2
-				&& line <= (Config.BASE_MAP_SIZE + Config.CLIP_HEIGHT_INSIDE / 2)
-				|| column >= (width - Config.WIDTH_CLIP_OUTSIDE) / 2
-						&& column <= (width + Config.WIDTH_CLIP_OUTSIDE) / 2
-						&& line <= (Config.BASE_MAP_SIZE + Config.CLIP_HEIGHT / 2));
-
-		// Left clip support
-		condition3 = column <= Config.BASE_MAP_SIZE && line >= (height - Config.BASE_MAP_SIZE) / 2
-				&& line <= (height + Config.BASE_MAP_SIZE) / 2;
-
-		// Bottom clip support
-		condition4 = column >= (width - Config.BASE_MAP_SIZE) / 2 && column <= (width + Config.BASE_MAP_SIZE) / 2
-				&& line >= height - Config.BASE_MAP_SIZE;
-
-		// Right clip support
-		condition5 = line >= (height - Config.BASE_MAP_SIZE) / 2 && line <= (height + Config.BASE_MAP_SIZE) / 2
-				&& column >= width - Config.BASE_MAP_SIZE;
-
-		return condition1 || topClipCondition || condition3 || condition4 || condition5;
+		return (resolution * medium) + Config.BASE_MAP_RAISED_TICKNESS;
 	}
 
 	/**
@@ -169,166 +122,133 @@ public class MapGenerator {
 	 */
 	public MapMesh parcelToMesh(BufferedImage bufferedImage) {
 
-		try {
-			File outputfile = new File("saved.png");
-			ImageIO.write(bufferedImage, "png", outputfile);
-		} catch (IOException e) {
-
-		}
-
 		double resolution = parameters.getMeshHeight() / 256;
 		double height = bufferedImage.getHeight();
 		double width = bufferedImage.getWidth();
 		double ratioX = parameters.getMaxWidthOfPrint() / widthOfParcel;
-		double ratioZ = parameters.getMaxHeightOfPrint() / heightOfPartel;
-		double tickness = 5;
-
-		Config.Debug("height : " + height + " ratioZ: " + ratioZ + " width: " + width + " ratioX : " + ratioX);
+		double ratioZ = parameters.getMaxHeightOfPrint() / heightOfParcel;
 
 		MapMesh mapMesh = new MapMesh(height * ratioZ, width * ratioX);
 		TreeMap<Integer, TreeMap<Integer, Point3D>> setOfFaces = new TreeMap<>();
 
+		double[] basePointTable = generateBasePointTable(parameters.getMaxWidthOfPrint(), parameters.getMaxHeightOfPrint());
+
 		int k = 0;
-		Config.Debug("-- Indexation des points de la map");
+		Config.Debug("-- Indexation de tous les points de la map");
 
 		// Create a surface coordinates points : line;column
 		for (double line = 0; line < height; line++) {
 			for (double column = 0; column < width; column++) {
-				mapMesh.addVertices(line, column, new Point3D(line * ratioX,
+				mapMesh.addSurfacePoint(line, column, new Point3D(line * ratioX,
 						getPixelHeight(bufferedImage, line, column, resolution), column * ratioZ));
 			}
 		}
 
-		// Create a point coordinate base : line;column
-		for (double line = 0; line < height; line++) {
-			for (double column = 0; column < width; column++) {
-				if (haveToRaised(height, width, line, column)) {
-					mapMesh.addVerticesBase(line, column, new Point3D(line * ratioX, tickness, column * ratioZ));
-				} else {
-					mapMesh.addVerticesBase(line, column, new Point3D(line * ratioX, 2, column * ratioZ));
-				}
+		for (int a = 0; a < basePointTable.length; a++) {
+			for (int b = 0; b < 12; b++) {
+				mapMesh.addBasePoint(basePointTable[a], basePointTable[b],
+						new Point3D(basePointTable[a], Config.BASE_MAP_RAISED_TICKNESS, basePointTable[b]));
+				mapMesh.addBaseRaisedPoint(basePointTable[a], basePointTable[b],
+						new Point3D(basePointTable[a], Config.BASE_MAP_TICKNESS, basePointTable[b]));
 			}
 		}
 
-		Config.Debug("-- Indexation des faces de la map");
+		Config.Debug("-- Indexation des faces en surface de la map");
 
-		for (double line = 0; line < height; line++) {
-			for (double column = 0; column < width; column++) {
+		for (double line = 1; line < height; line++) {
+			for (double column = 1; column < width; column++) {
 
-				// TOP: Creation of top side
-				if (line == 0 && column != 0) {
-					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
+				TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
 
-					setOfVertices1.put(0, mapMesh.getSurfacePoint(line, column));
-					setOfVertices1.put(1, mapMesh.getSurfacePoint(line, column - 1));
-					setOfVertices1.put(2, mapMesh.getBasePoint(line, column - 1));
-					setOfVertices1.put(3, mapMesh.getBasePoint(line, column));
+				setOfVertices1.put(0, mapMesh.getSurfacePoint(line, column));
+				setOfVertices1.put(1, mapMesh.getSurfacePoint(line, column - 1));
+				setOfVertices1.put(2, mapMesh.getSurfacePoint(line - 1, column - 1));
+				setOfVertices1.put(3, mapMesh.getSurfacePoint(line - 1, column));
 
-					setOfFaces.put(k++, setOfVertices1);
-				}
-
-				// BOTTOM : Creation of the bottom side
-				if (line == height - 1 && column != 0 && column != width) {
-
-					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
-
-					setOfVertices1.put(0, mapMesh.getBasePoint(line, column));
-					setOfVertices1.put(1, mapMesh.getBasePoint(line, column - 1));
-					setOfVertices1.put(2, mapMesh.getSurfacePoint(line, column - 1));
-					setOfVertices1.put(3, mapMesh.getSurfacePoint(line, column));
-
-					setOfFaces.put(k++, setOfVertices1);
-				}
-
-				// LEFT : Creation of the left side
-				if (column == 0 && line != 0) {
-
-					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
-
-					setOfVertices1.put(0, mapMesh.getBasePoint(line, column));
-					setOfVertices1.put(1, mapMesh.getBasePoint(line - 1, column));
-					setOfVertices1.put(2, mapMesh.getSurfacePoint(line - 1, column));
-					setOfVertices1.put(3, mapMesh.getSurfacePoint(line, column));
-
-					setOfFaces.put(k++, setOfVertices1);
-				}
-
-				// RIGHT : Creation of the right side
-				if (column == width - 1 && line != 0 && line != height) {
-
-					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
-					TreeMap<Integer, Point3D> setOfVertices2 = new TreeMap<>();
-					TreeMap<Integer, Point3D> setOfVertices3 = new TreeMap<>();
-
-					setOfVertices1.put(0, mapMesh.getSurfacePoint(line, column));
-					setOfVertices1.put(1, mapMesh.getSurfacePoint(line - 1, column));
-					setOfVertices1.put(2, mapMesh.getBasePoint(line - 1, column));
-					setOfVertices1.put(3, mapMesh.getBasePoint(line, column));
-
-					setOfVertices2.put(0, mapMesh.getSurfacePoint(line, column - 1));
-					setOfVertices2.put(1, mapMesh.getSurfacePoint(line - 1, column - 1));
-					setOfVertices2.put(2, mapMesh.getSurfacePoint(line - 1, column));
-					setOfVertices2.put(3, mapMesh.getSurfacePoint(line, column));
-
-					setOfVertices3.put(0, mapMesh.getBasePoint(line, column - 1));
-					setOfVertices3.put(1, mapMesh.getBasePoint(line, column));
-					setOfVertices3.put(2, mapMesh.getBasePoint(line - 1, column));
-					setOfVertices3.put(3, mapMesh.getBasePoint(line - 1, column - 1));
-
-					setOfFaces.put(k++, setOfVertices1);
-					setOfFaces.put(k++, setOfVertices2);
-					setOfFaces.put(k++, setOfVertices3);
-
-				}
-
-				// CENTER : Creation of center faces (base and surface)
-				if (line > 0 && line < height && column > 0 && column < width - 1) {
-
-					TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
-					TreeMap<Integer, Point3D> setOfVertices2 = new TreeMap<>();
-
-					setOfVertices1.put(0, mapMesh.getSurfacePoint(line, column));
-					setOfVertices1.put(1, mapMesh.getSurfacePoint(line, column - 1));
-					setOfVertices1.put(2, mapMesh.getSurfacePoint(line - 1, column - 1));
-					setOfVertices1.put(3, mapMesh.getSurfacePoint(line - 1, column));
-
-					setOfVertices2.put(0, mapMesh.getBasePoint(line - 1, column));
-					setOfVertices2.put(1, mapMesh.getBasePoint(line - 1, column - 1));
-					setOfVertices2.put(2, mapMesh.getBasePoint(line, column - 1));
-					setOfVertices2.put(3, mapMesh.getBasePoint(line, column));
-
-					setOfFaces.put(k++, setOfVertices1);
-					setOfFaces.put(k++, setOfVertices2);
-				}
+				setOfFaces.put(k++, setOfVertices1);
 			}
 		}
+
+		Config.Debug("-- Indexation des faces sous la map");
+
+		for (int a = 0; a < basePointTable.length - 1; a++) {
+			for (int b = 0; b < basePointTable.length - 1; b++) {
+
+				TreeMap<Integer, Point3D> setOfVertices1 = new TreeMap<>();
+				TreeMap<Integer, Point3D> setOfVertices2 = new TreeMap<>();
+
+				setOfVertices1.put(0, mapMesh.getBaseRaisedPoint(basePointTable[a], basePointTable[b]));
+				setOfVertices1.put(1, mapMesh.getBaseRaisedPoint(basePointTable[a + 1], basePointTable[b]));
+				setOfVertices1.put(2, mapMesh.getBaseRaisedPoint(basePointTable[a + 1], basePointTable[b + 1]));
+				setOfVertices1.put(3, mapMesh.getBaseRaisedPoint(basePointTable[a], basePointTable[b + 1]));
+
+				setOfVertices2.put(0, mapMesh.getBasePoint(basePointTable[a], basePointTable[b]));
+				setOfVertices2.put(1, mapMesh.getBasePoint(basePointTable[a + 1], basePointTable[b]));
+				setOfVertices2.put(2, mapMesh.getBasePoint(basePointTable[a + 1], basePointTable[b + 1]));
+				setOfVertices2.put(3, mapMesh.getBasePoint(basePointTable[a], basePointTable[b + 1]));
+
+				setOfFaces.put(k++, setOfVertices1);
+				setOfFaces.put(k++, setOfVertices2);
+			}
+		}
+
+		WB_Quad[] wb_Quads = faceGenerator(setOfFaces, k);
+
+		Config.Debug("-- Creation d'une HE_Mesh");
+		HE_Mesh he_mesh = new HE_Mesh(new HEC_FromQuads(wb_Quads));
+		mapMesh.setHe_mesh(he_mesh);
+		return mapMesh;
+	}
+
+	/**
+	 * Methode to generate the defaut point of the base map
+	 * 
+	 * @param mapSize
+	 *            (the width or the height of the map)
+	 * @return a double table contains value
+	 */
+	private double[] generateBasePointTable(double printWidth, double printHeight) {
+
+		// TODO clear this and add ratioZ !!!!!!
+		// duplicate floowing code line and replace ratioX by ratioZ
+		double basePointTable[] = new double[12];
+
+		basePointTable[0] = 0;
+		basePointTable[1] = (Config.INSIDE_HEIGHT_CLIP / 2);
+		basePointTable[2] = (Config.TOTAL_CLIP_HEIGHT / 2);
+		basePointTable[3] = ((printWidth - Config.MIDDLE_SQUARE_MAP_SIZE) / 2) - 1;
+		basePointTable[4] = ((printWidth - Config.OUTSIDE_WIDTH_CLIP) / 2) - 1;
+		basePointTable[5] = ((printWidth - Config.INSIDE_WIDTH_CLIP) / 2) - 1;
+		basePointTable[6] = ((printWidth + Config.INSIDE_WIDTH_CLIP) / 2) - 1;
+		basePointTable[7] = ((printWidth + Config.OUTSIDE_WIDTH_CLIP) / 2) - 1;
+		basePointTable[8] = ((printWidth + Config.MIDDLE_SQUARE_MAP_SIZE) / 2) - 1;
+		basePointTable[9] = (printWidth - (Config.TOTAL_CLIP_HEIGHT / 2)) - 1;
+		basePointTable[10] = (printWidth - (Config.INSIDE_HEIGHT_CLIP / 2)) - 1;
+		basePointTable[11] = printWidth - 1;
+
+		return basePointTable;
+	}
+
+	/**
+	 * Methode to generate all face with a ordered list of 3D points
+	 * 
+	 * @param setOfFaces
+	 *            the ordered list of 3D point
+	 * @param k
+	 *            the number of faces
+	 * @return an WB_Quad array
+	 */
+	private WB_Quad[] faceGenerator(TreeMap<Integer, TreeMap<Integer, Point3D>> setOfFaces, int k) {
 
 		Config.Debug("-- Création des faces de la map");
-		k--;
+
 		WB_Quad wb_quads[] = new WB_Quad[k];
 
 		for (int key = 0; key < k; key++) {
 			wb_quads[key] = new WB_Quad(setOfFaces.get(key).get(0), setOfFaces.get(key).get(1),
 					setOfFaces.get(key).get(2), setOfFaces.get(key).get(3));
 		}
-
-		Config.Debug("-- Creation d'une HE_Mesh");
-
-		HE_Mesh he_mesh = new HE_Mesh(new HEC_FromQuads(wb_quads));
-		mapMesh.setHe_mesh(he_mesh);
-		return mapMesh;
+		return wb_quads;
 
 	}
-
-	/**
-	 * Method to get the number of clip
-	 * 
-	 * @param cutWidthNumber
-	 * @param cutHeightNumber
-	 * @return an integer
-	 */
-	public Integer calculateNumberOfClip(int cutWidthNumber, int cutHeightNumber) {
-		return (cutWidthNumber - 1) + (2 * cutWidthNumber - 1) * (cutHeightNumber - 1);
-	}
-
 }

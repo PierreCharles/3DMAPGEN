@@ -36,7 +36,7 @@ public class ImageLoader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Config.Debug("image chargée : hauteur : " + height + " largeur : " + width);
+		Config.Debug("Chargement de l'image : hauteur : " + height + " largeur : " + width);
 	}
 
 	private void calculateRatio() {

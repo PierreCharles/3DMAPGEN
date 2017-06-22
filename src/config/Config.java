@@ -12,6 +12,8 @@ import java.util.Locale;
  */
 public class Config {
 
+	/* -------------------------- Global settings -------------------------- */
+	
 	// Define if the application is in DEBUG mode
 	public static final boolean DEBUG = true;
 	
@@ -27,18 +29,26 @@ public class Config {
 	// Name of the output folder to export obj file
 	public static final String OUTPUR_FODLER_NAME = "Mesh";
 	
-	//Base map size TODO to be deleted
-	public static final int BASE_MAP_SIZE = 25;
 	
-	//Size of ID sqaure under the map
-	public static final int SQUARE_ID_MAP_SIZE = 50;
+	/* ------------------- Size map and clip config ------------------------ */
+
+	// Tickness of the base map 
+	public static final int BASE_MAP_TICKNESS = 2;
+	// Tickness base map raised
+	public static final int BASE_MAP_RAISED_TICKNESS = 4;
+
+	//Size of ID square under the map (square for displaying the letter)
+	public static final int MIDDLE_SQUARE_MAP_SIZE = 40;
 	
-	// -------- Clips size ------ //
-	public static final int WIDTH_CLIP_INSIDE = 20; // Width inside of the clip
-	public static final int CLIP_HEIGHT_INSIDE = 40; // Total height of the clip
-	public static final int CLIP_HEIGHT = 60; // Total height of the clip
-	public static final int WIDTH_CLIP_OUTSIDE = 40; // The with of the clip outside
+	// Clips size
+	public static final int INSIDE_WIDTH_CLIP = 10; // Width inside of the clip
+	public static final int INSIDE_HEIGHT_CLIP = 20; // Total height of the clip
+	public static final int TOTAL_CLIP_HEIGHT = 40; // Total height of the clip
+	public static final int OUTSIDE_WIDTH_CLIP = 20; // The with of the clip outside
 	
+	
+	/* ------------------------- Debug methods --------------------------- */
+
 	/**
 	 * Debug function for displaying a message
 	 * @param message
