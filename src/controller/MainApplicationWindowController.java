@@ -35,6 +35,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.DrawMode;
 import model.Parameter;
+import model.mesh.ClipMesh;
 import model.mesh.MapMesh;
 import model.treatment.ImageLoader;
 import model.treatment.MapGenerator;

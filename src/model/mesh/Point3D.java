@@ -12,6 +12,11 @@ public class Point3D implements WB_Coord {
 
 	private double x, y, z;
 	
+	@Override
+	public String toString() {
+		return "Point3D [x=" + x + ", y=" + y + ", z=" + z + "]";
+	}
+
 	/**
 	 * Constructor of 3DPoint
 	 * 
