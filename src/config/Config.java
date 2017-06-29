@@ -29,11 +29,12 @@ public class Config {
 	/* ------------------- Size map and clip config ------------------------ */
 
 	// Elevation of the surface map
-	public static final int MAP_ELEVATION = 4;
+	public static final int MAP_ELEVATION = 5;
 	// Tickness of the base map
 	public static final int BASE_MAP_TICKNESS = 2;
 	// Tickness base map raised
 	public static final int BASE_MAP_RAISED_TICKNESS = 4;
+	public static final int BASE_MAP_RAISED_SIDE_TICKNESS = 5;
 	// Size of ID square under the map (square for displaying the letter)
 	public static final int MIDDLE_SQUARE_MAP_SIZE = 40;
 	// Clips size

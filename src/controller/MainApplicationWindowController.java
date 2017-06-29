@@ -217,6 +217,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 						ressources.getString("errorAdjustLabelMessage"));
 			} else {
 				executeTreatement(new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint));
+				Config.Debug("Fin de la génération");
 			}
 		}
 	}

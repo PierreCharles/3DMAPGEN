@@ -26,7 +26,7 @@ import wblut.hemesh.HE_Vertex;
  */
 public class MapMesh {
 
-	private TreeMap<Double, TreeMap<Double, Point3D>> setOfSurfacePoints, setOfBasePoints, setOfBaseRaisedPoints;
+	private TreeMap<Double, TreeMap<Double, Point3D>> setOfSurfacePoints, setOfBasePoints, setOfBaseRaisedPoints, setOfBaseRaisedSidePoints;
 	private String mapMeshName;
 	private int mapMeshID;
 	private static int Map_Mesh_Counter = 1;
@@ -44,6 +44,7 @@ public class MapMesh {
 		setOfSurfacePoints = new TreeMap<Double, TreeMap<Double, Point3D>>();
 		setOfBasePoints = new TreeMap<Double, TreeMap<Double, Point3D>>();
 		setOfBaseRaisedPoints = new TreeMap<Double, TreeMap<Double, Point3D>>();
+		setOfBaseRaisedSidePoints = new TreeMap<Double, TreeMap<Double, Point3D>>();
 
 		Config.Debug("Création d'une MapMesh: " + mapMeshName + " -> H: " + mapHeight + " W: " + mapWidth);
 	}
@@ -198,7 +199,20 @@ public class MapMesh {
 	public void addBaseRaisedPoint(double line, double column, Point3D wb_coords) {	
 		addPoint(setOfBaseRaisedPoints, line, column, wb_coords);
 	}
-
+	
+	
+	/**
+	 * Methode to add a point base side raised into the tree map of set of vertices base
+	 * 
+	 * @param line
+	 * @param column
+	 * @param Point 3D
+	 */
+	public void addBaseRaisedSidePoint(double line, double column, Point3D wb_coords) {	
+		addPoint(setOfBaseRaisedSidePoints, line, column, wb_coords);
+	}
+	
+	
 	/**
 	 * Methode to get a surface point
 	 * 
@@ -232,6 +246,19 @@ public class MapMesh {
 	public Point3D getBaseRaisedPoint(double line, double column) {
 		return getPoint(setOfBaseRaisedPoints, line, column);
 	}
+
+	
+	/**
+	 * Methode to get a base raised side point
+	 * 
+	 * @param line
+	 * @param column
+	 * @return a 3D Point (or null)
+	 */
+	public Point3D getBaseRaisedSidePoint(double line, double column) {
+		return getPoint(setOfBaseRaisedSidePoints, line, column);
+	}
+	
 	
 	/**
 	 * Generic Methode to add a point base raised into the tree map of set of vertices base
