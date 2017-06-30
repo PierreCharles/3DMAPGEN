@@ -3,7 +3,6 @@ package model.mesh;
 import config.Config;
 import wblut.geom.WB_Quad;
 import wblut.hemesh.HEC_FromQuads;
-import wblut.hemesh.HET_Export;
 import wblut.hemesh.HE_Mesh;
 
 /**
@@ -17,11 +16,21 @@ import wblut.hemesh.HE_Mesh;
  * |___|            |___|
  * 1   2           9    10
  */
-public class ClipMesh {
+public class ClipMesh extends ObjectMesh{
 	
-	private HE_Mesh he_mesh;
+
+	private static int Clip_Mesh_Counter = 1;
+	private int clipMeshID = Clip_Mesh_Counter++;
+	//private static final int DEFAULT_CLIP_MESH_COUNTER = 1;
+	private String ClipMeshName;
 	
+	public String getClipMeshName() {
+		return ClipMeshName;
+	}
+
 	public ClipMesh(){
+		
+		this.ClipMeshName = "ClipMesh" + this.clipMeshID;
 
 		Point3D[] clipPoints = new Point3D[24];
 		
@@ -88,14 +97,7 @@ public class ClipMesh {
 		wb_quads[16] = new WB_Quad(clipPoints[14], clipPoints[17], clipPoints[5], clipPoints[2]);
 		wb_quads[17] = new WB_Quad(clipPoints[9], clipPoints[6], clipPoints[18], clipPoints[21]);
 	
-		he_mesh = new HE_Mesh(new HEC_FromQuads(wb_quads));	
-		exportClipMesh();
+		this.setHe_mesh(new HE_Mesh(new HEC_FromQuads(wb_quads)));	
 	}
-	
-	
-	public void exportClipMesh(){
-		HET_Export.saveToOBJNN(this.he_mesh, "C:/Users/picharles/Desktop", "TestClip");
-	}
-	
-	
+
 }
