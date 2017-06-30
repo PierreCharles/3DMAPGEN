@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.text.AbstractDocument.LeafElement;
-
 /**
  * Class treatment It is the class for execute the treatment of the task
  * 
@@ -119,7 +117,9 @@ public class MapGenerator {
 	}
 
 	/**
+	 * Methode to know if a point is on a border of the map
 	 * 
+	 * @return Boolean : true if is a border, else return false
 	 */
 	private boolean pointIsBorder(double line, double column, double height, double width) {
 		// Top || Left || Bottom || Right
@@ -135,26 +135,52 @@ public class MapGenerator {
 	 * @return a mesh
 	 */
 	public MapMesh parcelToMesh(BufferedImage bufferedImage) {
-
+	
+		int height = bufferedImage.getHeight();
+		int width = bufferedImage.getWidth();
 		double resolution = parameters.getMeshHeight() / 256;
-		double height = bufferedImage.getHeight();
-		double width = bufferedImage.getWidth();
-		
 		double ratioX = parameters.getMaxWidthOfPrint() / (widthOfParcel-1);
 		double ratioZ = parameters.getMaxHeightOfPrint() / (heightOfParcel-1);
-		
-		System.out.println(ratioX);
-	
-
 		double[] basePointTableX = generateBasePointTable(parameters.getMaxWidthOfPrint());
 		double[] basePointTableY = generateBasePointTable(parameters.getMaxHeightOfPrint());
 
 		MapMesh mapMesh = new MapMesh((height-1) * ratioZ, (width-1) * ratioX);
+		
 		ArrayList<WB_Polygon> wbPolygonList = new ArrayList<WB_Polygon>();
 
-		Config.Debug("-- Indexation de tous les points de la map");
+		// Create a surface and base coordinates points : line;column
+		createSurfacePoints(mapMesh, height, width, ratioX, ratioZ, bufferedImage, resolution, basePointTableX, basePointTableY);
 
-		// Create a surface coordinates points : line;column
+		// Creation of the surface faces
+		createSurfaceFaces(height, width, wbPolygonList, mapMesh);
+		
+		// Creation of border map faces
+		borderMapFacesCreator(mapMesh, wbPolygonList, basePointTableX, basePointTableY, height, width);
+
+		//Creation of under map faces (Inner border and under plane surface)
+		underMapFacesCreator(mapMesh, wbPolygonList, basePointTableX, basePointTableY);
+
+		HE_Mesh he_mesh = new HE_Mesh(new HEC_FromPolygons(wbPolygonList));
+		mapMesh.setHe_mesh(he_mesh);
+		
+		return mapMesh;
+	}
+	
+	/**
+	 * Methode used to create and index all point of the map into MapMesh TreeMap
+	 * 
+	 * @param mapMesh
+	 * @param height
+	 * @param width
+	 * @param ratioX
+	 * @param ratioZ
+	 * @param bufferedImage
+	 * @param resolution
+	 * @param basePointTableX
+	 * @param basePointTableY
+	 */
+	public void createSurfacePoints(MapMesh mapMesh,int height,int width, double ratioX, double ratioZ, BufferedImage bufferedImage, double resolution, double[] basePointTableX, double[] basePointTableY){
+		Config.Debug("-- Indexation des points en surface de la map");
 		for (int line = 0; line < height; line++) {
 			for (int column = 0; column < width; column++) {
 
@@ -170,16 +196,27 @@ public class MapGenerator {
 				}
 			}
 		}
-
-		for (int a = 0; a < basePointTableY.length; a++) {
-			for (int b = 0; b < basePointTableX.length; b++) {
+		Config.Debug("-- Indexation des points en dessous de la map");
+		for (int a = 0; a < basePointTableX.length; a++) {
+			for (int b = 0; b < basePointTableY.length; b++) {
 				mapMesh.addBaseRaisedPoint(a, b,
 						new Point3D(basePointTableX[a], Config.BASE_MAP_RAISED_TICKNESS, basePointTableY[b]));
 				mapMesh.addBasePoint(a, b,
 						new Point3D(basePointTableX[a], Config.BASE_MAP_TICKNESS, basePointTableY[b]));
 			}
 		}
-	
+	}
+
+
+	/**
+	 * Methode used to create all surface polygon faces map
+	 * @param height
+	 * @param width
+	 * @param wbPolygonList
+	 * @param mapMesh
+	 */
+	public void createSurfaceFaces(int height, int width,ArrayList<WB_Polygon> wbPolygonList, MapMesh mapMesh){
+		
 		Config.Debug("-- Creation des faces en surface de la map");
 
 		for (double line = 0; line < height - 1; line++) {
@@ -191,8 +228,27 @@ public class MapGenerator {
 						mapMesh.getSurfacePoint(line, column + 1)));
 			}
 		}
+	}
+	
 
+	
+	
+	/**
+	 * Methode used to generate the border map polygon faces
+	 * 
+	 * @param mapMesh
+	 * @param wbPolygonList
+	 * @param basePointTableX
+	 * @param basePointTableY
+	 * @param height
+	 * @param width
+	 */
+	public void borderMapFacesCreator(MapMesh mapMesh, ArrayList<WB_Polygon> wbPolygonList, double[] basePointTableX, double[] basePointTableY, int height, int width){
+		
 		Config.Debug("-- Creation des faces sur le coté de la map");
+		
+		int lengthX = basePointTableX.length - 1;
+		int lenghtY = basePointTableY.length - 1;
 		
 		ArrayList<Point3D> listBottomSidePoint = new ArrayList<Point3D>();
 		ArrayList<Point3D> listTopSidePoint = new ArrayList<Point3D>();
@@ -224,17 +280,17 @@ public class MapGenerator {
 			if(a<6){
 				listBottomSideBasePoint1.add(mapMesh.getBaseRaisedPoint(a, 0));
 				listBottomSideBasePoint1Tmp.add(mapMesh.getBasePoint(5-a,0));
-				listTopSideBasePoint1.add(mapMesh.getBasePoint(a, basePointTableY.length-1));
-				listTopSideBasePoint1Tmp.add(mapMesh.getBaseRaisedPoint(5-a, basePointTableY.length-1));
+				listTopSideBasePoint1.add(mapMesh.getBasePoint(a, lenghtY));
+				listTopSideBasePoint1Tmp.add(mapMesh.getBaseRaisedPoint(5-a, lenghtY));
 			}
 			else{
 				listBottomSideBasePoint2.add(mapMesh.getBaseRaisedPoint(a, 0));
-				listBottomSideBasePoint2Tmp.add(mapMesh.getBasePoint((basePointTableX.length-1)-(a-6),0));
-				listTopSideBasePoint2.add(mapMesh.getBasePoint(a, basePointTableY.length-1));
-				listTopSideBasePoint2Tmp.add(mapMesh.getBaseRaisedPoint((basePointTableX.length-1)-(a-6), basePointTableY.length-1));
+				listBottomSideBasePoint2Tmp.add(mapMesh.getBasePoint(lengthX-(a-6),0));
+				listTopSideBasePoint2.add(mapMesh.getBasePoint(a, lenghtY));
+				listTopSideBasePoint2Tmp.add(mapMesh.getBaseRaisedPoint(lengthX-(a-6), lenghtY));
 			}
-			listBottomSidePoint.add(mapMesh.getBaseRaisedPoint((basePointTableX.length-1)-a, 0));
-			listTopSidePoint.add(mapMesh.getBaseRaisedPoint(a,basePointTableY.length-1));
+			listBottomSidePoint.add(mapMesh.getBaseRaisedPoint(lengthX-a, 0));
+			listTopSidePoint.add(mapMesh.getBaseRaisedPoint(a,lenghtY));
 		}
 
 		for (double line = 0; line < height - 1; line++) {
@@ -259,18 +315,18 @@ public class MapGenerator {
 			if(b<6){
 				listLeftSideBasePoint1.add(mapMesh.getBasePoint(0, b));
 				listLeftSideBasePoint1Tmp.add(mapMesh.getBaseRaisedPoint(0,5-b));
-				listRightSideBasePoint1.add(mapMesh.getBaseRaisedPoint(basePointTableX.length-1, b));
-				listRightSideBasePoint1Tmp.add(mapMesh.getBasePoint(basePointTableX.length-1, 5-b));
+				listRightSideBasePoint1.add(mapMesh.getBaseRaisedPoint(lengthX, b));
+				listRightSideBasePoint1Tmp.add(mapMesh.getBasePoint(lengthX, 5-b));
 			}
 			else{
 				listLeftSideBasePoint2.add(mapMesh.getBasePoint(0, b));
-				listLeftSideBasePoint2Tmp.add(mapMesh.getBaseRaisedPoint(0,(basePointTableY.length-1)-(b-6)));
-				listRightSideBasePoint2.add(mapMesh.getBaseRaisedPoint((basePointTableX.length-1),b));
-				listRightSideBasePoint2Tmp.add(mapMesh.getBasePoint((basePointTableX.length-1),(basePointTableX.length-1)-(b-6)));
+				listLeftSideBasePoint2Tmp.add(mapMesh.getBaseRaisedPoint(0,lenghtY-(b-6)));
+				listRightSideBasePoint2.add(mapMesh.getBaseRaisedPoint(lengthX,b));
+				listRightSideBasePoint2Tmp.add(mapMesh.getBasePoint(lengthX,lenghtY-(b-6)));
 			}
 					
 			listLeftSidePoint.add(mapMesh.getBaseRaisedPoint(0, b));
-			listRightSidePoint.add(mapMesh.getBaseRaisedPoint(basePointTableX.length-1,(basePointTableY.length-1)-b));
+			listRightSidePoint.add(mapMesh.getBaseRaisedPoint(lengthX,lenghtY-b));
 		}
 
 		for (double column = 0; column < width - 1; column++) {
@@ -295,49 +351,39 @@ public class MapGenerator {
 		listRightSidePoint.add(mapMesh.getBaseRaisedSidePoint(height - 1,width - 1));
 		listBottomSidePoint.add(mapMesh.getBaseRaisedSidePoint(height - 1, 0));
 		listTopSidePoint.add(mapMesh.getBaseRaisedSidePoint(0 ,width - 1));
+		
+		listLeftSideBasePoint1.addAll(listLeftSideBasePoint1Tmp);
+		listLeftSideBasePoint2.addAll(listLeftSideBasePoint2Tmp);
+
+		listBottomSideBasePoint1.addAll(listBottomSideBasePoint1Tmp);
+		listBottomSideBasePoint2.addAll(listBottomSideBasePoint2Tmp);
+		
+		listTopSideBasePoint1.addAll(listTopSideBasePoint1Tmp);
+		listTopSideBasePoint2.addAll(listTopSideBasePoint2Tmp);
+		
+		listRightSideBasePoint1.addAll(listRightSideBasePoint1Tmp);
+		listRightSideBasePoint2.addAll(listRightSideBasePoint2Tmp);
 
 		wbPolygonList.add(new WB_Polygon(listLeftSidePoint));
 		wbPolygonList.add(new WB_Polygon(listRightSidePoint));
 		wbPolygonList.add(new WB_Polygon(listBottomSidePoint));
 		wbPolygonList.add(new WB_Polygon(listTopSidePoint));
 		
-		
-		listLeftSideBasePoint1.addAll(listLeftSideBasePoint1Tmp);
-		listLeftSideBasePoint2.addAll(listLeftSideBasePoint2Tmp);
 		wbPolygonList.add(new WB_Polygon(listLeftSideBasePoint2));
 		wbPolygonList.add(new WB_Polygon(listLeftSideBasePoint1));
-
-		listBottomSideBasePoint1.addAll(listBottomSideBasePoint1Tmp);
-		listBottomSideBasePoint2.addAll(listBottomSideBasePoint2Tmp);
+		
 	    wbPolygonList.add(new WB_Polygon(listBottomSideBasePoint2));
 		wbPolygonList.add(new WB_Polygon(listBottomSideBasePoint1));
-		
-		listTopSideBasePoint1.addAll(listTopSideBasePoint1Tmp);
-		listTopSideBasePoint2.addAll(listTopSideBasePoint2Tmp);
+	
 	    wbPolygonList.add(new WB_Polygon(listTopSideBasePoint2));
 		wbPolygonList.add(new WB_Polygon(listTopSideBasePoint1));
 		
-		listRightSideBasePoint1.addAll(listRightSideBasePoint1Tmp);
-		listRightSideBasePoint2.addAll(listRightSideBasePoint2Tmp);
 	    wbPolygonList.add(new WB_Polygon(listRightSideBasePoint2));
 		wbPolygonList.add(new WB_Polygon(listRightSideBasePoint1));
-
-		//Creation of under map faces
-		underMapFacesCreator(mapMesh, wbPolygonList, basePointTableX, basePointTableY);
-
-		Config.Debug("-- Creation d'une HE_Mesh -> Creation à partir de polygones");
-
-		HE_Mesh he_mesh = new HE_Mesh(new HEC_FromPolygons(wbPolygonList));
-
-		mapMesh.setHe_mesh(he_mesh);
-		return mapMesh;
 	}
 	
-	
 	/**
-	 * This methode create the under map faces with the basePointTable structure:
-	 * 
-	 * 
+	 * This methode create the under map polygon faces with the basePointTable structure
 	 * 
 	 * @param mapMesh
 	 * @param wbPolygonList
@@ -347,10 +393,13 @@ public class MapGenerator {
 	public void underMapFacesCreator(MapMesh mapMesh, ArrayList<WB_Polygon> wbPolygonList, double[] basePointTableX, double[] basePointTableY){
 		
 		Config.Debug("-- Creation des faces sous la map");
+		
+		int lengthX = basePointTableX.length - 1;
+		int lenghtY = basePointTableY.length - 1;
 
 		int idCurrentFace = 0;
-		for (int a = 0; a < basePointTableX.length - 1; a++) {
-			for (int b = 0; b < basePointTableY.length - 1; b++) {
+		for (int a = 0; a < lengthX; a++) {
+			for (int b = 0; b < lenghtY; b++) {
 				// Under map faces elevated
 				if (baseFacesList.contains(idCurrentFace)) {
 					wbPolygonList.add(new WB_Polygon(
@@ -367,7 +416,7 @@ public class MapGenerator {
 							mapMesh.getBasePoint(a, b+1)));
 
 					// Inner right side
-					if (baseFacesList.contains(idCurrentFace + 1) && ((idCurrentFace + 1) % (basePointTableY.length - 1)) != 0) {
+					if (baseFacesList.contains(idCurrentFace + 1) && ((idCurrentFace + 1) % lenghtY) != 0) {
 						
 						wbPolygonList.add(new WB_Polygon(
 								mapMesh.getBasePoint(a, b+1),
@@ -377,7 +426,7 @@ public class MapGenerator {
 					}
 
 					// Inner left side
-					if (baseFacesList.contains(idCurrentFace - 1) && (idCurrentFace % (basePointTableY.length - 1)) != 0) { 
+					if (baseFacesList.contains(idCurrentFace - 1) && (idCurrentFace % lenghtY) != 0) { 
 						
 						wbPolygonList.add(new WB_Polygon(
 										mapMesh.getBaseRaisedPoint(a+1, b), 
@@ -387,7 +436,7 @@ public class MapGenerator {
 					}
 
 					// Inner bottom side
-					if (baseFacesList.contains(idCurrentFace + (basePointTableX.length - 1))) { 
+					if (baseFacesList.contains(idCurrentFace + lengthX)) { 
 						
 						wbPolygonList.add(new WB_Polygon(
 										mapMesh.getBasePoint(a+1, b), 
@@ -397,7 +446,7 @@ public class MapGenerator {
 					}
 
 					// Inner top side
-					if (baseFacesList.contains(idCurrentFace - (basePointTableX.length - 1))) { 
+					if (baseFacesList.contains(idCurrentFace - lengthX)) { 
 						
 						wbPolygonList.add(new WB_Polygon(
 										mapMesh.getBaseRaisedPoint(a, b+1), 
@@ -409,7 +458,6 @@ public class MapGenerator {
 				idCurrentFace++;
 			}
 		}
-
 	}
 
 	/**
