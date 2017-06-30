@@ -14,10 +14,44 @@ import wblut.hemesh.HE_Halfedge;
 import wblut.hemesh.HE_Mesh;
 import wblut.hemesh.HE_Vertex;
 
+/**
+ * Super class of a mesh : ObjectMesh
+ * Contains all usefull methodes for mapMesh and clipMesh 
+ * 
+ * @author picharles
+ *
+ */
 public class ObjectMesh {
 
 	private HE_Mesh he_mesh;
+	private String name;
 	
+	/**
+	 * Protected constructor of an ObjectMesh
+	 * 
+	 * @param name : the name of the mesh
+	 * @param id : the current id of the mesh
+	 */
+	protected ObjectMesh(String name, int id){
+		this.name = name+id;
+	}
+	
+	/**
+	 * Getter of the name of the mesh
+	 * 
+	 * @return string : the name of the mesh
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Override methode toString
+	 */
+	@Override
+	public String toString(){
+		return this.name;
+	}
 	/**
 	 * Method to get the HE_Mesh object
 	 * 

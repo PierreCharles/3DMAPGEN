@@ -1,20 +1,6 @@
 package model.mesh;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.TreeMap;
-
-import config.Config;
-import gnu.trove.map.TLongIntMap;
-import gnu.trove.map.hash.TLongIntHashMap;
-import wblut.hemesh.HE_Face;
-import wblut.hemesh.HE_Halfedge;
-import wblut.hemesh.HE_Mesh;
-import wblut.hemesh.HE_Vertex;
 
 /**
  * Class Mesh A meshing is a set of geometric forms arranged so as to model
@@ -26,10 +12,9 @@ import wblut.hemesh.HE_Vertex;
  */
 public class MapMesh extends ObjectMesh {
 
-	private String mapMeshName;
 	private static int Map_Mesh_Counter = 1;
-	private int mapMeshID = Map_Mesh_Counter++;
 	private static final int DEFAULT_MAP_MESH_COUNTER = 1;
+	
 	private TreeMap<Double, TreeMap<Double, Point3D>> setOfSurfacePoints = new TreeMap<Double, TreeMap<Double, Point3D>>();
 	private TreeMap<Double, TreeMap<Double, Point3D>> setOfBasePoints = new TreeMap<Double, TreeMap<Double, Point3D>>();
 	private TreeMap<Double, TreeMap<Double, Point3D>> setOfBaseRaisedPoints = new TreeMap<Double, TreeMap<Double, Point3D>>();
@@ -38,29 +23,10 @@ public class MapMesh extends ObjectMesh {
 	/**
 	 * Constructor af a Mesh
 	 */
-	public MapMesh(double mapHeight, double mapWidth) {
-		this.mapMeshName = "Map"+Config.EXPORT_PREFIX_FILE_NAME + this.mapMeshID;
-		Config.Debug("Création : " + mapMeshName + " -> H: " + mapHeight + " W: " + mapWidth);
+	public MapMesh() {
+		super("MapMesh", Map_Mesh_Counter++);
 	}
 
-	/**
-	 * Getter of the parcel name
-	 * 
-	 * @return the parcel name : String
-	 */
-	public String getMapMeshName() {
-		return mapMeshName;
-	}
-
-	/**
-	 * To string override method
-	 * 
-	 * @return string
-	 */
-	@Override
-	public String toString() {
-		return Config.EXPORT_PREFIX_FILE_NAME + mapMeshID;
-	}
 
 	/**
 	 * Static method to reset the mesh counter

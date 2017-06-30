@@ -144,8 +144,9 @@ public class MapGenerator {
 		double[] basePointTableX = generateBasePointTable(parameters.getMaxWidthOfPrint());
 		double[] basePointTableY = generateBasePointTable(parameters.getMaxHeightOfPrint());
 
-		MapMesh mapMesh = new MapMesh((height-1) * ratioZ, (width-1) * ratioX);
-		
+		MapMesh mapMesh = new MapMesh();
+		Config.Debug("Création : " + mapMesh.getName() + " -> H: " + (height-1) * ratioX + " W: " + (width-1) * ratioX);
+
 		ArrayList<WB_Polygon> wbPolygonList = new ArrayList<WB_Polygon>();
 
 		// Create a surface and base coordinates points : line;column

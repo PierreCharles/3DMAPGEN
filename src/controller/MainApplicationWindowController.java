@@ -1,5 +1,6 @@
 package controller;
 
+import java.applet.Applet;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -40,6 +41,7 @@ import model.mesh.MapMesh;
 import model.treatment.ImageLoader;
 import model.treatment.MapGenerator;
 import model.viewer.Viewer3D;
+import wblut.processing.WB_Render3D;
 import config.Config;
 
 /**
@@ -218,6 +220,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			} else {
 				executeTreatement(new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint));
 				Config.Debug("Fin de la génération");
+				
 			}
 		}
 	}
@@ -275,11 +278,11 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			file.mkdir();
 
 			for (MapMesh mapMesh : mapMeshList) {
-				mapMesh.exportMeshToObj(file.toString(), mapMesh.getMapMeshName());
+				mapMesh.exportMeshToObj(file.toString(), mapMesh.getName());
 			}
 			
 			ClipMesh clipMesh = new ClipMesh();
-			clipMesh.exportMeshToObj(file.toString(), clipMesh.getClipMeshName());
+			clipMesh.exportMeshToObj(file.toString(), clipMesh.getName());
 			Config.Debug("Exportation terminée dans " + file.toString());
 		}
 	}

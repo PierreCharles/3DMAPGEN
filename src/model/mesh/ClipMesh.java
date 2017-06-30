@@ -20,17 +20,9 @@ public class ClipMesh extends ObjectMesh{
 	
 
 	private static int Clip_Mesh_Counter = 1;
-	private int clipMeshID = Clip_Mesh_Counter++;
-	//private static final int DEFAULT_CLIP_MESH_COUNTER = 1;
-	private String ClipMeshName;
 	
-	public String getClipMeshName() {
-		return ClipMeshName;
-	}
-
 	public ClipMesh(){
-		
-		this.ClipMeshName = "ClipMesh" + this.clipMeshID;
+		super("ClipMesh", Clip_Mesh_Counter++);
 
 		Point3D[] clipPoints = new Point3D[24];
 		

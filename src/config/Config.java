@@ -19,8 +19,6 @@ public class Config {
 	public static final String DEFAULT_LANG = "fr";
 	// Variable used for the current selected language
 	public static Locale Current_Language = new Locale(DEFAULT_LANG);
-	// Map mesh Name of the export file
-	public static final String EXPORT_PREFIX_FILE_NAME = "Mesh";
 	// Name of the output folder to export obj file
 	public static final String OUTPUR_FODLER_NAME = "Mesh";
 
