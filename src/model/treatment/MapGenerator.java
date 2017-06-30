@@ -179,7 +179,9 @@ public class MapGenerator {
 	 * @param basePointTableX
 	 * @param basePointTableY
 	 */
-	public void createSurfacePoints(MapMesh mapMesh,int height,int width, double ratioX, double ratioZ, BufferedImage bufferedImage, double resolution, double[] basePointTableX, double[] basePointTableY){
+	public void createSurfacePoints(MapMesh mapMesh,int height,int width, double ratioX, double ratioZ, 
+			BufferedImage bufferedImage, double resolution, double[] basePointTableX, double[] basePointTableY){
+		
 		Config.Debug("-- Indexation des points en surface de la map");
 		for (int line = 0; line < height; line++) {
 			for (int column = 0; column < width; column++) {

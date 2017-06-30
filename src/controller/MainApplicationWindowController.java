@@ -275,8 +275,11 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			file.mkdir();
 
 			for (MapMesh mapMesh : mapMeshList) {
-				mapMesh.exportMapMeshToObj(file.toString());
+				mapMesh.exportMeshToObj(file.toString(), mapMesh.getMapMeshName());
 			}
+			
+			ClipMesh clipMesh = new ClipMesh();
+			clipMesh.exportMeshToObj(file.toString(), clipMesh.getClipMeshName());
 			Config.Debug("Exportation terminée dans " + file.toString());
 		}
 	}
