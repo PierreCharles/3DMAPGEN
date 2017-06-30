@@ -27,6 +27,7 @@
         <Menu fx:id="file" mnemonicParsing="false" text="%file">
           <items>
             
+                  <MenuItem fx:id="importOBJFile" mnemonicParsing="false" onAction="#ImportOBJFile" text="%importOBJFile" />
                   <MenuItem fx:id="close" mnemonicParsing="false" onAction="#close" text="%close" />
 
                 </items>

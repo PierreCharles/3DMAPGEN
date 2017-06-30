@@ -11,10 +11,6 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -38,9 +34,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.DrawMode;
-
 import model.Parameter;
-import model.mesh.Parcel;
+import model.mesh.ClipMesh;
+import model.mesh.MapMesh;
 import model.treatment.ImageLoader;
 import model.treatment.MapGenerator;
 import model.viewer.Viewer3D;
@@ -61,7 +57,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton,
 			resetButton;
 	@FXML
-	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close;
+	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close, importOBJFile;
 	@FXML
 	private Menu file, edit, language;
 	@FXML
@@ -74,16 +70,16 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	private ResourceBundle ressources;
 	@FXML
-	private ListView<Parcel> listView3D;
+	private ListView<MapMesh> listView3D;
 	@FXML
 	private Pane paneViewer3D;
 	@FXML
 	private CheckBox checkDiplayingVertices;
 
-	private ObservableList<Parcel> listView3DItems = FXCollections.observableArrayList();
+	//private ObservableList<MapMesh> listView3DItems = FXCollections.observableArrayList();
 
 	private SubScene subSceneViewer3D;
-	public List<Parcel> parcelsList = new ArrayList<>();
+	public List<MapMesh> mapMeshList = new ArrayList<>();
 	private File selectedFile;
 	private double height, width;
 	private ImageLoader imageLoader;
@@ -153,6 +149,28 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private void changeLanguageEnglish(ActionEvent event) {
 		loadLang("en");
 	}
+	
+	
+	/**
+	 * Method execute when user click on obj import menu
+	 * 
+	 * @param event
+	 * @throws IOException
+	 */
+	@FXML
+	public void ImportOBJFile(ActionEvent event) throws IOException {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.getExtensionFilters().addAll(
+				new FileChooser.ExtensionFilter("OBJ Files", "*.obj"),
+				new FileChooser.ExtensionFilter("All Files", "*.*"));
+		selectedFile = fileChooser.showOpenDialog(this);
+		if (selectedFile != null) {
+			System.out.println(selectedFile.toString());
+			viewer.build3DObjectViewer(selectedFile);
+			borderPaneConfigViewer.setDisable(false);
+		}
+	}
+	
 
 	/**
 	 * Method execute when user click on open button
@@ -161,7 +179,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 * @throws IOException
 	 */
 	@FXML
-	public void openFileChooser(ActionEvent event) throws IOException {
+	public void openFileChooser(ActionEvent event) throws IOException {	
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().addAll(
 				new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"),
@@ -183,8 +201,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 */
 	@FXML
 	public void onTreatement(ActionEvent envent) throws IOException {
-
-		Parcel.resetCounter();
+		MapMesh.resetMapMeshCounter();
 		if (heightField.getText().isEmpty() || widthField.getText().isEmpty() || maxWidthPrintField.getText().isEmpty()
 				|| maxHeightPrintField.getText().isEmpty()) {
 			showErrorPopUp(ressources.getString("error"), ressources.getString("errorParameterLabel"),
@@ -200,6 +217,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 						ressources.getString("errorAdjustLabelMessage"));
 			} else {
 				executeTreatement(new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint));
+				Config.Debug("Fin de la génération");
 			}
 		}
 	}
@@ -212,27 +230,30 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private void executeTreatement(Parameter parameters) {
 
 		MapGenerator mapGenerator = new MapGenerator(parameters, this.imageLoader);
-		parcelsList = mapGenerator.executeTreatment();
+		mapMeshList = mapGenerator.executeTreatment();
 		gridPaneExport.setDisable(false);
-		borderPaneConfigViewer.setDisable(false);
 
+		/*
+		borderPaneConfigViewer.setDisable(false);
+		
 		listView3DItems.clear();
-		for (Parcel parcel : parcelsList) {
-			listView3DItems.add(parcel);
+		for (MapMesh mapMesh : mapMeshList) {
+			listView3DItems.add(mapMesh);
 		}
 		listView3D.setItems(listView3DItems);
 
-		listView3D.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Parcel>() {
+		listView3D.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<MapMesh>() {
 			@Override
-			public void changed(ObservableValue<? extends Parcel> observable, Parcel oldValue, Parcel newValue) {
+			public void changed(ObservableValue<? extends MapMesh> observable, MapMesh oldValue, MapMesh newValue) {
 				checkDiplayingVertices.setSelected(false);
-				viewer.setNewMesh(parcelsList.get(newValue.getPartelID() - 1));
+				//viewer.setNewMesh(mapMeshList.get(newValue.getMapMeshID()- 1));
 			}
 		});
 
 		listView3D.requestFocus();
 		listView3D.getSelectionModel().select(0);
 		listView3D.getFocusModel().focus(0);
+		*/
 	}
 
 	/**
@@ -253,10 +274,9 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			File file = new File(selectedSaveFile.toString() + "\\" + Config.OUTPUR_FODLER_NAME);
 			file.mkdir();
 
-			for (Parcel parcel : parcelsList) {
-				parcel.exportPartelMapMeshToObj(file.toString());
+			for (MapMesh mapMesh : mapMeshList) {
+				mapMesh.exportMapMeshToObj(file.toString());
 			}
-
 			Config.Debug("Exportation terminée dans " + file.toString());
 		}
 	}
@@ -428,6 +448,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		file.setText(ressources.getString("file"));
 		edit.setText(ressources.getString("edit"));
 		language.setText(ressources.getString("language"));
+		importOBJFile.setText(ressources.getString("importOBJFile"));
 	}
 
 }

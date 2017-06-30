@@ -11,7 +11,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
- * Main application : extends Application This is entry point of this application
+ * Main application : extends Application This is the second entry point of this application
  * 
  * @author
  */

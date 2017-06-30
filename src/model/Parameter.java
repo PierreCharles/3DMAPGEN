@@ -12,7 +12,7 @@ public class Parameter {
 	private double imageWidth, imageHeight, meshHeight, maxWidthOfPrint, maxHeightOfPrint;
 
 	/**
-	 * Parameter construtor
+	 * Parameter constructor
 	 * @param height
 	 * @param width
 	 * @param meshHeight
