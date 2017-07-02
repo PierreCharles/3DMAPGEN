@@ -6,6 +6,7 @@ import config.Config;
 import model.Parameter;
 import model.mesh.Point3D;
 import model.mesh.MapMesh;
+import model.mesh.ObjectMesh;
 import wblut.geom.WB_Polygon;
 import wblut.hemesh.HEC_FromPolygons;
 import wblut.hemesh.HE_Mesh;
@@ -49,9 +50,9 @@ public class MapGenerator {
 	 * @param parameter
 	 * @return
 	 */
-	public List<MapMesh> executeTreatment() {
+	public List<ObjectMesh> executeTreatment() {
 
-		List<MapMesh> parcelList = new ArrayList<>();
+		List<ObjectMesh> parcelList = new ArrayList<>();
 		List<BufferedImage> imagesList = cutImage();
 
 		imagesList.forEach((image) -> {

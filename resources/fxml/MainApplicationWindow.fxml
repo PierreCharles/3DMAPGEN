@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.SubScene?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
@@ -267,18 +266,21 @@
          </children>
       </Pane>
    </center>
+   <bottom>
+      <GridPane BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="449.0" minWidth="10.0" prefWidth="424.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="484.0" minWidth="10.0" prefWidth="402.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label fx:id="memoryUsageLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="424.0" styleClass="theme_text" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+         </children>
+      </GridPane>
+   </bottom>
    <left>
-      <BorderPane fx:id="borderPaneConfigViewer" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <bottom>
-            <CheckBox id="checkDiplayingVertices" fx:id="checkDiplayingVertices" mnemonicParsing="false" onAction="#OnCheckVerticesBox" styleClass="theme_text" text="%checkDiplayingVertices" BorderPane.alignment="CENTER" />
-         </bottom>
-         <center>
-            <ListView fx:id="listView3D" prefHeight="610.0" prefWidth="164.0" BorderPane.alignment="CENTER">
-               <BorderPane.margin>
-                  <Insets />
-               </BorderPane.margin>
-            </ListView>
-         </center>
-      </BorderPane>
+      <ListView fx:id="listView3D" prefHeight="610.0" prefWidth="164.0" BorderPane.alignment="CENTER" />
    </left>
 </BorderPane>

@@ -1,6 +1,5 @@
 package controller;
 
-import java.applet.Applet;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -12,6 +11,10 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,7 +22,6 @@ import javafx.scene.SubScene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
@@ -32,16 +34,13 @@ import javafx.stage.DirectoryChooser;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.DrawMode;
 import model.Parameter;
 import model.mesh.ClipMesh;
 import model.mesh.MapMesh;
+import model.mesh.ObjectMesh;
 import model.treatment.ImageLoader;
 import model.treatment.MapGenerator;
 import model.viewer.Viewer3D;
-import wblut.processing.WB_Render3D;
 import config.Config;
 
 /**
@@ -52,7 +51,7 @@ import config.Config;
 public class MainApplicationWindowController extends Stage implements Initializable {
 
 	@FXML
-	private BorderPane borderPane, borderPaneConfigViewer;
+	private BorderPane borderPane;
 	@FXML
 	private ImageView viewImage;
 	@FXML
@@ -66,22 +65,20 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private TextField heightField, widthField, heightMeshField, maxWidthPrintField, maxHeightPrintField;
 	@FXML
 	private Label labelStep1, labelStep2, labelStep3, labelStep4, heightLabel, widthLabel, meshHeightLabel,
-			maxWidthOfPrintLabel, maxHeightOfPrintLabel;
+			maxWidthOfPrintLabel, maxHeightOfPrintLabel, memoryUsageLabel;
 	@FXML
 	private GridPane gridPaneParameters, gridPaneTreatment, gridPaneExport;
 	@FXML
 	private ResourceBundle ressources;
 	@FXML
-	private ListView<MapMesh> listView3D;
+	private ListView<ObjectMesh> listView3D;
 	@FXML
 	private Pane paneViewer3D;
-	@FXML
-	private CheckBox checkDiplayingVertices;
 
-	//private ObservableList<MapMesh> listView3DItems = FXCollections.observableArrayList();
+	private ObservableList<ObjectMesh> listView3DItems = FXCollections.observableArrayList();
 
 	private SubScene subSceneViewer3D;
-	public List<MapMesh> mapMeshList = new ArrayList<>();
+	public List<ObjectMesh> objectMeshList = new ArrayList<>();
 	private File selectedFile;
 	private double height, width;
 	private ImageLoader imageLoader;
@@ -95,6 +92,39 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		ressources = bundle;
 		initialize3dViewer();
 		initializeFirstLaunch();
+		initializePerformTools();
+	}
+	
+	/**
+	 * Method allow to get and update memory usage heap space information for displaying
+	 * Use a Thread for displaying informations each seconds
+	 */
+	public void initializePerformTools(){
+
+        new Thread() {
+            // runnable for that thread
+            public void run() {
+                while(true){
+                    try {
+                		// The current size of heap in bytes
+                		long heapSize = Runtime.getRuntime().totalMemory(); 
+                		// The maximum size of heap in bytes. The heap cannot grow beyond this size.// Any attempt will result in an OutOfMemoryException.
+                		long heapMaxSize = Runtime.getRuntime().maxMemory();
+                		 // The amount of free memory within the heap in bytes. This size will increase // after garbage collection and decrease as new objects are created.
+                		long heapFreeSize = Runtime.getRuntime().freeMemory(); 
+                		String test = new String(heapSize+" / "+heapMaxSize + " / "+ heapFreeSize);
+  
+                        Platform.runLater(() -> {
+                        	memoryUsageLabel.setText(test);
+                        });
+                		
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                    	Config.Debug(ex.getMessage());
+                    }
+                }
+            }
+        }.start();
 	}
 
 	/**
@@ -115,7 +145,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		gridPaneParameters.setDisable(true);
 		gridPaneTreatment.setDisable(true);
 		gridPaneExport.setDisable(true);
-		borderPaneConfigViewer.setDisable(true);
+		listView3D.setDisable(true);
 		subSceneViewer3D.heightProperty().bind(paneViewer3D.heightProperty());
 		subSceneViewer3D.widthProperty().bind(paneViewer3D.widthProperty());
 	}
@@ -169,7 +199,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		if (selectedFile != null) {
 			System.out.println(selectedFile.toString());
 			viewer.build3DObjectViewer(selectedFile);
-			borderPaneConfigViewer.setDisable(false);
+			listView3D.setDisable(false);
 		}
 	}
 	
@@ -233,22 +263,20 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private void executeTreatement(Parameter parameters) {
 
 		MapGenerator mapGenerator = new MapGenerator(parameters, this.imageLoader);
-		mapMeshList = mapGenerator.executeTreatment();
+		objectMeshList = mapGenerator.executeTreatment();
 		gridPaneExport.setDisable(false);
 
-		/*
-		borderPaneConfigViewer.setDisable(false);
+		listView3D.setDisable(false);
 		
 		listView3DItems.clear();
-		for (MapMesh mapMesh : mapMeshList) {
-			listView3DItems.add(mapMesh);
+		for (ObjectMesh objectMesh : objectMeshList) {
+			listView3DItems.add(objectMesh);
 		}
 		listView3D.setItems(listView3DItems);
 
-		listView3D.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<MapMesh>() {
+		listView3D.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ObjectMesh>() {
 			@Override
-			public void changed(ObservableValue<? extends MapMesh> observable, MapMesh oldValue, MapMesh newValue) {
-				checkDiplayingVertices.setSelected(false);
+			public void changed(ObservableValue<? extends ObjectMesh> observable, ObjectMesh oldValue, ObjectMesh newValue) {
 				//viewer.setNewMesh(mapMeshList.get(newValue.getMapMeshID()- 1));
 			}
 		});
@@ -256,7 +284,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		listView3D.requestFocus();
 		listView3D.getSelectionModel().select(0);
 		listView3D.getFocusModel().focus(0);
-		*/
 	}
 
 	/**
@@ -277,29 +304,13 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			File file = new File(selectedSaveFile.toString() + "\\" + Config.OUTPUR_FODLER_NAME);
 			file.mkdir();
 
-			for (MapMesh mapMesh : mapMeshList) {
-				mapMesh.exportMeshToObj(file.toString(), mapMesh.getName());
+			for (ObjectMesh objectMesh : objectMeshList) {
+				objectMesh.exportMeshToObj(file.toString(), objectMesh.getName());
 			}
 			
 			ClipMesh clipMesh = new ClipMesh();
 			clipMesh.exportMeshToObj(file.toString(), clipMesh.getName());
 			Config.Debug("Exportation terminée dans " + file.toString());
-		}
-	}
-
-	/**
-	 * Method launch when user check or uncheck the vertices checkbox - change
-	 * draw mode and color
-	 * 
-	 * @param envent
-	 * @throws IOException
-	 */
-	@FXML
-	public void OnCheckVerticesBox(ActionEvent envent) throws IOException {
-		if (checkDiplayingVertices.isSelected()) {
-			viewer.changeDrawModeViewer(DrawMode.LINE, new PhongMaterial(Color.RED));
-		} else {
-			viewer.changeDrawModeViewer(DrawMode.FILL, new PhongMaterial(Color.WHITESMOKE));
 		}
 	}
 
@@ -412,6 +423,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	public void close(ActionEvent event) {
 		Platform.exit();
+		System.exit(0);
 	}
 
 	/**
@@ -439,7 +451,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		openFileChooserButton.setText(ressources.getString("openFileChooserButton"));
 		saveButton.setText(ressources.getString("saveButton"));
 		onTreatmentButton.setText(ressources.getString("onTreatmentButton"));
-		checkDiplayingVertices.setText(ressources.getString("checkDiplayingVertices"));
 	}
 
 	/**

@@ -111,16 +111,6 @@ public class Viewer3D {
 
 	}
 
-	/**
-	 * Methof for change the draw mode in the viewer
-	 * 
-	 * @param drawMode
-	 * @param color
-	 */
-	public void changeDrawModeViewer(DrawMode drawMode, PhongMaterial color) {
-		currentMeshView.setDrawMode(drawMode);
-		currentMeshView.setMaterial(color);
-	}
 
 	/**
 	 * Method for configure the 3d viewer and define view controller
