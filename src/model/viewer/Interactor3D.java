@@ -8,6 +8,7 @@ import javafx.scene.transform.Translate;
 /**
  * Class using for control the 3D renderer scene with mouse or keyboard
  * Class using by Viewer3D object
+ * 
  * @author picharles
  *
  */

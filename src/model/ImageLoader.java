@@ -1,4 +1,4 @@
-package model.treatment;
+package model;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -43,6 +43,7 @@ public class ImageLoader {
 		try {
 			this.ratioWidth = this.width / this.height;
 			this.ratioHeight = this.height / this.width;
+			System.out.println("ratioHeight : "+ratioHeight+" ratioWidth : "+ ratioWidth);
 		} catch (Exception e) {
 			System.out.println("division by zero exception -> " + e.getMessage());
 		}

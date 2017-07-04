@@ -32,7 +32,7 @@ public class MainApplicationWindow extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) throws IOException {
-
+		
 		ResourceBundle bundle = ResourceBundle.getBundle("properties.lang_" + Config.DEFAULT_LANG);
 		Image icon = new Image(getClass().getResourceAsStream("/image/icone.png"));
 
@@ -54,8 +54,6 @@ public class MainApplicationWindow extends Application {
 				System.exit(0);
 			}
 		});
-
 		primaryStage.show();
 	}
-
 }

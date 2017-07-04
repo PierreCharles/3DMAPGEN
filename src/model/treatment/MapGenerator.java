@@ -3,6 +3,7 @@ package model.treatment;
 import java.awt.image.BufferedImage;
 
 import config.Config;
+import model.ImageLoader;
 import model.Parameter;
 import model.mesh.Point3D;
 import model.mesh.MapMesh;
@@ -88,7 +89,7 @@ public class MapGenerator {
 			}
 		}
 
-		Config.Debug(imageList.size() + " partelle(s) de " + heightOfParcel + " par : " + widthOfParcel);
+		Config.Debug(imageList.size() + " parcelle(s) de " + heightOfParcel + " par : " + widthOfParcel);
 
 		return imageList;
 	}
@@ -108,8 +109,8 @@ public class MapGenerator {
 	 * @return the attempt height for the vertices of the mesh associated at the
 	 *         attempt pixel
 	 */
-	public double getPixelHeight(BufferedImage bufferedImage, double line, double column, double resolution) {
-		int pixel = bufferedImage.getRGB((int) Math.floor(line), (int) Math.floor(column));
+	public double getPixelHeight(BufferedImage bufferedImage, int line, int column, double resolution) {
+		int pixel = bufferedImage.getRGB(line, column);
 		int red = (pixel >> 16) & 0xff;
 		int green = (pixel >> 8) & 0xff;
 		int blue = (pixel) & 0xff;
@@ -122,7 +123,7 @@ public class MapGenerator {
 	 * 
 	 * @return Boolean : true if is a border, else return false
 	 */
-	private boolean pointIsBorder(double line, double column, double height, double width) {
+	private boolean pointIsBorder(int line, int column, int height, int width) {
 		// Top || Left || Bottom || Right
 		return (line == 0) || (column == 0) || (line == height - 1) || (column == width - 1);
 	}
@@ -136,31 +137,33 @@ public class MapGenerator {
 	 * @return a mesh
 	 */
 	public MapMesh parcelToMesh(BufferedImage bufferedImage) {
-	
+		
 		int height = bufferedImage.getHeight();
 		int width = bufferedImage.getWidth();
 		double resolution = parameters.getMeshHeight() / 256;
-		double ratioX = parameters.getMaxWidthOfPrint() / (widthOfParcel-1);
-		double ratioZ = parameters.getMaxHeightOfPrint() / (heightOfParcel-1);
-		double[] basePointTableX = generateBasePointTable(parameters.getMaxWidthOfPrint());
-		double[] basePointTableY = generateBasePointTable(parameters.getMaxHeightOfPrint());
-
+		double ratioX = parameters.getMaxHeightOfPrint() / (heightOfParcel-1);
+		double ratioZ = parameters.getMaxWidthOfPrint() / (widthOfParcel-1);
+		double realHeight = (height-1)*ratioX;
+		double realWidth = (height-1)*ratioX;
+		double[] basePointTableX = generateBasePointTable(realHeight);
+		double[] basePointTableZ = generateBasePointTable(realWidth);
+		
 		MapMesh mapMesh = new MapMesh();
-		Config.Debug("Création : " + mapMesh.getName() + " -> H: " + (height-1) * ratioX + " W: " + (width-1) * ratioX);
+		Config.Debug("Création : " + mapMesh.getName() + " -> H: " + realHeight + " W: " + (height-1)*ratioX);
 
 		ArrayList<WB_Polygon> wbPolygonList = new ArrayList<WB_Polygon>();
 
 		// Create a surface and base coordinates points : line;column
-		createSurfacePoints(mapMesh, height, width, ratioX, ratioZ, bufferedImage, resolution, basePointTableX, basePointTableY);
+		createSurfacePoints(mapMesh, height, width, ratioX, ratioZ, bufferedImage, resolution, basePointTableX, basePointTableZ);
 
 		// Creation of the surface faces
 		createSurfaceFaces(height, width, wbPolygonList, mapMesh);
 		
 		// Creation of border map faces
-		borderMapFacesCreator(mapMesh, wbPolygonList, basePointTableX, basePointTableY, height, width);
+		borderMapFacesCreator(mapMesh, wbPolygonList, basePointTableX, basePointTableZ, height, width);
 
 		//Creation of under map faces (Inner border and under plane surface)
-		underMapFacesCreator(mapMesh, wbPolygonList, basePointTableX, basePointTableY);
+		underMapFacesCreator(mapMesh, wbPolygonList, basePointTableX, basePointTableZ);
 
 		HE_Mesh he_mesh = new HE_Mesh(new HEC_FromPolygons(wbPolygonList));
 		mapMesh.setHe_mesh(he_mesh);
@@ -183,13 +186,18 @@ public class MapGenerator {
 	 */
 	public void createSurfacePoints(MapMesh mapMesh,int height,int width, double ratioX, double ratioZ, 
 			BufferedImage bufferedImage, double resolution, double[] basePointTableX, double[] basePointTableY){
+
 		
 		Config.Debug("-- Indexation des points en surface de la map");
+		System.out.println("height : "+height + " width : "+width);
 		for (int line = 0; line < height; line++) {
+			
 			for (int column = 0; column < width; column++) {
-
+				
 				double linePoint = line * ratioX;
-				double columnPoint = column * ratioX;
+				double columnPoint = column * ratioZ;
+				
+				//System.out.println("line : "+line + " linePoint : "+ linePoint + "column : "+column + " columnPoint : "+ columnPoint);
 				
 				mapMesh.addSurfacePoint(line, column, new Point3D(linePoint,
 						getPixelHeight(bufferedImage, line, column, resolution), columnPoint));

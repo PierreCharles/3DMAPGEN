@@ -38,6 +38,14 @@ public class Config {
 	public static final int INSIDE_HEIGHT_CLIP = 20; // Total height of the clip
 	public static final int TOTAL_CLIP_HEIGHT = 40; // Total height of the clip
 	public static final int OUTSIDE_WIDTH_CLIP = 20; // With of the outside clip
+	
+	// Minimum marge between clip and middle square
+	public static final int INNER_BASE_MINIMUM_MAP_MARGE = 10; 
+	
+	// Minimum base map size
+	public static final int MINIMUM_BASE_MAP_SIZE = 
+			TOTAL_CLIP_HEIGHT + MIDDLE_SQUARE_MAP_SIZE + INNER_BASE_MINIMUM_MAP_MARGE;
+
 
 	/* ------------------------- Debug methods --------------------------- */
 

@@ -17,7 +17,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 
 /**
@@ -89,28 +88,15 @@ public class Viewer3D {
 		currentMeshView = objImporter.getImport()[0];
 		world.getChildren().addAll(currentMeshView);
 	}
-
+	
 	/**
-	 * Method to display the 3D object into the viewer 3D
-	 * 
-	 * @param parcelsList
+	 * Method to reset and clear viewer
 	 */
-	public void setNewMesh(MeshView mesh) {
-		/*
-		 * world.getChildren().remove(currentMeshView); mesh.generate3DObject();
-		 * currentMeshView = new MeshView(mesh.getTriangleMapMesh());
-		 * currentMeshView.setDrawMode(DrawMode.FILL);
-		 * currentMeshView.setTranslateX(-mesh.getMapMeshHeight() / 2);
-		 * currentMeshView.setTranslateZ(-mesh.getMapMeshWidth() / 2);
-		 * world.getChildren().addAll(currentMeshView);
-		 */
-		world.getChildren().remove(currentMeshView);
-		currentMeshView = mesh;
-		currentMeshView.setDrawMode(DrawMode.FILL);
-		world.getChildren().addAll(currentMeshView);
-
+	public void resetAndClearViewer() {
+		if(currentMeshView!=null){
+			world.getChildren().remove(currentMeshView);
+		}
 	}
-
 
 	/**
 	 * Method for configure the 3d viewer and define view controller

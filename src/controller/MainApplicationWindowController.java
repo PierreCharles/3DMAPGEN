@@ -9,8 +9,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -38,7 +36,7 @@ import model.Parameter;
 import model.mesh.ClipMesh;
 import model.mesh.MapMesh;
 import model.mesh.ObjectMesh;
-import model.treatment.ImageLoader;
+import model.ImageLoader;
 import model.treatment.MapGenerator;
 import model.viewer.Viewer3D;
 import config.Config;
@@ -58,7 +56,8 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private Button saveButton, onTreatmentButton, openFileChooserButton, adjustWidthButton, adjustHeightButton,
 			resetButton;
 	@FXML
-	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close, importOBJFile;
+	private MenuItem themePreference1, themePreference2, englishLanguagePreference, frenchLanguagePreference, close,
+			importOBJFile;
 	@FXML
 	private Menu file, edit, language;
 	@FXML
@@ -82,8 +81,9 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private File selectedFile;
 	private double height, width;
 	private ImageLoader imageLoader;
-	private StringProperty heightProperty = new SimpleStringProperty();
 	private Viewer3D viewer;
+
+	private int mb = 1024 * 1024;
 
 	/**
 	 * Initialize method
@@ -94,37 +94,40 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		initializeFirstLaunch();
 		initializePerformTools();
 	}
-	
-	/**
-	 * Method allow to get and update memory usage heap space information for displaying
-	 * Use a Thread for displaying informations each seconds
-	 */
-	public void initializePerformTools(){
 
-        new Thread() {
-            // runnable for that thread
-            public void run() {
-                while(true){
-                    try {
-                		// The current size of heap in bytes
-                		long heapSize = Runtime.getRuntime().totalMemory(); 
-                		// The maximum size of heap in bytes. The heap cannot grow beyond this size.// Any attempt will result in an OutOfMemoryException.
-                		long heapMaxSize = Runtime.getRuntime().maxMemory();
-                		 // The amount of free memory within the heap in bytes. This size will increase // after garbage collection and decrease as new objects are created.
-                		long heapFreeSize = Runtime.getRuntime().freeMemory(); 
-                		String test = new String(heapSize+" / "+heapMaxSize + " / "+ heapFreeSize);
-  
-                        Platform.runLater(() -> {
-                        	memoryUsageLabel.setText(test);
-                        });
-                		
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                    	Config.Debug(ex.getMessage());
-                    }
-                }
-            }
-        }.start();
+	/**
+	 * Prints JVM memory utilization statistics Method allow to get and update
+	 * memory usage heap space information for displaying Use a Thread for
+	 * displaying informations each seconds and use a Runnable for JavaFX text
+	 * update
+	 */
+	public void initializePerformTools() {
+
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						Runtime runtime = Runtime.getRuntime(); // Getting the runtime reference from system
+						long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / mb; // Print used memory
+						long totalMemory = runtime.totalMemory() / mb; // Print total available memory
+						long maxAvailableMemory = runtime.maxMemory() / mb; // Print Maximum available memory
+						String memoryInfo = new String(
+								usedMemory + "Mb / " + totalMemory + " Mb ( Max " + maxAvailableMemory + " Mb)");
+
+						Platform.runLater(() -> {
+							memoryUsageLabel.setText(memoryInfo);
+						});
+						System.out.println(memoryInfo);
+						Thread.sleep(8000);
+						
+					} catch (InterruptedException ex) {
+						Config.Debug(ex.getMessage());
+					}
+				}
+			}
+		}).start();
 	}
 
 	/**
@@ -181,8 +184,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	private void changeLanguageEnglish(ActionEvent event) {
 		loadLang("en");
 	}
-	
-	
+
 	/**
 	 * Method execute when user click on obj import menu
 	 * 
@@ -192,17 +194,14 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	@FXML
 	public void ImportOBJFile(ActionEvent event) throws IOException {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.getExtensionFilters().addAll(
-				new FileChooser.ExtensionFilter("OBJ Files", "*.obj"),
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("OBJ Files", "*.obj"),
 				new FileChooser.ExtensionFilter("All Files", "*.*"));
 		selectedFile = fileChooser.showOpenDialog(this);
 		if (selectedFile != null) {
 			System.out.println(selectedFile.toString());
 			viewer.build3DObjectViewer(selectedFile);
-			listView3D.setDisable(false);
 		}
 	}
-	
 
 	/**
 	 * Method execute when user click on open button
@@ -211,7 +210,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	 * @throws IOException
 	 */
 	@FXML
-	public void openFileChooser(ActionEvent event) throws IOException {	
+	public void openFileChooser(ActionEvent event) throws IOException {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().addAll(
 				new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"),
@@ -226,7 +225,7 @@ public class MainApplicationWindowController extends Stage implements Initializa
 	}
 
 	/**
-	 * Method launch when user press Treatment button
+	 * Method launched when user press Treatment button
 	 * 
 	 * @param envent
 	 * @throws IOException
@@ -239,19 +238,39 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			showErrorPopUp(ressources.getString("error"), ressources.getString("errorParameterLabel"),
 					ressources.getString("errorParameterLabelMessage"));
 		} else {
-			height = Double.parseDouble(heightField.getText());
-			width = Double.parseDouble(widthField.getText());
-			double heightMesh = Double.parseDouble(heightMeshField.getText());
-			double maxWidthPrint = Double.parseDouble(maxWidthPrintField.getText());
-			double maxHeightPrint = Double.parseDouble(maxHeightPrintField.getText());
-			if (height / width != imageLoader.getRatioHeight()) {
-				showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
-						ressources.getString("errorAdjustLabelMessage"));
-			} else {
-				executeTreatement(new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint));
-				Config.Debug("Fin de la génération");
-				
-			}
+			prepareAndExecuteTreatment();
+		}
+	}
+	
+	/**
+	 * Sub execute treatment methode :
+	 * This methode prepare and verify parameters 
+	 * and call error or execute treatment methodes
+	 */
+	private void prepareAndExecuteTreatment(){
+		
+		height = Double.parseDouble(heightField.getText());
+		width = Double.parseDouble(widthField.getText());
+		
+		double heightMesh = Double.parseDouble(heightMeshField.getText());
+		double maxWidthPrint = Double.parseDouble(maxWidthPrintField.getText());
+		double maxHeightPrint = Double.parseDouble(maxHeightPrintField.getText());
+		
+		boolean ratioCondition = height / width != imageLoader.getRatioHeight();
+		boolean baseMapSizeCondition = height < (Config.MINIMUM_BASE_MAP_SIZE/10) 
+				&& width < (Config.MINIMUM_BASE_MAP_SIZE/10);
+			
+		if (ratioCondition) {
+			showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
+					ressources.getString("errorAdjustLabelMessage"));
+		} 
+		else if(baseMapSizeCondition){
+			showErrorPopUp(ressources.getString("error"), ressources.getString("errorAdjustLabel"),
+					ressources.getString("errorMinimumBaseMapSizeMessage")+Config.MINIMUM_BASE_MAP_SIZE+" mm.");
+		}
+		else {
+			executeTreatement(new Parameter(height, width, heightMesh, maxHeightPrint, maxWidthPrint));
+			Config.Debug("Fin de la génération");
 		}
 	}
 
@@ -264,10 +283,10 @@ public class MainApplicationWindowController extends Stage implements Initializa
 
 		MapGenerator mapGenerator = new MapGenerator(parameters, this.imageLoader);
 		objectMeshList = mapGenerator.executeTreatment();
+		objectMeshList.add(new ClipMesh());
 		gridPaneExport.setDisable(false);
-
 		listView3D.setDisable(false);
-		
+
 		listView3DItems.clear();
 		for (ObjectMesh objectMesh : objectMeshList) {
 			listView3DItems.add(objectMesh);
@@ -276,8 +295,9 @@ public class MainApplicationWindowController extends Stage implements Initializa
 
 		listView3D.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ObjectMesh>() {
 			@Override
-			public void changed(ObservableValue<? extends ObjectMesh> observable, ObjectMesh oldValue, ObjectMesh newValue) {
-				//viewer.setNewMesh(mapMeshList.get(newValue.getMapMeshID()- 1));
+			public void changed(ObservableValue<? extends ObjectMesh> observable, ObjectMesh oldValue,
+					ObjectMesh newValue) {
+				// Not implemented yet 
 			}
 		});
 
@@ -307,9 +327,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 			for (ObjectMesh objectMesh : objectMeshList) {
 				objectMesh.exportMeshToObj(file.toString(), objectMesh.getName());
 			}
-			
-			ClipMesh clipMesh = new ClipMesh();
-			clipMesh.exportMeshToObj(file.toString(), clipMesh.getName());
 			Config.Debug("Exportation terminée dans " + file.toString());
 		}
 	}
@@ -332,23 +349,6 @@ public class MainApplicationWindowController extends Stage implements Initializa
 		borderPane.getStylesheets().add(getClass().getResource("/stylesheet/theme2.css").toExternalForm());
 	}
 
-	/**
-	 * Setter of the Height Property the heightProperty to set
-	 * 
-	 * @param heightProperty
-	 */
-	public void setHeightProperty(StringProperty heightProperty) {
-		this.heightProperty = heightProperty;
-	}
-
-	/**
-	 * Getter of the height property
-	 * 
-	 * @return the height property
-	 */
-	public StringProperty getHeightProperty() {
-		return heightProperty;
-	}
 
 	/**
 	 * Method to adjust the height entered by users
