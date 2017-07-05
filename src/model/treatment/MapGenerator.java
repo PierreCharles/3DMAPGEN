@@ -73,7 +73,7 @@ public class MapGenerator {
 	 * @param maxHeightOfPrint
 	 * @return a list of cut images
 	 */
-	public List<BufferedImage> cutImage() {
+	private List<BufferedImage> cutImage() {
 
 		List<BufferedImage> imageList = new ArrayList<>();
 		BufferedImage imageBase = imageLoader.getBufferedImage();
@@ -109,7 +109,7 @@ public class MapGenerator {
 	 * @return the attempt height for the vertices of the mesh associated at the
 	 *         attempt pixel
 	 */
-	public double getPixelHeight(BufferedImage bufferedImage, int line, int column, double resolution) {
+	private double getPixelHeight(BufferedImage bufferedImage, int line, int column, double resolution) {
 		int pixel = bufferedImage.getRGB(line, column);
 		int red = (pixel >> 16) & 0xff;
 		int green = (pixel >> 8) & 0xff;
@@ -136,7 +136,7 @@ public class MapGenerator {
 	 * @param parameter
 	 * @return a mesh
 	 */
-	public MapMesh parcelToMesh(BufferedImage bufferedImage) {
+	private MapMesh parcelToMesh(BufferedImage bufferedImage) {
 		
 		int height = bufferedImage.getHeight();
 		int width = bufferedImage.getWidth();
@@ -184,7 +184,7 @@ public class MapGenerator {
 	 * @param basePointTableX
 	 * @param basePointTableY
 	 */
-	public void createSurfacePoints(MapMesh mapMesh,int height,int width, double ratioX, double ratioZ, 
+	private void createSurfacePoints(MapMesh mapMesh,int height,int width, double ratioX, double ratioZ, 
 			BufferedImage bufferedImage, double resolution, double[] basePointTableX, double[] basePointTableY){
 
 		
@@ -227,7 +227,7 @@ public class MapGenerator {
 	 * @param wbPolygonList
 	 * @param mapMesh
 	 */
-	public void createSurfaceFaces(int height, int width,ArrayList<WB_Polygon> wbPolygonList, MapMesh mapMesh){
+	private void createSurfaceFaces(int height, int width,ArrayList<WB_Polygon> wbPolygonList, MapMesh mapMesh){
 		
 		Config.Debug("-- Creation des faces en surface de la map");
 
@@ -255,7 +255,7 @@ public class MapGenerator {
 	 * @param height
 	 * @param width
 	 */
-	public void borderMapFacesCreator(MapMesh mapMesh, ArrayList<WB_Polygon> wbPolygonList, double[] basePointTableX, double[] basePointTableY, int height, int width){
+	private void borderMapFacesCreator(MapMesh mapMesh, ArrayList<WB_Polygon> wbPolygonList, double[] basePointTableX, double[] basePointTableY, int height, int width){
 		
 		Config.Debug("-- Creation des faces sur le coté de la map");
 		
@@ -402,7 +402,7 @@ public class MapGenerator {
 	 * @param basePointTableX
 	 * @param basePointTableY
 	 */
-	public void underMapFacesCreator(MapMesh mapMesh, ArrayList<WB_Polygon> wbPolygonList, double[] basePointTableX, double[] basePointTableY){
+	private void underMapFacesCreator(MapMesh mapMesh, ArrayList<WB_Polygon> wbPolygonList, double[] basePointTableX, double[] basePointTableY){
 		
 		Config.Debug("-- Creation des faces sous la map");
 		

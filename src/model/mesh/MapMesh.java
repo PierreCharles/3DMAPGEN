@@ -149,7 +149,7 @@ public class MapMesh extends ObjectMesh {
 	 * @param column
 	 * @return Point 3D (or null)
 	 */
-	public Point3D getPoint(TreeMap<Double, TreeMap<Double, Point3D>> treeMap, double line, double column) {
+	private Point3D getPoint(TreeMap<Double, TreeMap<Double, Point3D>> treeMap, double line, double column) {
 		if (treeMap.containsKey(line)) {
 			TreeMap<Double, Point3D> treeMapPoint = (TreeMap<Double, Point3D>) treeMap.get(line);
 			if (treeMapPoint.containsKey(column)) {
