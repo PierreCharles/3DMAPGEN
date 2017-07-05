@@ -5,8 +5,8 @@ import java.util.TreeMap;
 /**
  * Class Mesh A meshing is a set of geometric forms arranged so as to model
  * objects.It is constituted by summits, connected some to the others by faces.
- * When all Faces are triangles, we speak of triangular meshing Trimesh, or of
- * triangulation according to them Domains.
+ * The faces are polygons faces constitued of many points 3D
+ * This class extends of ObjectMesh
  * 
  * @author picharles
  */

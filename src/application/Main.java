@@ -1,5 +1,11 @@
 package application;
 
+/**
+ * Entry point class of this application
+ * 
+ * @author picharles
+ *
+ */
 public class Main {
 	
 	/**
@@ -11,5 +17,4 @@ public class Main {
 		MainApplicationWindow.launch(MainApplicationWindow.class, args);
 	}
 	
-
 }

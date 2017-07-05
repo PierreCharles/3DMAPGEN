@@ -3,7 +3,6 @@ package model;
 /**
  * She allows the user to choose her own parameters as the treatment of the
  * image according to the size of her printer.
- *
  */
 public class Parameter {
 

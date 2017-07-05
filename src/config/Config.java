@@ -26,10 +26,12 @@ public class Config {
 
 	// Elevation of the surface map
 	public static final int MAP_ELEVATION = 5;
-	// Tickness of the base map
+	// Elevation (tickness) of the base map
 	public static final int BASE_MAP_TICKNESS = 2;
-	// Tickness base map raised
+	
+	// Elevation (Tickness) of the base map raised
 	public static final int BASE_MAP_RAISED_TICKNESS = 4;
+	// Elevation (Tickness) (for the middle side face)
 	public static final int BASE_MAP_RAISED_SIDE_TICKNESS = 5;
 	// Size of ID square under the map (square for displaying the letter)
 	public static final int MIDDLE_SQUARE_MAP_SIZE = 40;

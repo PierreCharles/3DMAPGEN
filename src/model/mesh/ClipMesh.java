@@ -1,29 +1,49 @@
 package model.mesh;
 
 import config.Config;
-import wblut.geom.WB_Quad;
-import wblut.hemesh.HEC_FromQuads;
+import wblut.geom.WB_Polygon;
+import wblut.hemesh.HEC_FromPolygons;
 import wblut.hemesh.HE_Mesh;
 
 /**
- * Class to generate a clip
+ * Class representing a mesh object of type clip
+ * This class extends of ObjectMesh
  * 
- * @return Clip structure 
- * 3___4           11___12
- * |   |5__________7|   |
- * |                    |
- * |    6__________8    |
- * |___|            |___|
- * 1   2           9    10
+ * @author picharles
+ *
  */
 public class ClipMesh extends ObjectMesh{
 	
 
 	private static int Clip_Mesh_Counter = 1;
 	
+	/**
+	 * Constructor of a Clip Mesh
+	 * Create points and then create faces
+	 */
 	public ClipMesh(){
 		super("ClipMesh", Clip_Mesh_Counter++);
-
+		Point3D[] clipPoints = clipPointsCreator();
+		WB_Polygon[] wb_polygons = generatePolygonFaces(clipPoints);
+		HE_Mesh he_mesh = new HE_Mesh(new HEC_FromPolygons(wb_polygons));
+		this.setHe_mesh(he_mesh);	
+	}
+	
+	
+	/**
+	 * Method used for create clip points
+	 * 
+	 * Class to generate a clip
+	 * 
+	 * @return a table of Point3D
+	 *  ___              ___
+	 * |   | __________ |   |
+	 * |                    |
+	 * |     __________     |
+	 * |___|            |___|
+	 */
+	private Point3D[] clipPointsCreator(){
+		
 		Point3D[] clipPoints = new Point3D[24];
 		
 		clipPoints[0] = new Point3D(0,0,0);
@@ -56,40 +76,50 @@ public class ClipMesh extends ObjectMesh{
 		clipPoints[22] = new Point3D(Config.TOTAL_CLIP_HEIGHT, Config.OUTSIDE_WIDTH_CLIP, Config.BASE_MAP_RAISED_TICKNESS);
 		clipPoints[23] = new Point3D(Config.TOTAL_CLIP_HEIGHT, 0,Config.BASE_MAP_RAISED_TICKNESS);
 		
-
-		WB_Quad wb_quads[] = new WB_Quad[18];
+		return clipPoints;
+	}
+	
+	/**
+	 * Metode used for create clip faces with an array of 3DPoints
+	 * 
+	 * @param clipPoints
+	 * @return an array of polygons faces
+	 */
+	private WB_Polygon[] generatePolygonFaces(Point3D[] clipPoints){
+		
+		WB_Polygon[] wb_polygons = new WB_Polygon[18];
 
 		// Surface
-		wb_quads[0] = new WB_Quad(clipPoints[0], clipPoints[1], clipPoints[2], clipPoints[3]);
-		wb_quads[1] = new WB_Quad(clipPoints[4], clipPoints[5], clipPoints[6], clipPoints[7]);
-		wb_quads[2] = new WB_Quad(clipPoints[8], clipPoints[9], clipPoints[10], clipPoints[11]);
+		wb_polygons[0] = new WB_Polygon(clipPoints[0], clipPoints[1], clipPoints[2], clipPoints[5],clipPoints[4],clipPoints[3]);
+		wb_polygons[1] = new WB_Polygon(clipPoints[4], clipPoints[5], clipPoints[6], clipPoints[7]);
+		wb_polygons[2] = new WB_Polygon(clipPoints[8], clipPoints[7], clipPoints[6], clipPoints[9], clipPoints[10], clipPoints[11]);
 		
 		// Outside
-		wb_quads[3] = new WB_Quad(clipPoints[15], clipPoints[14], clipPoints[13], clipPoints[12]);
-		wb_quads[4] = new WB_Quad(clipPoints[19], clipPoints[18], clipPoints[17], clipPoints[16]);
-		wb_quads[5] = new WB_Quad(clipPoints[23], clipPoints[22], clipPoints[21], clipPoints[20]);
+		wb_polygons[3] = new WB_Polygon(clipPoints[15], clipPoints[16], clipPoints[17], clipPoints[14], clipPoints[13],  clipPoints[12]);
+		wb_polygons[4] = new WB_Polygon(clipPoints[19], clipPoints[18], clipPoints[17], clipPoints[16]);
+		wb_polygons[5] = new WB_Polygon(clipPoints[23], clipPoints[22], clipPoints[21], clipPoints[18], clipPoints[19], clipPoints[20]);
 		
 		// Top
-		wb_quads[6] = new WB_Quad(clipPoints[12], clipPoints[13], clipPoints[1], clipPoints[0]);
+		wb_polygons[6] = new WB_Polygon(clipPoints[12], clipPoints[13], clipPoints[1], clipPoints[0]);
 		
 		// Bottom
-		wb_quads[7] = new WB_Quad(clipPoints[22], clipPoints[23], clipPoints[11], clipPoints[10]);
+		wb_polygons[7] = new WB_Polygon(clipPoints[22], clipPoints[23], clipPoints[11], clipPoints[10]);
 		
 		// Left sides
-		wb_quads[8] = new WB_Quad(clipPoints[0], clipPoints[3], clipPoints[15], clipPoints[12]);
-		wb_quads[9] = new WB_Quad(clipPoints[4], clipPoints[7], clipPoints[19], clipPoints[16]);
-		wb_quads[10] = new WB_Quad(clipPoints[8], clipPoints[11], clipPoints[23], clipPoints[20]);
-		wb_quads[11] = new WB_Quad(clipPoints[3], clipPoints[4], clipPoints[16], clipPoints[15]);
-		wb_quads[12] = new WB_Quad(clipPoints[7], clipPoints[8], clipPoints[20], clipPoints[19]);
+		wb_polygons[8] = new WB_Polygon(clipPoints[0], clipPoints[3], clipPoints[15], clipPoints[12]);
+		wb_polygons[9] = new WB_Polygon(clipPoints[4], clipPoints[7], clipPoints[19], clipPoints[16]);
+		wb_polygons[10] = new WB_Polygon(clipPoints[8], clipPoints[11], clipPoints[23], clipPoints[20]);
+		wb_polygons[11] = new WB_Polygon(clipPoints[3], clipPoints[4], clipPoints[16], clipPoints[15]);
+		wb_polygons[12] = new WB_Polygon(clipPoints[7], clipPoints[8], clipPoints[20], clipPoints[19]);
 
 		// Right side
-		wb_quads[13] = new WB_Quad(clipPoints[13], clipPoints[14], clipPoints[2], clipPoints[1]);
-		wb_quads[14] = new WB_Quad(clipPoints[17], clipPoints[18], clipPoints[6], clipPoints[5]);
-		wb_quads[15] = new WB_Quad(clipPoints[21], clipPoints[22], clipPoints[10], clipPoints[9]);
-		wb_quads[16] = new WB_Quad(clipPoints[14], clipPoints[17], clipPoints[5], clipPoints[2]);
-		wb_quads[17] = new WB_Quad(clipPoints[9], clipPoints[6], clipPoints[18], clipPoints[21]);
-	
-		this.setHe_mesh(new HE_Mesh(new HEC_FromQuads(wb_quads)));	
+		wb_polygons[13] = new WB_Polygon(clipPoints[13], clipPoints[14], clipPoints[2], clipPoints[1]);
+		wb_polygons[14] = new WB_Polygon(clipPoints[17], clipPoints[18], clipPoints[6], clipPoints[5]);
+		wb_polygons[15] = new WB_Polygon(clipPoints[21], clipPoints[22], clipPoints[10], clipPoints[9]);
+		wb_polygons[16] = new WB_Polygon(clipPoints[14], clipPoints[17], clipPoints[5], clipPoints[2]);
+		wb_polygons[17] = new WB_Polygon(clipPoints[9], clipPoints[6], clipPoints[18], clipPoints[21]);
+		
+		return wb_polygons;
 	}
-
+	
 }
